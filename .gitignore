@@ -1,0 +1,19 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+yarn-error.log
+nginx/logs/*
+login-dev.ts
+.devcontainer/
+.history/
+*.local
+.eslintcache
+cli/
+# package-lock.json
+lib/packages/index.ts
+.vscode
+*.zip
+coverage/
+.idea
+.husky

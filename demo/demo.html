@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" type="text/css" href="../dist/index.css"></link>
+</head>
+<!-- <script src="../dist/apidesign.umd.js"></script> -->
+
+<body>
+  <div class="my-api">
+    <span slot="name">asdfasd</span>
+  </div>
+</body>
+<script type="module">
+  debugger;
+  import OpenApiDesign from '../dist/index.mjs';
+  const myapi = new OpenApiDesign('.my-api');
+</script>
+</html>
