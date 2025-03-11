@@ -10,6 +10,7 @@
     "autoprefixer": "^10.4.21",
     "csstype": "^3.1.3",
     "estree-walker": "^2.0.2",
+    "lit": "^3.2.1",
     "magic-string": "^0.30.17",
     "nanoid": "^3.3.8",
     "picocolors": "^1.1.1",
@@ -25,7 +26,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "vite build",
+    "build": "node ./script/build.js",
     "dev": "vite dev"
   },
   "author": "",

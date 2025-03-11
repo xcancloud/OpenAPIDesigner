@@ -37,12 +37,12 @@ export default defineConfig({
     stringify: false
   },
   build: {
-    outDir: 'dist',
+    outDir: 'coredist',
     target: 'modules',
     minify: false,
     manifest: false,
     assetsDir: 'assets',
-    // ssrEmitAssets: true,
+    copyPublicDir: false,
     cssCodeSplit: true,
     assetsInlineLimit: 4096,
     chunkSizeWarningLimit: 500,
@@ -51,9 +51,9 @@ export default defineConfig({
       external: ['canvg']
     },
     lib: {
-      name: 'apiDesign',
+      name: 'core',
       entry: {
-        index: 'index.ts'
+        index: './core/index.ts'
       },
       formats: ['es', 'umd']
     }

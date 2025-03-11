@@ -1,8 +1,7 @@
 
 import { defineCustomElement } from 'vue';
 import MyComponent from './core/index';
-import {resolve} from 'path';
-
+import styleText from './assets/style';
 
 function resolveSelector(selector: string | HTMLElement | null | undefined) {
   return typeof selector === 'string'
@@ -10,34 +9,30 @@ function resolveSelector(selector: string | HTMLElement | null | undefined) {
     : selector;
 }
 
-
 class OpenApiDesign {
   container: HTMLElement|null| undefined;
   constructor (container: HTMLElement | string, ) {
     this.container = resolveSelector(container);
-    
-
     if (this.container) {
       this.init()
     }
   }
 
   async init () {
-    const styles = await this.fetchStyle();
     const MyCustomElement = defineCustomElement(MyComponent, {
-      styles: [styles],
       nonce: 'my-custome'
     });
-    customElements.define('my-component', MyCustomElement);
+    customElements.define('open-api-design', MyCustomElement);
     const innerSlot = this.container.innerHTML;
-    this.container.innerHTML = `<my-component>${innerSlot}</my-component>`
-  }
+    this.container.innerHTML = `<open-api-design>${innerSlot}</open-api-design>`;
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(styleText);
 
-
-
-  async fetchStyle () {
-    const styleText = await fetch(resolve('./node_modules/ant-design-vue/dist/antd.css'))
-    return styleText.text();
+    const shadowHost = document.querySelector('open-api-design');
+    const shadowRoot = shadowHost?.shadowRoot;
+    if (shadowRoot) {
+      shadowRoot.adoptedStyleSheets = [...shadowRoot.adoptedStyleSheets, sheet];
+    }
   }
 }
 

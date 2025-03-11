@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Button } from 'ant-design-vue';
 
 interface Props {
   api: string
@@ -10,11 +11,15 @@ const props = withDefaults(defineProps<Props>(), {
 
 </script>
 <template>
-  <div class="flex  p-2 api-root min-w-200 overflow-auto">
-    <div class="w-80">Left</div>
-    <div>Right</div>
+  <div class="flex p-1 api-root min-w-200 overflow-auto h-full">
+    <div class="w-80 bg-gray-100 h-full overflow-y-auto">
+      Left
+      <Button type="primary">primary</Button>
+    </div>
+    <div class=" h-full overflow-y-auto">
+      Right
+    </div>
   </div>
-  
 </template>
 <style>
 .api-root{
