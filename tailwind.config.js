@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./core/*.{html,js,vue}"],
+  content: ["./core/*.{html,js,vue}", "./core/**/*.{html,js,vue}"],
   variants: {
     extend: {
       height: ['hover'],
@@ -27,6 +27,7 @@ module.exports = {
         2.5: '10px',
         2.25: '9px',
         2.75: '11px',
+        3: '12px',
         3.5: '14px',
         3.25: '13px',
         3.75: '15px',

@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import { Button } from 'ant-design-vue';
+import SiderMenu from './siderMenu/index.vue';
 
 interface Props {
   api: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   api: ''
-})
+});
 
 </script>
 <template>
   <div class="flex p-1 api-root min-w-200 overflow-auto h-full">
-    <div class="w-80 bg-gray-100 h-full overflow-y-auto">
-      Left
-      <Button type="primary">primary</Button>
+    <div class="w-80 bg-gray-100 h-full overflow-y-auto p-1">
+      <!-- Left
+      <Button type="primary">primary</Button> -->
+      <SiderMenu />
     </div>
     <div class=" h-full overflow-y-auto">
       Right

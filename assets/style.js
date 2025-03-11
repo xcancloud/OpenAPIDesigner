@@ -1,4 +1,20 @@
 const styleText = `
+[data-v-9cadf15d] .menu-tree .ant-tree-node-content-wrapper{
+  display:flex;
+  align-items:center;
+}
+[data-v-9cadf15d] .menu-tree .ant-tree-node-content-wrapper .ant-tree-iconEle{
+  margin-right:0.5rem;
+  height:1rem;
+  width:1rem;
+}
+[data-v-9cadf15d] .menu-tree.ant-tree.ant-tree-directory .ant-tree-treenode-selected:hover::before,[data-v-9cadf15d] .menu-tree.ant-tree.ant-tree-directory .ant-tree-treenode-selected::before{
+  background:#e5e7eb;
+}
+[data-v-9cadf15d] .menu-tree.ant-tree.ant-tree-directory .ant-tree-treenode .ant-tree-node-content-wrapper.ant-tree-node-selected{
+  color:#1890ff;
+}
+
 .api-root{
   height:100%;
   font-family:Inter, "Apple System", "SF Pro SC", "SF Pro Display", "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", STHeiti, "Microsoft YaHei", "Microsoft JhengHei", "Source Han Sans SC", "Noto Sans CJK SC", "Source Han Sans CN", sans-serif;
@@ -27173,12 +27189,24 @@ video{
   display:none;
 }
 
+.mt-2{
+  margin-top:0.5rem;
+}
+
 .flex{
   display:flex;
 }
 
+.h-4{
+  height:1rem;
+}
+
 .h-full{
   height:100%;
+}
+
+.w-4{
+  width:1rem;
 }
 
 .w-80{
@@ -27202,6 +27230,10 @@ video{
   background-color:rgb(243 244 246 / var(--tw-bg-opacity, 1));
 }
 
+.bg-transparent{
+  background-color:transparent;
+}
+
 .p-1{
   padding:0.25rem;
 }
@@ -27216,11 +27248,20 @@ video{
   filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 
+.mt-2 {
+    margin-top: 0.5rem
+}
 .flex {
     display: flex
 }
+.h-4 {
+    height: 1rem
+}
 .h-full {
     height: 100%
+}
+.w-4 {
+    width: 1rem
 }
 .w-80 {
     width: 320px
@@ -27237,6 +27278,9 @@ video{
 .bg-gray-100 {
     --tw-bg-opacity: 1;
     background-color: rgb(243 244 246 / var(--tw-bg-opacity, 1))
+}
+.bg-transparent {
+    background-color: transparent
 }
 .p-1 {
     padding: 0.25rem

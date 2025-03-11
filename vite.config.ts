@@ -26,11 +26,7 @@ export default defineConfig({
     }),
     nodePolyfills()
   ],
-  resolve: {
-    // alias: {
-    //   '@': resolve(__dirname, 'src')
-    // }
-  },
+  
   clearScreen: false,
   json: {
     namedExports: true,

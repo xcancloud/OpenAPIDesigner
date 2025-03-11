@@ -1,19 +1,22 @@
 import vue from '@vitejs/plugin-vue';
-import {defineConfig} from 'vite';
-// import {resolve} from 'path';
+import { defineConfig } from 'vite';
 import viteCompression from 'vite-plugin-compression';
-import {nodePolyfills} from 'vite-plugin-node-polyfills';
-
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5678,
     strictPort: true,
-    open: false,
+    open: false
   },
   define: {
     'process.env': { NODE_ENV: 'production' }
+  },
+  resolve: {
+    // alias: {
+    //   '@': resolve(__dirname, 'src')
+    // }
   },
   plugins: [
     vue(),
@@ -26,11 +29,6 @@ export default defineConfig({
     }),
     nodePolyfills()
   ],
-  resolve: {
-    // alias: {
-    //   '@': resolve(__dirname, 'src')
-    // }
-  },
   clearScreen: false,
   json: {
     namedExports: true,
