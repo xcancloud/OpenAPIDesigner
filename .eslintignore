@@ -2,3 +2,5 @@ node_modules/
 .vscode/
 public/
 dist/
+core/
+dome/

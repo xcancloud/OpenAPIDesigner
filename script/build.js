@@ -6,11 +6,23 @@ function resolve (p) {
   return path.join(__dirname, p);
 }
 
-function start() {
+async function start() {
   execSync('vite build --config core/vite.config.ts', { stdio: 'inherit' });
-  let cssText = fs.readFileSync(resolve(`../coredist/index.css`), 'utf8');
-  cssText = cssText.replaceAll('\\', '');
-  fs.writeFileSync(resolve(`../assets/style.js`), `const styleText = \`${cssText}\`; export default styleText`, 'utf8');
+  fs.writeFileSync(resolve(`../assets/style.js`), '', 'utf8');
+  const styleList = [];
+  const files = fs.readdirSync(resolve('../coredist'));
+  files.forEach((file) => {
+    console.log(file)
+    if (file.endsWith('.css')) {
+      console.log(true);
+      let cssText = fs.readFileSync(resolve(`../coredist/${file}`), 'utf8');
+      cssText = cssText.replaceAll('\\', '');
+      fs.appendFileSync(resolve(`../assets/style.js`), `const styleText${styleList.length} = \`${cssText}\`; \n`, 'utf8');
+      styleList.push(`styleText${styleList.length}`);
+    }
+  });
+  fs.appendFileSync(resolve(`../assets/style.js`), `const styleList = [${styleList.join(', ')}]; \nexport default styleList;\n`, 'utf8');
+  
   fs.rmSync(resolve('../coredist'),  { recursive: true, force: true });
   execSync('vite build');
 }

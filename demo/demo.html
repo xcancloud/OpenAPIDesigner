@@ -4,17 +4,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <link rel="stylesheet" href="../dist/open-api-designer.css" />
+  <style>
+    .my-api {
+      height: 100vh;
+    }
+
+    #btn {
+      border: 1px solid #dddddd;
+      height: 32px;
+    }
+  </style>
+
 </head>
 <body>
   <div class="my-api">
-    <span slot="name">asdfasd</span>
+    <button slot="docInfoButton" id="btn">getDocInfoData</button>
   </div>
 </body>
 <script type="module">
-  debugger;
   import OpenApiDesign from '../dist/index.mjs';
-  const myapi = new OpenApiDesign('.my-api', {
-
-  });
+  const myapi = new OpenApiDesign('.my-api', {});
+  const btn = document.querySelector('#btn');
+  btn.onclick = () => {
+    console.log(myapi.getDocInfoFormData());
+  }
 </script>
 </html>

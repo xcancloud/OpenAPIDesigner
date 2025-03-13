@@ -1,6 +1,6 @@
 import vue from '@vitejs/plugin-vue';
 import {defineConfig} from 'vite';
-// import {resolve} from 'path';
+import { resolve } from 'path';
 import viteCompression from 'vite-plugin-compression';
 import {nodePolyfills} from 'vite-plugin-node-polyfills';
 
@@ -26,6 +26,11 @@ export default defineConfig({
     }),
     nodePolyfills()
   ],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'core')
+    }
+  },
   
   clearScreen: false,
   json: {
@@ -38,8 +43,7 @@ export default defineConfig({
     minify: false,
     manifest: false,
     assetsDir: 'assets',
-    // ssrEmitAssets: true,
-    cssCodeSplit: true,
+    cssCodeSplit: false,
     assetsInlineLimit: 4096,
     chunkSizeWarningLimit: 500,
     reportCompressedSize: false,
@@ -51,7 +55,8 @@ export default defineConfig({
       entry: {
         index: 'index.ts'
       },
-      formats: ['es', 'umd']
+      formats: ['es', 'umd'],
+
     }
   }
 });

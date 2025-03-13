@@ -1,5 +1,6 @@
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
+import { resolve } from 'path';
 import viteCompression from 'vite-plugin-compression';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
@@ -14,9 +15,9 @@ export default defineConfig({
     'process.env': { NODE_ENV: 'production' }
   },
   resolve: {
-    // alias: {
-    //   '@': resolve(__dirname, 'src')
-    // }
+    alias: {
+      '@': resolve(__dirname, '../core')
+    }
   },
   plugins: [
     vue(),
@@ -41,7 +42,7 @@ export default defineConfig({
     manifest: false,
     assetsDir: 'assets',
     copyPublicDir: false,
-    cssCodeSplit: true,
+    cssCodeSplit: false,
     assetsInlineLimit: 4096,
     chunkSizeWarningLimit: 500,
     reportCompressedSize: false,

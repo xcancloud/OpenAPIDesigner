@@ -1,6 +1,17 @@
+/* stylelint-disable at-rule-no-deprecated */
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { Input, DirectoryTree } from 'ant-design-vue';
+
+interface Props {
+  activeMenuKey: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  activeMenuKey: 'docInfo'
+});
+
+const emits = defineEmits<{(e: 'update:activeMenuKey', value: string): void}>();
 
 const defaultMenu = computed(() => [
   {
@@ -65,14 +76,19 @@ const defaultMenu = computed(() => [
 ]);
 
 const handleSelect = (selectedKeys: string[]) => {
-  console.log(selectedKeys);
+  emits('update:activeMenuKey', selectedKeys[0]);
 };
+
+onMounted(() => {
+  emits('update:activeMenuKey', 'docInfo');
+})
 
 </script>
 <template>
   <div>
     <Input placeholder="搜索" />
     <DirectoryTree
+      :selectedKeys="[props.activeMenuKey]"
       :treeData="defaultMenu"
       blockNode
       showIcon
@@ -110,7 +126,7 @@ const handleSelect = (selectedKeys: string[]) => {
 
 :deep(.menu-tree) .ant-tree-node-content-wrapper .ant-tree-iconEle {
   @apply w-4 h-4 mr-2;
-}
+};
 
 :deep(.menu-tree.ant-tree.ant-tree-directory) .ant-tree-treenode-selected:hover::before,
 :deep(.menu-tree.ant-tree.ant-tree-directory) .ant-tree-treenode-selected::before {
@@ -121,3 +137,4 @@ const handleSelect = (selectedKeys: string[]) => {
   color: #1890ff;
 }
 </style>
+

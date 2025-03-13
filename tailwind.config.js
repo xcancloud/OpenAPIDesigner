@@ -9,13 +9,17 @@ module.exports = {
       margin: ['last'],
       backgroundColor: ['hover'],
       maxHeight: ['focus'],
-      opacity: ['hover']
+      opacity: ['hover'],
     }
   },
   theme: {
     extend: {
       minWidth: {
-        200: '800px'
+        200: '800px',
+      },
+      flex: {
+        '1/2': '1 1 50%',
+        '1/4': '1 1 25%',
       },
       spacing: {
         0.25: '1px',
