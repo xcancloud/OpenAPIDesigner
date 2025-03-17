@@ -20,7 +20,7 @@ const defaultMenu = computed(() => [
   },
   {
     title: '外部文档',
-    key: 'outerDoc'
+    key: 'externalDoc'
   },
   {
     title: '服务器',
@@ -72,6 +72,10 @@ const defaultMenu = computed(() => [
         key: 'extension'
       }
     ]
+  },
+  {
+    title: '扩展',
+    key: 'extensions'
   }
 ]);
 
@@ -100,7 +104,7 @@ onMounted(() => {
           src="../Icons/docInfo.svg"
           class="w-4 h-4" />
         <img
-          v-if="key === 'outerDoc'"
+          v-if="key === 'externalDoc'"
           src="../Icons/outDoc.svg"
           class="w-4 h-4" />
         <img

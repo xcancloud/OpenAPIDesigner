@@ -1,6 +1,7 @@
 
 <script setup lang="ts">
-import { Fragment, defineAsyncComponent, ref } from 'vue';
+import { defineAsyncComponent, ref } from 'vue';
+import { RadioGroup, RadioButton } from 'ant-design-vue';
 import SiderMenu from './siderMenu/index.vue';
 
 export type Props = {
@@ -8,12 +9,17 @@ export type Props = {
 }
 
 const DocInfo = defineAsyncComponent(() => import('./docInfo/index.vue'));
+const ExternalDoc = defineAsyncComponent(() => import('./externalDoc/index.vue'));
+const Server = defineAsyncComponent(() => import('./server/index.vue'));
+const Tag = defineAsyncComponent(() => import('./tag/index.vue'));
+const Extensions = defineAsyncComponent(() => import('./extensions/index.vue'));
 
 const props =withDefaults(defineProps<Props>(), {
   api: ''
 });
 
 const activeMenuKey = ref();
+const viewMode = ref<'form'|'code'|'preview'>('form');
 
 </script>
 
@@ -24,15 +30,34 @@ const activeMenuKey = ref();
         v-model:active-menu-key="activeMenuKey" />
       {{ props.api }}
     </div>
-    <DocInfo v-if="activeMenuKey === 'docInfo'" class="flex-1 min-w-200 py-2 pl-2 h-full overflow-auto">
-      <template #btns>
-        <div>
-          <slot name="docInfoButton"></slot>
-        </div>
-      </template>
-    </DocInfo>
+    <div class="flex flex-col flex-1 min-w-200 py-2 pl-2 h-full overflow-auto">
+      <div></div>
+      <div class="flex justify-end">
+        <slot name="docInfoButton"></slot>
+        <RadioGroup v-model:value="viewMode">
+          <RadioButton value="form">表单</RadioButton>
+          <RadioButton value="code">代码</RadioButton>
+          <RadioButton value="preview">预览</RadioButton>
+        </RadioGroup>
+      </div>
+      <DocInfo v-if="activeMenuKey === 'docInfo'" :viewMode="viewMode" class="mt-4" />
+      <ExternalDoc v-if="activeMenuKey === 'externalDoc'" :viewMode="viewMode" class="mt-4" />
+      <Server v-if="activeMenuKey === 'server'" :viewMode="viewMode" class="mt-4" />
+      <Tag v-if="activeMenuKey === 'tag'" :viewMode="viewMode" class="mt-4" />
+      <Extensions v-if="activeMenuKey === 'extensions'" :viewMode="viewMode" class="mt-4" />
+    </div>
   </div>
 </template>
+
+<style scoped>
+:deep(.ant-tabs) .ant-tabs-nav {
+  display: none;
+}
+
+:deep(.ant-tabs) .ant-tabs-content.ant-tabs-content-top {
+  height: 100%;
+}
+</style>
 
 <style>
 

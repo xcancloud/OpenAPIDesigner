@@ -1,6 +1,6 @@
 import { createApp } from 'vue';
 import App from '../core/App.vue';
-import '../dist/index.css';
+import '../dist/open-api-designer.css';
 import 'tailwindcss/tailwind.css';
 import 'tailwindcss/components.css';
 import 'tailwindcss/utilities.css';

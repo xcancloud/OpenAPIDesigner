@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+
 import MonacoEditor from '@/components/monacoEditor/index.vue';
 </script>
 <template>

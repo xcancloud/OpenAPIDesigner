@@ -17,6 +17,10 @@ module.exports = {
       minWidth: {
         200: '800px',
       },
+      fontSize: {
+        6: '24px',
+        5: '20px'
+      },
       flex: {
         '1/2': '1 1 50%',
         '1/4': '1 1 25%',

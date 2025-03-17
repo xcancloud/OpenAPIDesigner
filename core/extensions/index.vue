@@ -27,17 +27,18 @@ onMounted(() => {
 
 </script>
 <template>
-  <Tabs :activeKey="props.viewMode" class="flex-1 min-h-100 overflow-auto">
-    <TabPane key="form" forceRender class="overflow-auto pr-3" >
-      <FormView ref="formViewRef" />
-    </TabPane>
-    <TabPane key="code" class="pr-2">
-      <CodeView
-        :value="codeValue" />
-    </TabPane>
-    <TabPane key="preview" class="overflow-auto pr-3">
-    </TabPane>
-  </Tabs>
+  <Tabs :activeKey="viewMode" class="flex-1 min-h-100">
+      <TabPane key="form" forceRender class="overflow-auto pr-3" >
+        <FormView ref="formViewRef" />
+      </TabPane>
+      <TabPane key="code" class="pr-2">
+        <CodeView
+          :value="codeValue" />
+      </TabPane>
+      <TabPane key="preview" class="overflow-auto pr-3">
+
+      </TabPane>
+    </Tabs>
 </template>
 <style scoped>
 :deep(.ant-tabs) .ant-tabs-nav {

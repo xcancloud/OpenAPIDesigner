@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onMounted, watch } from 'vue';
-import { Tabs, TabPane } from 'ant-design-vue';
+import { ref, defineAsyncComponent, onMounted, watch, inject } from 'vue';
+import { Tabs, TabPane, Button } from 'ant-design-vue';
+import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import YAML from 'yaml';
 
 const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
 const CodeView = defineAsyncComponent(() => import('./codeView/index.vue'));
+
+const getAppFunc = inject('getAppFunc', ()=>{});
 
 interface Props {
   viewMode: 'form'|'code'|'preview'
@@ -17,25 +20,48 @@ const props = withDefaults(defineProps<Props>(), {
 const formViewRef = ref();
 const codeValue = ref();
 
+const tagKeyList = ref([1]);
+const addTag = () => {
+  tagKeyList.value.push(Math.random());
+};
+
+const deleteTag = (idx: number) => {
+  tagKeyList.value.splice(idx, 1);
+};
+
 onMounted(() => {
   watch(() => props.viewMode, () => {
     if (props.viewMode === 'code') {
       codeValue.value = YAML.stringify(formViewRef.value.getFormData());
     }
   })
-})
+});
 
 </script>
 <template>
-  <Tabs :activeKey="props.viewMode" class="flex-1 min-h-100 overflow-auto">
+  <Tabs :activeKey="viewMode" class="flex-1 min-h-100">
     <TabPane key="form" forceRender class="overflow-auto pr-3" >
-      <FormView ref="formViewRef" />
+      <div class="flex justify-end pr-8">
+        <Button size="small" type="primary" @click="addTag">
+          添加标签
+        </Button>
+      </div>
+      <div
+        v-for="(key, idx) in tagKeyList" :key="key"
+        class="flex w-full mb-5"
+        :class="{'border-b': idx !== tagKeyList.length - 1}">
+        <FormView ref="formViewRef" class="flex-1" />
+        <Button size="small" type="link" class="mt-8 w-8" @click="deleteTag(idx)">
+          <DeleteOutlined class="text-5" />
+        </Button>
+      </div>
     </TabPane>
     <TabPane key="code" class="pr-2">
       <CodeView
         :value="codeValue" />
     </TabPane>
     <TabPane key="preview" class="overflow-auto pr-3">
+
     </TabPane>
   </Tabs>
 </template>
