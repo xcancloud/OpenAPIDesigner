@@ -87,7 +87,9 @@ const selectExtension = (value: Extension) => {
 
 const getData = () => {
   const data = JSON.parse(JSON.stringify(extensionList.value));
-  return data;
+  return {
+    extension: data
+  };
 };
 
 

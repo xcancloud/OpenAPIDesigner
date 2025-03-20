@@ -28,7 +28,7 @@ const addServer = () => {
 onMounted(() => {
   watch(() => props.viewMode, () => {
     if (props.viewMode === 'code') {
-      codeValue.value = YAML.stringify(formViewRef.value.getFormData());
+      // codeValue.value = YAML.stringify(formViewRef.value.getFormData());
     }
   })
 })
