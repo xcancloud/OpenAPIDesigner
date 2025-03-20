@@ -52,7 +52,7 @@ const extensionChildren = ref<MenuItem[]>([]); // 扩展组件
 const apiPaths = ref({});
 const selectedApi = ref();
 
-const selectApi = (endpoint: string, method: string, api) => {
+const selectApi = (endpoint: string, method: string) => {
   selectedApi.value = `${endpoint}_${method}`;
   handleSelect(selectedApi.value);
 };
@@ -365,7 +365,6 @@ const methodColorConfig:Record<string, string> = {
   <div>
     <Input placeholder="搜索" />
     <div v-for="menu in defaultMenu" :key="menu.key">
-
       <div
         class="h-8 leading-8 px-2 cursor-pointer flex items-center justify-between font-medium bg-bg-content hover:bg-gray-200"
         @click="menu.children ? toggleOpenValue(menu.key) : handleSelect(menu.key)">

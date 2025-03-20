@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from 'vue';
+import { defineAsyncComponent, ref, watch } from 'vue';
 import { RadioGroup, RadioButton } from 'ant-design-vue';
 import SiderMenu from './siderMenu/index.vue';
 import { data } from './data.ts';
@@ -20,6 +20,7 @@ const Tag = defineAsyncComponent(() => import('./tag/index.vue'));
 const Extensions = defineAsyncComponent(() => import('./extensions/index.vue'));
 const Security = defineAsyncComponent(() => import('./security/index.vue'));
 const Comp = defineAsyncComponent(() => import('./comp/index.vue'));
+const ApiModel = defineAsyncComponent(() => import('./comp/apisModel/index.vue'));
 
 const props =withDefaults(defineProps<Props>(), {
   api: ''
@@ -39,6 +40,24 @@ const updateData = (comp: {name: string; value: any; type: string}) => {
     };
 };
 
+const selectedApi = ref();
+watch(() => activeMenuKey.value, (newValue) => {
+  if (newValue) {
+    const path_method = newValue.split('_');
+    const method = path_method[path_method.length - 1]
+    if (['get', 'post', 'options', 'patch', 'head', 'delete', 'trace', 'put'].includes(method)) {
+      const path = newValue.slice(0, newValue.length - (method.length + 1) );
+      if (dataSource.value?.paths?.[path]?.[method]) {
+        selectedApi.value = dataSource.value?.paths?.[path]?.[method];
+        return;
+      }
+    }
+    selectedApi.value = undefined;
+  } else {
+    selectedApi.value = undefined;
+  }
+});
+
 </script>
 
 <template>
@@ -48,6 +67,7 @@ const updateData = (comp: {name: string; value: any; type: string}) => {
         v-model:active-menu-key="activeMenuKey"
         :dataSource="dataSource"
         @addComp="updateData" />
+        {{ selectedApi }}
     </div>
     <div class="flex flex-col flex-1 min-w-200 py-2 pl-2 h-full overflow-auto">
       <div></div>
@@ -65,6 +85,7 @@ const updateData = (comp: {name: string; value: any; type: string}) => {
       <Tag v-else-if="activeMenuKey === 'tag'" :viewMode="viewMode" class="mt-4" />
       <Extensions v-else-if="activeMenuKey === 'extensions'" :viewMode="viewMode" class="mt-4" />
       <Security v-else-if="activeMenuKey === 'securities'" :viewMode="viewMode" class="mt-4" />
+      <ApiModel v-else-if="selectedApi" :dataSource="selectedApi" :openapiDoc="dataSource"/>
       <Comp v-else  class="mt-4" :dataSource="dataSource" :path="activeMenuKey" />
     </div>
   </div>
