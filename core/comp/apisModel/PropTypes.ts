@@ -294,22 +294,33 @@ export const httpStatus = [
   export const apiStatus = [
     {
       "value": "UNKNOWN",
-      "message": "未知"
+      "label": "未知"
     },
     {
       "value": "IN_DESIGN",
-      "message": "设计中"
+      "label": "设计中"
     },
     {
       "value": "IN_DEV",
-      "message": "开发中"
+      "label": "开发中"
     },
     {
       "value": "DEV_COMPLETED",
-      "message": "开发完成"
+      "label": "开发完成"
     },
     {
       "value": "RELEASED",
-      "message": "已发布"
+      "label": "已发布"
     }
   ]
+
+  export const methodColor = {
+    get: 'rgba(30, 136, 229, 1)',
+    head: '#67D7FF',
+    post: 'rgba(51, 183, 130, 1)',
+    put: 'rgba(255, 167, 38, 1)',
+    patch: 'rgba(171, 71, 188, 1)',
+    delete: 'rgba(255, 82, 82, 1)',
+    options: 'rgba(0, 150, 136, 1)',
+    trace: '#7F91FF'
+  }

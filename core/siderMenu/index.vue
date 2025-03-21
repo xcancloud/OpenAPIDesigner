@@ -13,12 +13,14 @@ import tagSvg from '../Icons/tag.svg';
 
 interface Props {
   activeMenuKey: string;
-  dataSource: {[key:string]: any}
+  dataSource: {[key:string]: any},
+  schemaType?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   activeMenuKey: 'docInfo',
-  dataSource: () => ({})
+  dataSource: () => ({}),
+  schemaType: undefined
 });
 
 // const emits = defineEmits<{}>();
@@ -31,6 +33,7 @@ interface MenuItem {
 
 const emits = defineEmits<{
   (e: 'update:activeMenuKey', value: string): void;
+  (e: 'update:schemaType', value?: string):void;
   (e:'addComp', value: {name: string, value: any; type: string}):void}>();
 const createNameModalVisible = ref(false);
 const createName = ref();
@@ -167,9 +170,10 @@ const addModel = () => {
     createNameModalVisible.value = false;
     modelChildren.value.push({
       title: createName.value,
-      key: `#/components/${addType}/${createName.value}`,
+      key: createName.value,
+      // key: `#/components/${addType}/${createName.value}`,
     });
-    emits('addComp', {name: `#/components/${addType}/${createName.value}`, type:addType,  value: {
+    emits('addComp', {name: createName.value, type:addType,  value: {
       type: 'object'
     }});
     return;
@@ -186,9 +190,10 @@ const addModel = () => {
     createNameModalVisible.value = false;
     parameterChildren.value.push({
       title: createName.value,
-      key: `#/components/${addType}/${createName.value}`,
+      key: createName.value,
+      // key: `#/components/${addType}/${createName.value}`,
     });
-    emits('addComp', {name: `#/components/${addType}/${createName.value}`, type:addType, value: {
+    emits('addComp', {name: createName.value, type:addType, value: {
       type: 'string',
       name: createName.value
     }});
@@ -205,9 +210,10 @@ const addModel = () => {
     createNameModalVisible.value = false;
     bodyChildren.value.push({
       title: createName.value,
-      key: `#/components/${addType}/${createName.value}`,
+      key: createName.value,
+      // key: `#/components/${addType}/${createName.value}`,
     });
-    emits('addComp', {name: `#/components/${addType}/${createName.value}`, type:addType, value: {
+    emits('addComp', {name: createName.value, type:addType, value: {
       type: 'object',
     }});
     return;
@@ -223,9 +229,10 @@ const addModel = () => {
     createNameModalVisible.value = false;
     responseChildren.value.push({
       title: createName.value,
-      key: `#/components/${addType}/${createName.value}`,
+      key: createName.value,
+      // key: `#/components/${addType}/${createName.value}`,
     });
-    emits('addComp', {name: `#/components/${addType}/${createName.value}`, type:addType, value: {
+    emits('addComp', {name: createName.value, type:addType, value: {
       type: 'object',
     }});
     return;
@@ -242,9 +249,10 @@ const addModel = () => {
     createNameModalVisible.value = false;
     headerChildren.value.push({
       title: createName.value,
-      key: `#/components/${addType}/${createName.value}`,
+      key: createName.value,
+      // key: `#/components/${addType}/${createName.value}`,
     });
-    emits('addComp', {name: `#/components/${addType}/${createName.value}`, type:addType, value: {
+    emits('addComp', {name: createName.value, type:addType, value: {
       type: 'object',
       name: createName.value
     }});
@@ -262,9 +270,10 @@ const addModel = () => {
     createNameModalVisible.value = false;
     securityChildren.value.push({
       title: createName.value,
-      key: `#/components/${addType}/${createName.value}`,
+      key: createName.value,
+      // key: `#/components/${addType}/${createName.value}`,
     });
-    emits('addComp', {name: `#/components/${addType}/${createName.value}`, type:addType, value: {
+    emits('addComp', {name: createName.value, type:addType, value: {
       name: createName.value
     }});
     return;
@@ -281,7 +290,8 @@ const addModel = () => {
     createNameModalVisible.value = false;
     extensionChildren.value.push({
       title: createName.value,
-      key: `#/components/${addType}/${createName.value}`,
+      key: createName.value,
+      // key: `#/components/${addType}/${createName.value}`,
     });
     return;
   }
@@ -289,7 +299,13 @@ const addModel = () => {
 
 const handleSelect = (selectedKeys: string) => {
   emits('update:activeMenuKey', selectedKeys);
+  emits('update:schemaType', undefined);
 };
+
+const handleSelectComp = (selectedKeys: string, schemaType: string) => {
+  handleSelect(selectedKeys);
+  emits('update:schemaType', schemaType);
+}
 
 onMounted(() => {
   emits('update:activeMenuKey', 'docInfo');
@@ -301,45 +317,45 @@ onMounted(() => {
 
   watch(() => props.dataSource?.components, (newValue) => {
     modelChildren.value = Object.keys(newValue.schemas || {}).map(path => {
-      const title = path.split('/').reverse()[0];
+      // const title = path.split('/').reverse()[0];
       return {
-        title,
+        title: path,
         key: path,
         schame: newValue.schemas[path]
       }
     });
 
     securityChildren.value = Object.keys(newValue.securitySchemes || {}).map(path => {
-      const title = path.split('/').reverse()[0];
+      // const title = path.split('/').reverse()[0];
       return {
-        title,
+        title: path,
         key: path,
         schame: newValue.schemas[path]
       }
     });
 
     parameterChildren.value = Object.keys(newValue.parameters || {}).map(path => {
-      const title = path.split('/').reverse()[0];
+      // const title = path.split('/').reverse()[0];
       return {
-        title,
+        title: path,
         key: path,
         schame: newValue.schemas[path]
       }
     });
 
     responseChildren.value = Object.keys(newValue.responses || {}).map(path => {
-      const title = path.split('/').reverse()[0];
+      // const title = path.split('/').reverse()[0];
       return {
-        title,
+        title: path,
         key: path,
         schame: newValue.schemas[path]
       }
     });
 
     bodyChildren.value = Object.keys(newValue.requestBodies || {}).map(path => {
-      const title = path.split('/').reverse()[0];
+      // const title = path.split('/').reverse()[0];
       return {
-        title,
+        title: path,
         key: path,
         schame: newValue.schemas[path]
       }
@@ -386,7 +402,7 @@ const methodColorConfig:Record<string, string> = {
 
           <Dropdown trigger="contextmenu">
             <div
-              class="flex items-center hover:bg-gray-200" :class="{'text-blue-1': subMenu.key === props.activeMenuKey}"
+              class="flex items-center hover:bg-gray-200" :class="{'text-blue-1': subMenu.key === props.activeMenuKey }"
               @click="subMenu.children ? toggleOpenValue(subMenu.key) : handleSelect(subMenu.key)">
               <Arrow
                 v-if="subMenu.children"
@@ -405,9 +421,9 @@ const methodColorConfig:Record<string, string> = {
           <div v-show="compExpandMap[subMenu.key]">
             <div
               v-for="subsubMenu in subMenu.children"
-              :class="{'text-blue-1': subsubMenu.key === props.activeMenuKey }"
+              :class="{'text-blue-1': subsubMenu.key === props.activeMenuKey && props.schemaType === subMenu.key}"
               class="h-8 pl-4 leading-8 px-2 cursor-pointer flex items-center justify-between font-medium bg-bg-content hover:bg-gray-200"
-              @click="handleSelect(subsubMenu.key)">
+              @click="handleSelectComp(subsubMenu.key, subMenu.key)">
               {{ subsubMenu.title }}
             </div>
           </div>

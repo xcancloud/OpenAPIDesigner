@@ -5,7 +5,7 @@ import YAML from 'yaml';
 
 interface Props {
     dataSource: {[key: string]: any}; // openapi json
-    selectStr?: string;
+    selectStr?: {[key: string]: any};
     startKey?: string;
 }
 
@@ -28,7 +28,7 @@ onMounted(() => {
   });
 
   watch(() => props.selectStr, newValue => {
-    if (monacoEditorRef.value && monacoEditorRef.value.removeDecoration) {
+    if (monacoEditorRef.value && monacoEditorRef.value) {
       monacoEditorRef.value.removeDecoration();
     }
     if (!newValue) {
@@ -66,6 +66,7 @@ onMounted(() => {
   <div class="h-full pt-2">
     <MonacoEditor
       ref="monacoEditorRef"
+      class="h-full"
       :value="data"
       :readOnly="true"
       language="yaml" />

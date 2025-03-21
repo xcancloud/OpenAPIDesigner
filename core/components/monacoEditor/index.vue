@@ -232,13 +232,32 @@ onMounted(() => {
 onBeforeUnmount(() => {
   destroy();
 });
+let decorationIds:any[] = [];
+const decorations = (range: [number, number, number, number] = [0, 1, 0, 1]) => {
+  const decoration = {
+    range: new monaco.Range(...range), // 这里设置要标记的行的范围，这里示例标记第一行的范围
+    options: {
+      isWholeLine: true,
+      linesDecorationsClassName: 'line-color-marker' // 自定义的 CSS 类名，用于定义行的左侧样式
+    }
+  };
+  const decorations = toRaw(state.editorInstace).createDecorationsCollection([decoration]);
+  decorationIds = decorations._decorationIds;
+  toRaw(state.editorInstace).revealLineNearTop(range[0], 0);
+};
+
+const removeDecoration = () => {
+  toRaw(state.editorInstace).removeDecorations(decorationIds);
+};
 
 defineExpose({
   format: () => {
     if (state.editorInstace) {
       toRaw(state.editorInstace).getAction('editor.action.formatDocument')?.run();
     }
-  }
+  },
+  decorations,
+  removeDecoration
 });
 </script>
 
@@ -247,3 +266,8 @@ defineExpose({
     <div ref="editorRef" class="h-full w-full"></div>
   </div>
 </template>
+<style>
+.monaco-editor .line-color-marker {
+    border-right: 5px solid rgba(0,119,255,100%);
+}
+</style>

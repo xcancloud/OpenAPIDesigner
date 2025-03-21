@@ -9,7 +9,6 @@ import Genaral from './general.vue';
 import Parameters from './parameters.vue';
 import RequestBody from './requestBody.vue';
 import Responses from './responses.vue';
-import CodeView from '../basic/code.vue';
 
 const statusKey = 'x-xc-status';
 
@@ -27,18 +26,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emits = defineEmits<{(e: 'cancel'):void, (e: 'ok', value: Props.dataSource):void}>();
 const activeKey = ref('general');
-
-const viewType = ref('form');
-const viewTypeOpt = [
-  {
-    label: 'Form',
-    value: 'form'
-  },
-  {
-    label: 'Code',
-    value: 'code'
-  }
-];
 const selectStr = ref({});
 const path = ref('');
 
@@ -57,7 +44,7 @@ const docs = ref<{[key: string]: any}>({});
 onMounted(() => {
   watch([() => props.dataSource.method, () => props.dataSource.endpoint], () => {
     _deprecated.value = props.dataSource.deprecated;
-    _tags.value = props.dataSource.tags;
+    _tags.value = props.dataSource.tags || [];
     const { method, endpoint, ...datas } = props.dataSource;
     selectStr.value = { [method]: { ...datas } };
     path.value = endpoint;
@@ -71,23 +58,6 @@ const delTags = () => {
   _tags.value = [];
 };
 
-const onViewTypeChange = () => {
-  if (viewType.value === 'code') {
-    const formData = getFormData();
-    const { method, endpoint, ...api } = formData;
-    if (docs.value?.paths) {
-      // if (utils.deepCompare({ ...api }, selectStr.value[method])) {
-      //   return;
-      // }
-      docs.value.paths[endpoint][method] = { ...api };
-      selectStr.value = { [method]: { ...api } };
-    }
-  }
-};
-
-const cancel = () => {
-  emits('cancel');
-};
 
 const getFormData = () => {
   const data = JSON.parse(JSON.stringify(props.dataSource));
@@ -191,29 +161,15 @@ provide('serviceId', props.id);
           v-model:checked="_deprecated"
           size="small" />
       </div>
-      <div class="flex-1 text-right">
-        <RadioGroup
-          v-model:value="viewType"
-          buttonStyle="solid"
-          size="small"
-          @change="onViewTypeChange">
-          <RadioButton
-            v-for="opt in viewTypeOpt"
-            :key="opt.value"
-            :value="opt.value">
-            {{ opt.label }}
-          </RadioButton>
-        </RadioGroup>
-      </div>
     </div>
     <Tabs
-      v-show="viewType === 'form'"
       v-model:activeKey="activeKey"
-      size="small">
+      size="small"
+      class="flex-1 overflow-auto">
       <TabPane
         key="general"
         tab="常规">
-        <Genaral ref="generalRef" :dataSource="props.dataSource" />
+        <Genaral ref="generalRef" :dataSource="props.dataSource" :openapiDoc="props.openapiDoc" />
       </TabPane>
       <TabPane
         key="parameter"
@@ -231,20 +187,5 @@ provide('serviceId', props.id);
         <Responses ref="responsesRef" :dataSource="props.dataSource.responses" />
       </TabPane>
     </Tabs>
-    <div v-show="viewType === 'code'" class="flex-1">
-      <CodeView
-        :dataSource="docs"
-        :selectStr="selectStr"
-        :startKey="path" />
-    </div>
-    <!-- <div class="flex space-x-2 mt-4">
-      <Button
-        size="small"
-        type="primary"
-        @click="confirm">
-        确认
-      </Button>
-      <Button size="small" @click="cancel">取消</Button>
-    </div> -->
   </div>
 </template>

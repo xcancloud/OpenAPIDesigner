@@ -7,11 +7,13 @@ const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
 const CodeView = defineAsyncComponent(() => import('./codeView/index.vue'));
 
 interface Props {
-  viewMode: 'form'|'code'|'preview'
+  viewMode: 'form'|'code'|'preview';
+  dataSource?: Record<string, any>;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  viewMode: 'form'
+  viewMode: 'form',
+  dataSource: () => ({})
 });
 
 const formViewRef = ref();
@@ -23,7 +25,12 @@ onMounted(() => {
       codeValue.value = YAML.stringify(formViewRef.value.getFormData());
     }
   })
-})
+  watch(() => props.dataSource, () => {
+
+  }, {
+    immediate: true
+  })
+});
 
 </script>
 <template>
@@ -31,10 +38,10 @@ onMounted(() => {
     <TabPane key="form" forceRender class="overflow-auto pr-3" >
       <FormView ref="formViewRef" />
     </TabPane>
-    <TabPane key="code" class="pr-2">
+    <!-- <TabPane key="code" class="pr-2">
       <CodeView
         :value="codeValue" />
-    </TabPane>
+    </TabPane> -->
     <TabPane key="preview" class="overflow-auto pr-3">
     </TabPane>
   </Tabs>
