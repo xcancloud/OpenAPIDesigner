@@ -5,10 +5,6 @@ import { parseSchemaArrToObj, parseSchemaObjToArr, CONTENT_TYPE } from '../basic
 
 import AddAttrModal from '../basic/addAttrModal.vue';
 import AttrItemList from '../basic/attrItemList.vue';
-import AddSchemaTypeModel from '../basic/addSchemaTypeModel.vue';
-import BodyContentTypeTab from '../basic/bodyContentTypeTab.vue';
-import ResponseSchema from '../basic/responseSchema.vue';
-import AddSchemaModel from '../basic/addSchemaModel.vue';
 
 interface Props {
   id: string;
@@ -26,67 +22,12 @@ const props = withDefaults(defineProps<Props>(), {
 const emits = defineEmits<{(e: 'cancel'):void;(e: 'ok'):void}>();
 
 // const deleteTabPane = inject('deleteTabPane', (value) => value);
-const addSchemaTypeRef = ref();
 // const useAuth = ref<string[]>([]);
 const addVisible = ref(false);
 const schemaName = ref();
-const parameterIn = ref('query');
-const requestBodiesContentType = ref<string|undefined>('application/json');
 const schemaType = ref('schemas');
 const modelType = ref<string|undefined>('object');
 const description = ref();
-const modelOpt = [
-  {
-    label: '数据模型',
-    value: 'schemas'
-  },
-  {
-    label: '响应',
-    value: 'responses'
-  },
-  {
-    label: '参数',
-    value: 'parameters'
-  },
-  {
-    label: '请求体',
-    value: 'requestBodies'
-  }
-];
-
-const modelTypeOpt = [
-  {
-    label: 'String',
-    value: 'string'
-  },
-  {
-    label: 'Array',
-    value: 'array'
-  },
-  {
-    label: 'Object',
-    value: 'object'
-  },
-  {
-    label: 'Number',
-    value: 'number'
-  },
-  {
-    label: 'Integer',
-    value: 'integer'
-  },
-  {
-    label: 'Boolean',
-    value: 'boolean'
-  }
-];
-
-const disabledBodyModelType = (type) => {
-  return ['application/x-www-form-urlencoded',
-    'multipart/form-data',
-    'application/json',
-    'application/xml'].includes(type);
-};
 
 // const schema = ref<Record<string, any>>({});
 const objectAttrList = ref<{name: string, [key: string]: any}[]>([
@@ -116,11 +57,11 @@ const objectAttrList = ref<{name: string, [key: string]: any}[]>([
   }
 ]);
 
-const addFromType = ref<'object'|'array'>('object');
+const addFromType = ref<'object'|null>(null);
 let currentAddNode;
 const addAttr = (node = undefined) => {
   currentAddNode = node;
-  addFromType.value = node ? node.type : modelType.value;
+  addFromType.value = 'object';
   addVisible.value = true;
   if (addFromType.value === 'object' && node) {
     excludesAttr.value = (node?.children || []).map(i => i.name);
@@ -136,7 +77,7 @@ const excludesAttr = ref<string[]>([]);
 const editAttr = (node, type, excludes = []) => {
   editAttrData.value = node;
   currentAddNode = node;
-  addFromType.value = addFromType.value = type;
+  addFromType.value = type;
   addVisible.value = true;
   excludesAttr.value = excludes;
 };
@@ -178,163 +119,24 @@ const delAttr = (parent, idx) => {
   parent.splice(idx, 1);
 };
 
-const closeCurrentTab = () => {
-  // const
-  // deleteTabPane([props.pid]);
-  emits('cancel');
-};
-
 const validate = ref(false);
-const submitSchema = async () => {
-  validate.value = true;
-  // projectOrServiceId:string, type:string, key:string, component:any
-  const component = parseSchemaArrToObj(JSON.parse(JSON.stringify(objectAttrList.value)), modelType.value);
-  let comp;
-  if (schemaType.value === 'schemas') {
-    if (modelType.value === 'array') {
-      comp = {
-        type: 'array',
-        description: description.value,
-        items: component
-      };
-    } else if (modelType.value === 'object') {
-      comp = {
-        ...component,
-        description: description.value
-      };
-    } else {
-      const schemaData = addSchemaTypeRef.value.getData();
-      delete schemaData.required;
-      comp = {
-        // ...,
-        ...schemaData,
-        description: description.value
-      };
-    }
-  }
-  if (schemaType.value === 'parameters') {
-    const component = parameterSchemaRef.value.getData();
-    if (!component) {
-      return;
-    }
-    comp = {
-      ...parameterData.value,
-      name: schemaName.value,
-      in: parameterIn.value,
-      description: description.value,
-      schema: component
-    };
-  }
-
-  if (schemaType.value === 'requestBodies') {
-    const resps = requestBodiesDataRef.map((i) => {
-      const data = i?.getData();
-      if (data) {
-        Object.assign(requestBodyData.value?.content || {}, data);
-      }
-      return data;
-    });
-    if (resps.some(i => i === false)) {
-      return;
-    }
-    Object.keys(requestBodyData.value?.content || {}).forEach(key => {
-      if (!contentTypes.value.includes(key)) {
-        delete requestBodyData.value.content?.[key];
-      }
-    });
-    comp = {
-      ...requestBodyData.value,
-      description: description.value
-    };
-  }
-
-  if (schemaType.value === 'responses') {
-    const respData = responseDataRef.value.getData();
-    if (respData === false) {
-      return;
-    }
-    comp = {
-      ...respData,
-      description: description.value
-    };
-  }
-  if (!schemaName.value) {
-    return;
-  }
-  // const [error] = await services.addComponent(props.id, schemaType.value, schemaName.value, JSON.stringify(comp));
-  // if (error) {
-  //   return;
-  // }
-  // notification.success('保存成功');
-  emits('ok');
-};
-// const activeDrawerKey = ref('componnet');
-// const drawerCompNav = computed(() => {
-//   return serviceNavItem.map(item => {
-//     return {
-//       ...item,
-//       key: item.value,
-//       name: (item.value === 'projectInfo' && props.type === 'PROJECT') ? '项目信息' : item.name
-//     };
-//   });
-// });
 
 const schemaData = ref({});
-const parameterData = ref({});
-const requestBodyData = ref<{description?: string, content?: {[key: string]: any}, headers?: {[key: string]: any}}>({});
-const contentTypes = ref<string[]>([]);
-const requestBodiesDataRef:any[] = [];
-const responseSchemaData = ref({});
-const parameterSchemaRef = ref();
 
 // 获取需要编辑的数据模型
 const loadSchemaContent = async () => {
-  const data = {};
-  if (props.data?.type?.value === 'schemas') {
-    const schemaObj = JSON.parse(data.model) || {};
-    description.value = schemaObj.description;
+  const schemaObj = props.data || {};
+  description.value = schemaObj.description;
+  if (schemaObj.type === 'object') {
+    const {properties, ...other} = schemaObj;
+    objectAttrList.value = [{...other, children: parseSchemaObjToArr(schemaObj, schemaObj.required)}] ;
+  } else {
     objectAttrList.value = parseSchemaObjToArr(schemaObj, schemaObj.required);
-    schemaName.value = data.key;
-    schemaType.value = data.type.value;
-    modelType.value = schemaObj.type;
-    schemaData.value = schemaObj;
-    return;
   }
-  if (props.data?.type?.value === 'parameters') {
-    schemaName.value = data.key;
-    schemaType.value = data.type.value;
-    const schemaObj = JSON.parse(data.model) || {};
-    parameterData.value = schemaObj;
-    parameterIn.value = schemaObj.in;
-    description.value = schemaObj.description;
-    // modelType.value = schemaObj.schema.type;
-    // if (['array', 'object'].includes(modelType.value)) {
-    //   objectAttrList.value = parseSchemaObjToArr(schemaObj.schema, schemaObj.required);
-    //   return;
-    // }
-    // if (!modelType.value) {
-    //   modelType.value = 'string';
-    // }
-    return;
-  }
-  if (props.data?.type?.value === 'requestBodies') {
-    schemaName.value = data.key;
-    schemaType.value = data.type.value;
-    const schemaObj = JSON.parse(data.model) || {};
-    description.value = schemaObj.description;
-    requestBodyData.value = schemaObj;
-    contentTypes.value = Object.keys(schemaObj.content || {});
-    modelType.value = undefined;
-    requestBodiesContentType.value = contentTypes.value[0] || undefined;
-    return;
-  }
-  if (props.data?.type?.value === 'responses') {
-    schemaName.value = data.key;
-    schemaType.value = data.type.value;
-    const schemaObj = JSON.parse(data.model) || {};
-    responseSchemaData.value = schemaObj || {};
-    description.value = schemaObj.description;
-  }
+  schemaName.value = schemaObj.key;
+  schemaType.value = schemaObj.type;
+  modelType.value = schemaObj.type;
+  schemaData.value = schemaObj;
 };
 
 const resetschemas = () => {
@@ -345,61 +147,10 @@ const resetschemas = () => {
 };
 
 const onSchemaTypeChange = () => {
-  if (schemaType.value === 'schemas') {
-    modelType.value = 'object';
-  } else if (schemaType.value === 'parameters') {
-    modelType.value = 'string';
-  } else if (schemaType.value === 'requestBodies') {
-    modelType.value = undefined;
-  } else if (schemaType.value === 'responses') {
-    modelType.value = undefined;
-  }
+  modelType.value = 'object';
 };
 
-const changeModelType = () => {
-  objectAttrList.value = [];
-};
-
-// 'application/x-www-form-urlencoded',
-//   'multipart/form-data',
-//   'application/octet-stream',
-//   'application/json',
-//   'text/html',
-//   'application/xml',
-//   'application/javascript',
-//   'text/plain',
-//   '*/*'
-
-// const selectRequestContentType = ref();
-const addContentType = (item) => {
-  contentTypes.value.push(item.key);
-  if (requestBodyData.value?.content) {
-    if (!requestBodyData.value.content[item.key]) {
-      requestBodyData.value.content[item.key] = {
-        schema: {
-          type: disabledBodyModelType(item.key) ? 'object' : 'string'
-        }
-      };
-    }
-  } else {
-    requestBodyData.value.content = {
-      [item.key]: {
-        schema: {
-          type: disabledBodyModelType(item.key) ? 'object' : 'string'
-        }
-      }
-    };
-  }
-  // selectRequestContentType.value = undefined;
-};
-
-const editTab = (key:string) => {
-  contentTypes.value = contentTypes.value.filter(i => i !== key);
-};
-
-const responseDataRef = ref();
-
-watch(() => props.data?.ref, newValue => {
+watch(() => props.data, newValue => {
   if (newValue) {
     schemaName.value = props.data.key;
     loadSchemaContent();
@@ -410,184 +161,51 @@ watch(() => props.data?.ref, newValue => {
   immediate: true
 });
 
-provide('serviceId', props.id);
 </script>
 <template>
   <div class="flex h-full overflow-y-scroll">
-    <div class="p-2 flex-1 min-w-100">
-      <!-- {{ objectAttrList }} -->
-      <div class="flex space-x-2">
-        <Input
-          v-model:value="schemaName"
-          :readonly="props.data?.key"
-          :error="validate && !schemaName"
-          :maxlength="200"
-          :bordered="false"
-          placeholder="名称"
-          data-type="en"
-          includes="-_." />
-        <!-- <Select
-          v-model:value="schemaType"
-          :readonly="props.data?.key"
-          :options="modelOpt"
-          class="w-50"
-          @change="onSchemaTypeChange" /> -->
-      </div>
+    <div class="p-2 flex-1 min-w-100 space-y-2">
+      <Input
+        v-model:value="schemaName"
+        :readonly="props.data?.key"
+        :error="validate && !schemaName"
+        :maxlength="200"
+        :bordered="false"
+        class="font-medium"
+        placeholder="名称" />
       <Input
         v-model:value="description"
         type="textarea"
-        class="mt-2"
         :bordered="false"
         :maxlength="1000"
         placeholder="描述" />
-      <div class="flex items-center space-x-2 mt-2 text-3.5">
-        <!-- <template v-if="schemaType === 'schemas'">
-          <span>数据模型</span>
-          <Select
-            v-model:value="modelType"
-            :options="modelTypeOpt"
-            class="w-25"
-            size="small"
-            @change="changeModelType" />
-        </template> -->
-        <template v-if="schemaType === 'parameters'">
-          <span>参数</span>
-          <Select
-            v-model:value="parameterIn"
-            placeholder="in"
-            :options="['query', 'path', 'header', 'cookie'].map(i => ({value: i, label: i}))"
-            class="w-20"
-            size="small" />
-          <!-- <Select
-            v-model:value="modelType"
-            :options="modelTypeOpt"
-            size="small"
-            class="w-25"
-            @change="changeModelType" /> -->
-        </template>
-        <template v-if="schemaType === 'requestBodies'">
-        </template>
-      </div>
-      <template v-if="schemaType === 'schemas'">
-        <!-- <Divider class="mt-2" /> -->
-        <template v-if="modelType === 'object'">
-          <div class="obj-top relative font-medium text-3.5 mb-1">
-            {{ modelType }}
-            <span>{ {{ objectAttrList.length }} }</span>
-            <span
-              class="ml-2 text-5 cursor-pointer"
-              @click="addAttr()">+</span>
-          </div>
-          <AttrItemList
-            :dataSource="objectAttrList"
-            class="px-5"
-            :parentType="modelType"
-            @add="addAttr"
-            @del="delAttr"
-            @edit="editAttr" />
-        </template>
-        <template v-if="modelType === 'array'">
-          <div class="obj-top relative font-medium text-3.5 mb-1">
-            {{ modelType }}
-            <span>[ {{ objectAttrList.length }} ]</span>
-            <span
-              v-show="objectAttrList.length < 1"
-              class="ml-2 text-5 cursor-pointer"
-              @click="addAttr()">+</span>
-          </div>
-          <AttrItemList
-            :dataSource="objectAttrList"
-            :parentType="modelType"
-            class="px-5"
-            @add="addAttr"
-            @del="delAttr"
-            @edit="editAttr" />
-        </template>
-        <template v-if="modelType && !['object', 'array'].includes(modelType)">
-          <div class="obj-top relative font-medium text-3.5 mb-1">
-            {{ modelType }}
-            <span
-              class="ml-2"
-              @click="addAttr()">添加</span>
-          </div>
-          <AddSchemaTypeModel
-            ref="addSchemaTypeRef"
-            :data="schemaData || {}"
-            :modelType="modelType"
-            addType="schema" />
-        </template>
-      </template>
-      <template v-if="schemaType === 'parameters'">
-        <AddSchemaModel
-          ref="parameterSchemaRef"
-          :data="parameterData.schema || {}" />
-      </template>
-      <template v-if="schemaType === 'requestBodies'">
-        <div class="text-4 font-medium mt-4">Body</div>
-        <Tabs
-          type="editable-card"
-          hideAdd
-          size="small"
-          class="mt-2"
-          @edit="editTab">
-          <template #rightExtra>
-            <div class="flex items-center">
-              <!-- <Select
-                v-model:value="selectRequestContentType"
-                placeholder="Add"
-                :allowClear="true"
-                :options="CONTENT_TYPE.map(i => ({value: i, label: i, disabled: contentTypes.includes(i)}))"
-                class="w-80" /> -->
-              <Dropdown
-                :disabledKeys="contentTypes"
-                :menuItems="CONTENT_TYPE.map(i => ({key: i, name: i, disabled: contentTypes.includes(i)}))"
-                @click="addContentType">
-                <Button
-                  size="small"
-                  type="primary">
-                  +
-                </Button>
-              </Dropdown>
-            </div>
-          </template>
-          <TabPane
-            v-for="(contentType, idx) in contentTypes"
-            :key="contentType"
-            :tab="contentType"
-            :closable="true">
-            <BodyContentTypeTab
-              :ref="dom => requestBodiesDataRef[idx] = dom"
-              :contentType="contentType"
-              :data="requestBodyData?.content?.[contentType] || {}" />
-          </TabPane>
-        </Tabs>
-      </template>
-      <template v-if="schemaType === 'responses'">
-        <ResponseSchema
-          ref="responseDataRef"
-          :data="responseSchemaData" />
-      </template>
-      <!-- <Divider class="mt-2" />
-      <div class="space-x-2">
-        <Button
-          type="primary"
-          size="small"
-          @click="submitSchema">
-          保存
-        </Button>
-        <Button
-          size="small"
-          @click="closeCurrentTab">
-          取消
-        </Button>
-      </div> -->
-      <AddAttrModal
-        v-model:visible="addVisible"
-        :parentType="addFromType"
-        :excludesAttr="excludesAttr"
-        :data="editAttrData"
-        @ok="changeAttrList"
-        @cancel="closeModal" />
+        <div class="border">
+          <Tabs>
+            <TabPane key="scheams" tab="Schema" class="pb-3">
+              <AttrItemList
+                :dataSource="objectAttrList"
+                class="px-5"
+                :isRoot="true"
+                @add="addAttr"
+                @del="delAttr"
+                @edit="editAttr" />
+              <AddAttrModal
+                v-model:visible="addVisible"
+                :parentType="addFromType"
+                :excludesAttr="excludesAttr"
+                :data="editAttrData"
+                @ok="changeAttrList"
+                @cancel="closeModal" />
+            </TabPane>
+            <TabPane key="examples" tab="Examples">
+
+            </TabPane>
+
+            <TabPane key="extensions" tab="Extensions">
+
+            </TabPane>
+          </Tabs>
+        </div>
     </div>
   </div>
 </template>

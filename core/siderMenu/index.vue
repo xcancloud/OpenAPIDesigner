@@ -1,7 +1,7 @@
 /* stylelint-disable at-rule-no-deprecated */
 <script lang="ts" setup>
 import { computed, onMounted, ref, watch } from 'vue';
-import { Input, DirectoryTree, Dropdown, Menu, MenuItem, Modal, notification } from 'ant-design-vue';
+import { Input, Select, Dropdown, Menu, MenuItem, Modal, notification } from 'ant-design-vue';
 import Arrow from '@/components/Arrow/index.vue';
 
 import docInfoSvg  from '../Icons/docInfo.svg';
@@ -34,9 +34,10 @@ interface MenuItem {
 const emits = defineEmits<{
   (e: 'update:activeMenuKey', value: string): void;
   (e: 'update:schemaType', value?: string):void;
-  (e:'addComp', value: {name: string, value: any; type: string}):void}>();
+  (e:'addComp', value: {name: string, value: any; type: string;}):void}>();
 const createNameModalVisible = ref(false);
 const createName = ref();
+const parameterIn = ref('query');
 
 // 展开收起
 const compExpandMap = ref<{[key: string]: boolean}>({ paths: true });
@@ -151,15 +152,18 @@ const defaultMenu = computed(() => [
 ]);
 
 
-let addType: string;
+const addType = ref<string>();
 const handleAddModel = (key: string) => {
-  addType = key;
+  addType.value = key;
   createNameModalVisible.value = true;
   createName.value = undefined;
 };
 
 const addModel = () => {
-  if (addType === 'schemas') {
+  if (!createName.value) {
+    return;
+  }
+  if (addType.value === 'schemas') {
     if (modelChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
         message: '提示',
@@ -173,13 +177,13 @@ const addModel = () => {
       key: createName.value,
       // key: `#/components/${addType}/${createName.value}`,
     });
-    emits('addComp', {name: createName.value, type:addType,  value: {
+    emits('addComp', {name: createName.value, type:addType.value,  value: {
       type: 'object'
     }});
     return;
   }
 
-  if (addType === 'parameters') {
+  if (addType.value === 'parameters') {
     if (parameterChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
         message: '提示',
@@ -193,13 +197,14 @@ const addModel = () => {
       key: createName.value,
       // key: `#/components/${addType}/${createName.value}`,
     });
-    emits('addComp', {name: createName.value, type:addType, value: {
+    emits('addComp', {name: createName.value, type:addType.value, value: {
       type: 'string',
-      name: createName.value
+      name: createName.value,
+      in: parameterIn.value
     }});
     return;
   }
-  if (addType === 'requestBodies') {
+  if (addType.value === 'requestBodies') {
     if (bodyChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
         message: '提示',
@@ -213,12 +218,12 @@ const addModel = () => {
       key: createName.value,
       // key: `#/components/${addType}/${createName.value}`,
     });
-    emits('addComp', {name: createName.value, type:addType, value: {
+    emits('addComp', {name: createName.value, type:addType.value, value: {
       type: 'object',
     }});
     return;
   }
-  if (addType === 'responses') {
+  if (addType.value === 'responses') {
     if (responseChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
         message: '提示',
@@ -232,13 +237,13 @@ const addModel = () => {
       key: createName.value,
       // key: `#/components/${addType}/${createName.value}`,
     });
-    emits('addComp', {name: createName.value, type:addType, value: {
+    emits('addComp', {name: createName.value, type:addType.value, value: {
       type: 'object',
     }});
     return;
   }
 
-  if (addType === 'header') {
+  if (addType.value === 'header') {
     if (headerChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
         message: '提示',
@@ -252,14 +257,14 @@ const addModel = () => {
       key: createName.value,
       // key: `#/components/${addType}/${createName.value}`,
     });
-    emits('addComp', {name: createName.value, type:addType, value: {
+    emits('addComp', {name: createName.value, type:addType.value, value: {
       type: 'object',
       name: createName.value
     }});
     return;
   }
 
-  if (addType === 'security') {
+  if (addType.value === 'security') {
     if (securityChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
         message: '提示',
@@ -273,13 +278,13 @@ const addModel = () => {
       key: createName.value,
       // key: `#/components/${addType}/${createName.value}`,
     });
-    emits('addComp', {name: createName.value, type:addType, value: {
+    emits('addComp', {name: createName.value, type:addType.value, value: {
       name: createName.value
     }});
     return;
   }
 
-  if (addType === 'extension') {
+  if (addType.value === 'extension') {
     if (extensionChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
         message: '提示',
@@ -353,7 +358,6 @@ onMounted(() => {
     });
 
     bodyChildren.value = Object.keys(newValue.requestBodies || {}).map(path => {
-      // const title = path.split('/').reverse()[0];
       return {
         title: path,
         key: path,
@@ -361,7 +365,8 @@ onMounted(() => {
       }
     });
   }, {
-    immediate: true
+    immediate: true,
+    deep: true
   });
 });
 
@@ -463,6 +468,11 @@ const methodColorConfig:Record<string, string> = {
       :width="400"
       title="名称"
       @ok="addModel">
+      <Select
+        v-show="addType === 'parameters'"
+        v-model:value="parameterIn"
+        class="w-30 mb-2"
+        :options="['query', 'header', 'cookie', 'path'].map(i => ({value: i, label: i}))" />
       <Input
         v-model:value="createName"
         :maxlength="80"
@@ -470,25 +480,5 @@ const methodColorConfig:Record<string, string> = {
     </Modal>
   </div>
 </template>
-<style scoped>
-/* :deep(.menu-tree) .ant-tree-node-content-wrapper{
-  @apply flex items-center;
-}
-:deep(.menu-tree) .ant-tree-node-content-wrapper .ant-tree-title{
-  @apply flex-1;
-} 
 
-:deep(.menu-tree) .ant-tree-node-content-wrapper .ant-tree-iconEle {
-  @apply w-4 h-4 mr-2;
-};
-
-:deep(.menu-tree.ant-tree.ant-tree-directory) .ant-tree-treenode-selected:hover::before,
-:deep(.menu-tree.ant-tree.ant-tree-directory) .ant-tree-treenode-selected::before {
-  background: #e5e7eb;
-}
-
-:deep(.menu-tree.ant-tree.ant-tree-directory) .ant-tree-treenode .ant-tree-node-content-wrapper.ant-tree-node-selected {
-  color: #1890ff;
-} */
-</style>
 

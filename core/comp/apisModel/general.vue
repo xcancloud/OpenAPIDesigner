@@ -1,17 +1,23 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch, computed } from 'vue';
-import { Button, Input, Select, Tag } from 'ant-design-vue';
+import { Button, Input, Select, Tag, InputGroup } from 'ant-design-vue';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue';
-import { apiStatus, methodColor } from './PropTypes'
+import { apiStatus, methodColor } from './PropTypes';
+import EasyMDE from 'easymde';
+import 'easymde/dist/easymde.min.css'
 
+
+const easyMDE = ref();
+const descRef = ref();
 const statusKey = 'x-xc-status';
 interface Props {
     dataSource: {
         method: string;
         summary: string;
         operationId: string;
-        'x-xc-status': string;
-        security?: Array<string, string[]>
+        [statusKey]?: string;
+        description?: string;
+        security?: Array<{[key: string]:string[]}>;
     },
     openapiDoc: {[key: string]: any};
 }
@@ -21,12 +27,12 @@ const props = withDefaults(defineProps<Props>(), {
     method: '',
     summary: '',
     operationId: '',
-    'x-xc-status': ''
+    [statusKey]: ''
   }),
   openapiDoc: () => ({})
 });
 
-const data = ref({});
+const data = ref<Props['dataSource']>({method: '', summary: '', operationId: ''});
 const security = ref<{name: string, scopes: string[]}[][]>([]);
 
 const allSecurityOpt = computed<{label: string;value: string;scopes?: string[]}[]>(() => {
@@ -62,15 +68,19 @@ const getSecurityOptions = (defaultOpt: string, idx: number) => {
   });
 };
 
+const hasScopes = (securityName: string) => {
+  return allSecurityOpt.value.find(item => item.label === securityName)?.scopes;
+};
+
 onMounted(() => {
+  easyMDE.value = new EasyMDE({
+    element: descRef.value, 
+    autoDownloadFontAwesome: true
+  });
   watch(() => props.dataSource, () => {
     data.value = props.dataSource;
-    // (props.security || []).forEach(item => {
-    //   Object.keys(item).forEach(key => {
-    //     security.value.push({ key, value: item[key] || [] });
-    //   });
-    // });
-    security.value = (props.openapiDoc.security || []).map(securityGroup => {
+    data.value[statusKey] = data.value[statusKey] || 'UNKNOWN';
+    security.value = (props.openapiDoc.security || []).map((securityGroup: {[key:string]: string[]}) => {
       return [
         ...(Object.keys(securityGroup).map((key) => {
           return {
@@ -107,17 +117,24 @@ const handleAddSunbSecurity = (idx: number) => {
   });
 };
 
-// const delSecurity = (idx) => {
-//   security.value.splice(idx, 1);
-// };
+const delSubSecurity = (idx: number, subIdx:number) => {
+  security.value[idx].splice(subIdx, 1);
+  if (security.value[idx].length === 0) {
+    security.value.splice(idx, 1)
+  }
+};
 
 const getData = () => {
-  // const _security = security.value.map(item => {
-  //   return { [item.key]: item.value };
-  // });
+  const _security = security.value.map(item => {
+    const i: {[key: string]: string[]} = {};
+    item.forEach(subItem => {
+      i[subItem.name] = subItem.scopes;
+    })
+    return i;
+  });
   const { summary, operationId, description } = data.value;
   return {
-    // security: _security,
+    security: _security,
     summary,
     operationId,
     description,
@@ -144,8 +161,8 @@ defineExpose({
           includes=".-_" />
       </div>
       <div>
-        <!-- Description -->
-        <!-- <Input v-model:value="data.description" type="textarea" /> -->
+        <span class="text-4 font-medium"><Icon icon="icon-anquan" class="text-5" /> Description</span>
+        <textarea ref="descRef"></textarea>
       </div>
     </div>
     <div class="flex items-center justify-between border-b pb-2 mt-6">
@@ -158,22 +175,30 @@ defineExpose({
       </Button>
     </div>
 
-    <div v-if="security" class="space-y-2 mt-2">
-      <div v-for="(item ,idx) in security" :key="idx">
-        <div>
-          <span>Security{{ idx + 1 }}</span>
+    <div v-if="security" class="space-y-4 mt-2">
+      <div v-for="(item ,idx) in security" :key="idx" class="space-y-2">
+        <div class="flex items-center space-x-2">
+          <span>security{{ idx + 1 }}</span>
           <PlusOutlined @click="handleAddSunbSecurity(idx)" />
         </div>
-        <div v-for="(subItem, subIdx) in item" :key="`${idx}_${subIdx}`">
+        <div v-for="(subItem, subIdx) in item" :key="`${idx}_${subIdx}`" class=mb-2>
           <!-- {{ getSecurityOptions(subItem.name, idx) }} -->
-          <Select
-            v-model:value="subItem.name"
-            class="w-50"
-            :disabled="getSecurityOptions(subItem.name, idx).length <= 1"
-            :options="getSecurityOptions(subItem.name, idx)" />
-          <Button>
-            <DeleteOutlined />
-          </Button>
+          <InputGroup :compact="true">
+            <Select
+              v-model:value="subItem.name"
+              class="w-50"
+              :disabled="getSecurityOptions(subItem.name, idx).length <= 1"
+              :options="getSecurityOptions(subItem.name, idx)" />
+            <Select
+              v-if="hasScopes(subItem.name)"
+              v-model:value="subItem.scopes"
+              :options="(hasScopes(subItem.name) || []).map(i => ({value: i, label: i}))"
+              mode="tags"
+              class="w-80" />
+            <Button @click="delSubSecurity(idx, subIdx)">
+              <DeleteOutlined />
+            </Button>
+          </InputGroup>
         </div>
       </div>
     </div>

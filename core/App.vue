@@ -1,9 +1,9 @@
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, watch } from 'vue';
+import { defineAsyncComponent, ref, watch, provide } from 'vue';
 import { RadioGroup, RadioButton, Tabs, TabPane } from 'ant-design-vue';
 import SiderMenu from './siderMenu/index.vue';
-import { data } from './data.ts';
+import { data1 as data } from './data.ts';
 
 export type Props = {
   api: string
@@ -62,6 +62,12 @@ watch(() => activeMenuKey.value, (newValue) => {
   apiEndpoint.value = undefined;
 });
 
+const handleDelComp = () => {
+  delete dataSource.value.components[schemaType.value][activeMenuKey.value];
+  activeMenuKey.value = 'docInfo';
+};
+
+provide('dataSource', dataSource);
 </script>
 
 <template>
@@ -92,7 +98,7 @@ watch(() => activeMenuKey.value, (newValue) => {
           <Extensions v-else-if="activeMenuKey === 'extensions'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
           <Security v-else-if="activeMenuKey === 'securities'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
           <ApiModel v-else-if="selectedApi" :dataSource="selectedApi" :openapiDoc="dataSource"/>
-          <Comp v-else  class="mt-4" :dataSource="dataSource" :schemaType="schemaType" :schemaName="activeMenuKey" />
+          <Comp v-else  class="mt-4" :dataSource="dataSource" :schemaType="schemaType" :schemaName="activeMenuKey" @del="handleDelComp" />
         </TabPane>
         <TabPane key="code">
           <CodeView class="h-full" :selectStr="selectedApi || dataSource[activeMenuKey]" :startKey="apiEndpoint" :dataSource="dataSource" />

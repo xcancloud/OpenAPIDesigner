@@ -3,49 +3,43 @@
     <li
       v-for="(attr, idx) in dataSource"
       :key="idx"
-      class="pt-4 ml-3 pl-3 list-none"
-      :class="{'attr-item-wrap': idx + 1 < dataSource.length && !$props.withoutBorder}">
+      class="list-none"
+      :class="{'attr-item-wrap': idx + 1 < dataSource.length && !$props.withoutBorder, 'pt-4 ml-3 pl-3 ': !$props.isRoot}">
       <div
         class="relative leading-7 flex items-center justify-between "
-        :class="{'attr-item-last': idx + 1 === dataSource.length && !$props.withoutBorder, 'attr-item': !$props.withoutBorder}">
+        :class="{'attr-item-last': !$props.isRoot && idx + 1 === dataSource.length && !$props.withoutBorder, 'attr-item': !$props.isRoot && !$props.withoutBorder}">
         <div class="pl-1">
           <Arrow
             v-if="attr.children?.length"
-            v-model:open="attr.open"
-            @change="toogle" />
-          <Popover trigger="hover">
+            v-model:open="attr.open" />
+          <span>{{ attr.name }}<IconRequired v-if="attr.required" /></span>
+          <!-- <Popover trigger="hover">
             <span>{{ attr.name }}<IconRequired v-if="attr.required" /></span>
             <template #content>
               <Grid
                 :dataSource="attr"
                 :columns="columns" />
             </template>
-          </Popover>
-          <span class="ml-2" :class="typeColor[attr.type]">{{ attr.type }}</span>
+          </Popover> -->
+          <span class="ml-2 hover:underline cursor-pointer" :class="[typeColor[attr.type]]" @click="editSelf(attr, )">{{ attr.showType || attr.type }}</span>
           <span v-if="attr.type === 'object'"> {{ ` {${attr.children?.length || 0}\}` }} </span>
           <span v-if="attr.format">{{ `<${attr.format}>` }}</span>
-          <span v-if="attr.$ref" class="text-status-warn">$ref</span>
+          <span v-if="attr.$ref" class="text-status-warn hover:underline cursor-pointer" @click="editSelf(attr, )">$ref</span>
+          <Button
+            v-show="!$props.viewType && !attr.$ref && attr.type === 'object'"
+            type="link"
+            size="small"
+            class="py-0"
+            @click="addChild(attr)">
+            <PlusOutlined />
+          </Button>
         </div>
         <div v-show="!$props.viewType" class="space-x-1">
           <Button
             type="link"
             size="small"
             class="py-0"
-            @click="editSelf(attr, )">
-            <EditOutlined />
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            class="py-0"
-            :disabled="!['object', 'array'].includes(attr.type) || attr.type === 'array' && attr.children?.length > 0"
-            @click="addChild(attr)">
-            <PlusOutlined />
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            class="py-0"
+            :disabled="$props.isRoot"
             @click="delSelf(dataSource, idx)">
             <DeleteOutlined />
           </Button>
@@ -80,7 +74,11 @@ export default defineComponent({
     },
     parentType: {
       type: String,
-      default: 'object'
+      default: null
+    },
+    isRoot: {
+      type: Boolean,
+      default: false
     },
     withoutBorder: {
       type: Boolean,

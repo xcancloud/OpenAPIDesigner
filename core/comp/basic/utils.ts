@@ -17,10 +17,19 @@ export const parseSchemaObjToArr = (obj, requiredKeys: string[] = []) => {
   const result: any[] = [];
   if (obj.type === 'object') {
     Object.keys(obj.properties || {}).forEach(key => {
-      const attrValue = obj.properties[key];
+      let attrValue = obj.properties[key];
       let children: any[] = [];
       if (attrValue.type === 'array' && (attrValue.items?.type || attrValue.items?.$ref)) {
-        children = parseSchemaObjToArr(attrValue, attrValue.required);
+        attrValue = parseSchemaObjToArr(attrValue, attrValue.required)[0];
+        result.push({
+          name: key,
+          children: children.length ? children : undefined,
+          required: requiredKeys.includes(key),
+          properties: undefined,
+          items: undefined,
+          ...attrValue,
+        });
+        return;
       }
       if (attrValue.type === 'object' && attrValue.properties) {
         children = parseSchemaObjToArr(attrValue, attrValue.required);
@@ -28,25 +37,45 @@ export const parseSchemaObjToArr = (obj, requiredKeys: string[] = []) => {
       result.push({
         name: key,
         ...attrValue,
-        required: requiredKeys.includes(key),
         children: children.length ? children : undefined,
+        required: requiredKeys.includes(key),
         properties: undefined,
         items: undefined
       });
     });
   } else if (obj.type === 'array') {
     let children: any[] = [];
-    if (obj.items?.type === 'array' && (obj.items.items?.type || obj.items.items?.$ref)) {
-      children = parseSchemaObjToArr(obj.items, obj.items?.required);
-    }
-    if (obj.items?.type === 'object' && obj.items.properties) {
-      children = parseSchemaObjToArr(obj.items, obj.items?.required);
-    }
+    const showTypeArr: string[] = [];
+    const arrayItems: any[] = [];
+    function handleArrType (item) {
+      showTypeArr.unshift('array');
+      arrayItems.push(item);
+      if (item.items?.type === 'array') {
+        handleArrType(item.items);
+      } else if (obj.items?.type === 'object') {
+        showTypeArr.unshift('object');
+        children = parseSchemaObjToArr(obj.items, obj.items?.required);
+        arrayItems.push(obj.items);
+      } else {
+        showTypeArr.unshift(item.items?.type);
+        arrayItems.push(obj.items);
+      }
+    };
+    handleArrType(obj);
+    const showType = showTypeArr.reduce((pre, cur) => {
+      if (pre) {
+        return `${cur}<${pre}>`;
+      } else {
+        return cur;
+      }
+    }, '');
     result.push({
-      name: '',
       ...obj,
       ...(obj.items || {}),
-      type: obj.items?.type,
+      type: showTypeArr[0],
+      showType: showType,
+      typeList: showTypeArr,
+      arrayItems: arrayItems,
       children: children.length ? children : undefined,
       properties: undefined,
       items: undefined
@@ -62,56 +91,38 @@ export const parseSchemaObjToArr = (obj, requiredKeys: string[] = []) => {
   return result;
 };
 
-
-const parseArrayType = () => {
-  
-}
-
-export const parseSchemaArrToObj = (arr, type) => {
+export const parseSchemaArrToObj = (arr) => {
   let result: {[key: string]: any} = {};
-  if (arr.length === 1 && type === 'array') {
-    delete arr[0].required;
+  if (arr[0].showType && arr[0].showType.startsWith('array')) {
+    const arrayItem = (arr[0]?.arrayItems || []).reverse();
+    result = arrayItem.reduce((pre, cur) => {
+      if (pre === null) {
+        return parseSchemaArrToObj([{...cur, children: [...(arr[0]?.children || [])]}]);
+      } else {
+        return {
+          ...cur,
+          items: pre
+        }
+      }
+    }, null)
+    return result;
+  } else if (arr[0].type === 'object') {
     result = {
-      ...arr[0]
-    };
-
-    if (arr[0].children?.length) {
-      if (arr[0].type === 'array') {
-        result.items = parseSchemaArrToObj(arr[0].children, arr[0].type);
-      }
-      if (arr[0].type === 'object') {
-        result = parseSchemaArrToObj(arr[0].children, arr[0].type);
-      }
+      ...arr[0],
+      properties: {}
     }
-    result.required = [];
     delete result.children;
-    delete result.name;
-  } else if (arr.length === 1 && type !== 'object') {
-    delete arr[0].children;
-    delete arr[0].required;
-    return {
-      ...arr[0]
-    };
-  } else {
-    result.type = 'object';
-    result.properties = {};
     result.required = [];
-    arr.forEach(attrItem => {
+    (arr[0].children || []).forEach(attrItem => {
       if (attrItem.required === true) {
         result.required.push(attrItem.name);
       }
       delete attrItem.required;
-      if (['array', 'object'].includes(attrItem.type)) {
-        if (attrItem.type === 'array') {
-          result.properties[attrItem.name] = {
-            ...attrItem,
-            items: attrItem.children?.length ? parseSchemaArrToObj(attrItem.children, attrItem.type) : undefined
-          };
+      if (['object'].includes(attrItem.type) || attrItem.showType?.startsWith('array')) {
+        if (attrItem.showType?.startsWith('array')) {
+          result.properties[attrItem.name] = parseSchemaArrToObj([attrItem]);
         } else {
-          result.properties[attrItem.name] = {
-            ...attrItem,
-            ...(attrItem.children ? parseSchemaArrToObj(attrItem.children, attrItem.type) : {})
-          };
+          result.properties[attrItem.name] = parseSchemaArrToObj([attrItem]);
         }
         delete result.properties[attrItem.name].children;
         delete result.properties[attrItem.name].name;
@@ -121,8 +132,11 @@ export const parseSchemaArrToObj = (arr, type) => {
         };
       }
     });
+    return result;
+  } else {
+    result = {...arr[0]};
+    return result;
   }
-  return result;
 };
 
 export const schemaTypeDependenceMap = {
@@ -133,3 +147,6 @@ export const schemaTypeDependenceMap = {
   integer: ['examples', 'type', 'types', 'nullable', 'default', 'deprecated', 'enum', 'minLength', 'maxLength', 'minimum', 'minItems', 'maxItems', 'pattern', 'description', 'format', 'required'],
   boolean: ['examples', 'type', 'types', 'nullable', 'default', 'deprecated', 'enum', 'minLength', 'maxLength', 'minimum', 'minItems', 'maxItems', 'pattern', 'description', 'format', 'required']
 };
+
+
+

@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch } from 'vue';
-import { Button, TabPane, Tabs, Dropdown, Input } from 'ant-design-vue';
-import ResponseSchema from '../basic/responseSchema.vue';
+import { Button, TabPane, Tabs, Input } from 'ant-design-vue';
+// import ResponseSchema from '../basic/responseSchema.vue';
 import {httpStatus} from './PropTypes';
+import Dropdown from '@/components/Dropdown/index.vue';
+import responseTabPane from './responseTabPane.vue';
 
 interface Props {
     dataSource: {[key: string]: {[key: string]: any}};
@@ -95,14 +97,14 @@ defineExpose({
         v-for="(status, idx) in respStatus"
         :key="status"
         :tab="status"
-        :closable="true"
-        :disabled="props.viewType">
-        <Input
+        :closable="true">
+        <responseTabPane v-bind="data[status]" />
+        <!-- <Input
           v-model:value="data[status].description"
-          type="textarea" />
-        <ResponseSchema
+          type="textarea" /> -->
+        <!-- <ResponseSchema
           :ref="dom => responseSchemaRef[idx] = dom"
-          :data="data[status]" />
+          :data="data[status]" /> -->
       </TabPane>
     </Tabs>
   </div>

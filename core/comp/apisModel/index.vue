@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, provide, ref, watch } from 'vue';
 
-import { Button, Popover, RadioButton, RadioGroup, Switch, TabPane, Tabs, Tag, Tooltip, Select } from 'ant-design-vue';
+import { Button, Popover, Switch, TabPane, Tabs, Tag, Tooltip, Select } from 'ant-design-vue';
 
 import { Props } from './PropTypes';
 
@@ -24,7 +24,7 @@ const props = withDefaults(defineProps<Props>(), {
   openapiDoc: () => ({})
 });
 
-const emits = defineEmits<{(e: 'cancel'):void, (e: 'ok', value: Props.dataSource):void}>();
+const emits = defineEmits<{(e: 'cancel'):void, (e: 'ok', value: Props['dataSource']):void}>();
 const activeKey = ref('general');
 const selectStr = ref({});
 const path = ref('');

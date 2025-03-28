@@ -6,14 +6,14 @@ import AddSchemaTypeModel from './addSchemaTypeModel.vue';
 interface Props {
   visible: boolean;
   data: {[key: string]: any},
-  parentType: 'object'|'array';
+  parentType: 'object'|null;
   excludesAttr: string[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
   visible: false,
   data: () => ({}),
-  parentType: 'object',
+  parentType: null,
   excludesAttr: () => ([])
 });
 
@@ -60,13 +60,15 @@ watch([() => type.value, activeTab.value], () => {
 </script>
 <template>
   <Modal
-    title="添加参数"
+    title="参数"
     :visible="props.visible"
     @cancel="cancel"
     @ok="submit">
-    <AddSchemaTypeModel
-      ref="addSchemaModelRef"
-      :data="props.data"
-      :parentType="props.parentType" />
+    <div style="max-height: calc(100vh - 300px); overflow-y: auto;">
+      <AddSchemaTypeModel
+        ref="addSchemaModelRef"
+        :data="props.data"
+        :parentType="props.parentType" />
+    </div>
   </Modal>
 </template>

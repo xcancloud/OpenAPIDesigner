@@ -1,188 +1,246 @@
 <script lang="ts" setup>
-import { inject, onMounted, ref, watch } from 'vue';
-// import { Icon,  } from '@xcan/design';
+import { inject, onMounted, ref, computed } from 'vue';
 import { Button, Switch, TabPane, Tabs, Input, Select } from 'ant-design-vue';
-// import { ALTESTER } from '@xcan/sdk';
+
 
 interface Props {
   data: {[key: string]: any},
-  parentType: 'object'|'array',
+  parentType: 'object'|null,
   addType?: 'attr'|'schema',
-  modelType?: string
+  modelType?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   data: () => ({}),
-  parentType: 'object',
-  addType: 'attr'
+  parentType: null,
+  addType: 'attr',
 });
 
-const serviceId = inject('serviceId');
+const dataSource = inject('dataSource', ref<{[key: string]: any}>({}));
+const typeItems = ref<{[key: string]: any}[]>([]);
+const refsOpt = computed(() => {
+  const schemas = dataSource.value.components?.schemas || {};
+  return Object.keys(schemas).map(key => {
+    return {
+      label: key,
+      value: key,
+      valueItem: {
+        name: key,
+        ...schemas[key]
+      }
+    }
+  })
+});
 
-const name = ref();
-
-const required = ref(false); // 必填？
-const nullable = ref(false);
-const deprecated = ref(false); // 弃用？
-
-const type = ref(); // 类型
-const format = ref(); // 格式
-const defaultValue = ref(); // 默认值
-const example = ref(); // 示例值
-const minLength = ref(); // 最小长度
-const maxLength = ref(); // 最大长度
-const minimum = ref(); // 最小值
-const maximum = ref(); // 最大值
-const minItems = ref(); // 数组最小长度
-const maxItems = ref(); // 数组最大长度
 
 const enums = ref<string[]>([]); // 枚举list
-const pattern = ref(); // regexp
-const description = ref(); // 描述
-
-const refComp = ref(); // 引用
-
-const activeTab = ref('attr');
 
 const validate = ref(false);
 const validateData = () => {
   validate.value = true;
-  if (!name.value && props.addType === 'attr') {
-    return false;
+  return typeItems.value.every((i, idx) => {
+    if (props.parentType && idx === 0) {
+      if (!i.name) {
+        return false;
+      }
+    }
+    if (i.tab === 'type') {
+      return !!i.type;
+    }
+
+    if (i.tab === 'refs') {
+      return !!i.$ref;
+    }
+  })
+
+  
+};
+
+const formatItemData = (item: {[key: string]: any}): {[key: string]: any} | undefined=> {
+  if (item.tab === 'type') {
+      let examples: string[] = [];
+      if (!item.type) {
+        return undefined;
+      }
+      if (item.example && item.examples?.length) {
+        item.examples = item.examples;
+        item.examples[0] = item.example;
+      } else if (item.example) {
+        examples = [item.example];
+      }
+      if (item.type === 'string') {
+        const data = {
+          name: item.name,
+          type: item.type,
+          format: item.format,
+          required: item.required,
+          nullable: item.nullable,
+          deprecated: item.deprecated,
+          default: item.defaultValue,
+          examples,
+          enum: item.enums?.length ? item.enums : undefined,
+          description: item.description
+        };
+        return data;
+      }
+      if (['integer', 'number'].includes(item.type)) {
+        const data = {
+          name: item.name,
+          type: item.type,
+          format: item.format,
+          required: item.required,
+          nullable: item.nullable,
+          deprecated: item.deprecated,
+          default: item.defaultValue,
+          examples,
+          enum: item.enums?.length ? item.enums : undefined,
+          minimum: item.minimum,
+          maximum: item.maximum,
+          description: item.description
+        };
+        return data;
+      }
+      if (item.type === 'boolean') {
+        const data = {
+          name: item.name,
+          type: item.type,
+          format: item.format,
+          required: item.required,
+          nullable: item.nullable,
+          deprecated: item.deprecated,
+          default: item.defaultValue,
+          description: item.description
+        };
+        return data;
+      }
+      if (item.type === 'object') {
+        const data = {
+          name: item.name,
+          type: item.type,
+          required: item.required,
+          nullable: item.nullable,
+          deprecated: item.deprecated,
+          description: item.description
+        };
+        return data;
+      }
+      if (item.type === 'array') {
+        const data = {
+          name: item.name,
+          type: item.type,
+          required: item.required,
+          nullable: item.nullable,
+          deprecated: item.deprecated,
+          minItems: item.minItems,
+          maxItems: item.maxItems,
+          description: item.description,
+        };
+        return data;
+      }
+  } else if (item.tab === 'refs') {
+    const data = {
+      name: item.name || item.$ref,
+      $ref: item.$ref,
+    };
+    return data;
   }
-  if (activeTab.value === 'attr' && !type.value) {
-    return false;
-  }
-  if (activeTab.value === 'refs' && !refComp.value) {
-    return false;
-  }
-  return true;
 };
 
 const getData = () => {
   if (validateData()) {
-    if (activeTab.value === 'attr') {
-      let examples: string[] = [];
-      if (example.value && props.data.examples?.length) {
-        examples = props.data.examples;
-        examples[0] = example.value;
-      } else if (example.value) {
-        examples = [example.value];
+    let result:{[key: string]: any} | undefined;
+    if (typeItems.value.length === 1) {
+      result = formatItemData(typeItems.value[0]);
+      if (!props.parentType && result && !result.$ref) {
+        delete result.name;
       }
-      if (type.value === 'string') {
-        const data = {
-          name: name.value,
-          type: type.value,
-          format: format.value,
-          required: required.value,
-          nullable: nullable.value,
-          deprecated: deprecated.value,
-          default: defaultValue.value,
-          examples,
-          enum: enums.value.length ? enums.value : undefined,
-          description: description.value
-        };
-        return data;
+      if (props.data?.type === 'object' && result?.type === 'object') {
+        result.children = props.data?.children;
+        result.open = props.data.open;
       }
-      if (['integer', 'number'].includes(type.value)) {
-        const data = {
-          name: name.value,
-          type: type.value,
-          format: format.value,
-          required: required.value,
-          nullable: nullable.value,
-          deprecated: deprecated.value,
-          default: defaultValue.value,
-          examples,
-          enum: enums.value.length ? enums.value : undefined,
-          minimum: minimum.value,
-          maximum: maximum.value,
-          description: description.value
-        };
-        return data;
+    } else {
+      const arrItems = typeItems.value.map(formatItemData).filter(Boolean);
+      if (!props.parentType && arrItems[0] && !arrItems[0].$ref) {
+        delete arrItems[0].name;
       }
-      if (type.value === 'boolean') {
-        const data = {
-          name: name.value,
-          type: type.value,
-          format: format.value,
-          required: required.value,
-          nullable: nullable.value,
-          deprecated: deprecated.value,
-          default: defaultValue.value,
-          description: description.value
-        };
-        return data;
+      const showTypeArr = arrItems.map(i => i?.type || i?.$ref).reverse();
+      const showType = showTypeArr.reduce((pre, cur) => {
+      if (pre) {
+        return `${cur}<${pre}>`;
+      } else {
+        return cur;
       }
-      if (type.value === 'object') {
-        const data = {
-          name: name.value,
-          type: type.value,
-          required: required.value,
-          nullable: nullable.value,
-          deprecated: deprecated.value,
-          description: description.value
-        };
-        return data;
+    }, '');
+      result = {
+        ...arrItems[arrItems.length - 1],
+        arrayItems: arrItems,
+        showType,
+        typeList: showTypeArr,
+        children: undefined,
+        open: undefined
       }
-      if (type.value === 'array') {
-        const data = {
-          name: name.value,
-          type: type.value,
-          required: required.value,
-          nullable: nullable.value,
-          deprecated: deprecated.value,
-          minItems: minItems.value,
-          maxItems: maxItems.value,
-          description: description.value
-        };
-        return data;
+      if (arrItems.length === props.data?.arrayItems?.length) {
+        if (props.data.type === 'object' && arrItems[arrItems.length - 1]?.type === 'object') {
+          result.children = props.data.children;
+          result.open = props.data.open;
+        }
       }
     }
-    if (activeTab.value === 'refs') {
-      const data = {
-        name: name.value,
-        $ref: refComp.value
-      };
-      return data;
-    }
+    return result;
   }
   return false;
 };
 
 const resetValues = () => {
   validate.value = false;
-  activeTab.value = 'attr';
-  name.value = props.parentType === 'object' ? props.data.name : 'items';
-  required.value = props.data.required || false;
-  nullable.value = props.data.nullable || false;
-  deprecated.value = props.data.deprecated || false;
-  type.value = props.modelType || props.data.type;
-  if (type.value) {
-    const targetTypeOpt = dataTypeOpt.find(i => i.value === type.value);
-    changeType(type.value, targetTypeOpt);
+  const data = JSON.parse(JSON.stringify(props.data));
+  if (data?.arrayItems) {
+    typeItems.value = data.arrayItems;
+  } else {
+    typeItems.value = [data || {}];
   }
-  format.value = props.data.format;
-  defaultValue.value = props.data.defaultValue;
-  example.value = props.data.example;
-  if (!example.value && props.data?.example?.length) {
-    example.value = props.data?.example[0];
+  if (typeItems.value[typeItems.value.length - 1].type === 'array') {
+    typeItems.value.push({type: '', tab: 'type'});
   }
-  minLength.value = props.data.minLength;
-  maxLength.value = props.data.maxLength;
-  minimum.value = props.data.minimum;
-  maximum.value = props.data.maximum;
-  minItems.value = props.data.minItems;
-  maxItems.value = props.data.maxItems;
-  enums.value = props.data.enum || [];
-  description.value = props.data.description;
-  refComp.value = props.data.$ref;
-  if (refComp.value) {
-    activeTab.value = 'refs';
-  }
+  typeItems.value.forEach((item) => {
+    if (item.$ref) {
+      item.tab = 'refs';
+    } else {
+      item.tab = 'type'
+    }
+  });
+  // activeTab.value = 'attr';
+  // name.value = props.parentType === 'object' ? props.data.name : 'items';
+  // required.value = props.data.required || false;
+  // nullable.value = props.data.nullable || false;
+  // deprecated.value = props.data.deprecated || false;
+  // type.value = props.modelType || props.data.type;
+  // if (type.value) {
+  //   const targetTypeOpt = dataTypeOpt.find(i => i.value === type.value);
+  //   changeType(type.value, targetTypeOpt);
+  // }
+  // format.value = props.data.format;
+  // defaultValue.value = props.data.defaultValue;
+  // example.value = props.data.example;
+  // if (!example.value && props.data?.example?.length) {
+  //   example.value = props.data?.example[0];
+  // }
+  // minLength.value = props.data.minLength;
+  // maxLength.value = props.data.maxLength;
+  // minimum.value = props.data.minimum;
+  // maximum.value = props.data.maximum;
+  // minItems.value = props.data.minItems;
+  // maxItems.value = props.data.maxItems;
+  // enums.value = props.data.enum || [];
+  // description.value = props.data.description;
+  // refComp.value = props.data.$ref;
+  // if (refComp.value) {
+  //   activeTab.value = 'refs';
+  // }
 };
 
-const dataTypeOpt = [
+type DataType = {label: string; value: string; format?: string[]};
+const dataTypeOpt: DataType[] = [
   {
     label: 'number',
     format: [
@@ -222,202 +280,193 @@ const dataTypeOpt = [
     value: 'object'
   }
 ];
-
-const formatOpt = ref([]);
-
-const changeType = (type, opt) => {
-  format.value = undefined;
-  defaultValue.value = undefined;
-  example.value = undefined;
-  formatOpt.value = (opt.format || []).map(i => ({ value: i, label: i }));
+const getFormatOpt = (type: string) => {
+  return (dataTypeOpt.find(opt => opt.value === type)?.format || []).map(i => ({ value: i, label: i }));
 };
 
-const addEnums = () => {
-  enums.value.push('');
+const changeType = (type: string, opt: DataType, index: number) => {
+  if (type === 'array') {
+    typeItems.value.push({type: '', tab: 'type'});
+  } else {
+    typeItems.value.splice(index+1);
+  }
+  // format.value = undefined;
+  // defaultValue.value = undefined;
+  // example.value = undefined;
+  // formatOpt.value = (opt.format || []).map(i => ({ value: i, label: i }));
 };
 
-const deleteEnum = (idx) => {
-  enums.value.splice(idx, 1);
+const addEnums = (index: number) => {
+  typeItems.value[index].enums.push('');
 };
 
-const changeRef = (_ref, option) => {
-  name.value = option.key;
+const deleteEnum = (index: number, idx: number) => {
+  typeItems.value[index].enums.splice(idx, 1)
 };
 
-watch([() => type.value, activeTab.value], () => {
-  validate.value = false;
-});
+const changeRef = (refName: string, option: {name: string}, index: number) => {
+  typeItems.value[index].$ref = refName;
+  if (refName) {
+    typeItems.value[index].type = undefined;
+    typeItems.value.splice(index+1);
+  }
+};
 
-const compParams = { types: ['schemas'] };
 onMounted(() => {
   resetValues();
 });
-watch(() => props.modelType, newValue => {
-  if (newValue) {
-    type.value = newValue;
-    const targetTypeOpt = dataTypeOpt.find(i => i.value === newValue);
-    changeType(newValue, targetTypeOpt);
-  }
-}, {
-  immediate: true
-});
+
 defineExpose({
   resetValues,
   getData
 });
 </script>
 <template>
-  <template v-if="props.addType === 'attr'">
-    <Input
-      v-model:value="name"
-      placeholder="参数名称"
-      :disabled="(!!refComp && activeTab === 'refs') || props.parentType === 'array'"
-      :error="validate && !name"
-      :maxlength="200"
-      data-type="en"
-      includes="-_." />
-    <div class="flex items-center mt-2 space-x-1">
-      <span>必填</span>
-      <Switch
-        v-model:checked="required"
-        size="small" />
-      <span class="pl-5">NULL</span>
-      <Switch
-        v-model:checked="nullable"
-        size="small" />
-      <span class="pl-5">弃用</span>
-      <Switch
-        v-model:checked="deprecated"
-        size="small" />
-    </div>
-  </template>
-  <Tabs
-    v-if="props.addType === 'attr'"
-    v-model:activeKey="activeTab"
-    size="small">
-    <TabPane
-      key="attr"
-      tab="属性">
-    </TabPane>
-    <TabPane
-      key="refs"
-      tab="引用">
-      <!-- <Select
-        v-model:value="refComp"
-        :action="`${ALTESTER}/services/${serviceId}/comp/type?ignoreModel=false`"
-        :params="compParams"
-        :fieldNames="{value: 'ref', label: 'key'}"
-        class="w-full"
-        placeholder="选择引用组件"
-        :error="validate && activeTab === 'refs' && !refComp"
-        @change="changeRef" /> -->
-    </TabPane>
-  </Tabs>
-  <template v-if="props.addType === 'schema' || activeTab === 'attr'">
-    <div class="flex flex-col space-y-2">
-      <template v-if="props.addType === 'attr'">
-        <Select
-          v-model:value="type"
-          placeholder="类型"
-          :options="dataTypeOpt"
-          :error="validate && activeTab === 'attr' && !type"
-          @change="changeType" />
-      </template>
-      <template v-if="['string', 'number', 'integer'].includes(type)">
-        <Select
-          v-model:value="format"
-          placeholder="格式"
-          :options="formatOpt" />
-        <Input
-          v-model:value="defaultValue"
-          :maxlength="200"
-          placeholder="默认值" />
-        <Input
-          v-model:value="example"
-          :maxlength="200"
-          placeholder="示例值" />
-      </template>
-      <template v-if="type === 'boolean'">
-        <Select
-          v-model:value="defaultValue"
-          placeholder="默认值"
-          :allowClear="true"
-          :options="[{value: true, label: 'true'}, {value: false, label: 'false'}]" />
-        <!-- <Select
-          v-model:value="example"
-          :options="[{value: true, label: 'true'}, {value: false, label: 'false'}]" /> -->
-      </template>
-      <template v-if="type==='string'">
-        <Input
-          v-model:value="pattern"
-          :maxlength="200"
-          placeholder="pattern, ^[A-Za-z0-9-_]+" />
-        <div class="flex items-center space-x-2">
+  <div v-if="typeItems.length" v-for="(item, index) in typeItems">
+    <Tabs v-model:activeKey="item.tab" v-show="index === 0 || typeItems?.[index - 1]?.tab === 'type'">
+      <TabPane key="type" :tab="index > 0 ? 'SubType' : 'Type'">
           <Input
-            v-model:value="minLength"
-            dataType="number"
-            :decimalPoint="0"
-            placeholder="最小长度" />
-          <Input
-            v-model:value="maxLength"
-            dataType="number"
-            :decimalPoint="0"
-            placeholder="最大长度" />
-        </div>
-        <div>
-          <Button
-            size="small"
-            @click="addEnums">
-            Add Enum
-          </Button>
-          <div
-            v-for="(_item, idx) in enums"
-            :key="idx"
-            class="flex space-x-2 items-center">
-            <Input
-              v-model:value="enums[idx]"
-              :maxlength="200"
-              size="small"
-              class="mt-1" />
-            <Icon
-              icon="icon-qingchu"
-              @click="deleteEnum(idx)" />
+            v-if="!!props.parentType && index === 0"
+            v-model:value="item.name"
+            placeholder="参数名称"
+            :class="{'border-status-error': validate && !item.name}"
+            :maxLength="200" />
+          <div class="flex items-center mt-2 space-x-1">
+            <span>必填</span>
+            <Switch
+              v-model:checked="item.required"
+              size="small" />
+            <span class="pl-5">NULL</span>
+            <Switch
+              v-model:checked="item.nullable"
+              size="small" />
+            <span class="pl-5">弃用</span>
+            <Switch
+              v-model:checked="item.deprecated"
+              size="small" />
           </div>
-        </div>
-      </template>
-      <template v-if="['number', 'integer'].includes(type)">
-        <div class="flex items-center space-x-2">
-          <Input
-            v-model:value="minimum"
-            dataType="number"
-            :min="-9007199254740992"
-            :max="9007199254740992"
-            placeholder="最小值" />
-          <Input
-            v-model:value="maximum"
-            dataType="number"
-            :min="-9007199254740992"
-            :max="9007199254740992"
-            placeholder="最大值" />
-        </div>
-      </template>
-      <template v-if="type === 'array'">
+          <div class="flex flex-col space-y-2">
+            <Select
+              v-model:value="item.type"
+              placeholder="类型"
+              :options="dataTypeOpt"
+              :class="{'error-ant-select': validate && item.tab === 'type' && !item.type}"
+              @change="(...arg) => changeType(...arg, index)" />
+            <template v-if="['string', 'number', 'integer'].includes(item.type)">
+              <Select
+                v-model:value="item.format"
+                placeholder="格式"
+                :options="getFormatOpt(item.type)" />
+              <Input
+                v-model:value="item.defaultValue"
+                :maxlength="200"
+                placeholder="默认值" />
+              <Input
+                v-model:value="item.example"
+                :maxlength="200"
+                placeholder="示例值" />
+            </template>
+            <template v-if="item.type === 'boolean'">
+              <Select
+                v-model:value="item.defaultValue"
+                placeholder="默认值"
+                :allowClear="true"
+                :options="[{value: true, label: 'true'}, {value: false, label: 'false'}]" />
+            </template>
+            <template v-if="item.type==='string'">
+              <Input
+                v-model:value="item.pattern"
+                :maxlength="200"
+                placeholder="pattern, ^[A-Za-z0-9-_]+" />
+              <div class="flex items-center space-x-2">
+                <Input
+                  v-model:value="item.minLength"
+                  dataType="number"
+                  :decimalPoint="0"
+                  placeholder="最小长度" />
+                <Input
+                  v-model:value="item.maxLength"
+                  dataType="number"
+                  :decimalPoint="0"
+                  placeholder="最大长度" />
+              </div>
+              <div>
+                <Button
+                  size="small"
+                  @click="addEnums(index)">
+                  Add Enum
+                </Button>
+                <div
+                  v-for="(_item, idx) in item.enums"
+                  :key="idx"
+                  class="flex space-x-2 items-center">
+                  <Input
+                    v-model:value="enums[idx]"
+                    :maxlength="200"
+                    size="small"
+                    class="mt-1" />
+                  <Icon
+                    icon="icon-qingchu"
+                    @click="deleteEnum(index, idx)" />
+                </div>
+              </div>
+            </template>
+            <template v-if="['number', 'integer'].includes(item.type)">
+              <div class="flex items-center space-x-2">
+                <Input
+                  v-model:value="item.minimum"
+                  dataType="number"
+                  :min="-9007199254740992"
+                  :max="9007199254740992"
+                  placeholder="最小值" />
+                <Input
+                  v-model:value="item.maximum"
+                  dataType="number"
+                  :min="-9007199254740992"
+                  :max="9007199254740992"
+                  placeholder="最大值" />
+              </div>
+            </template>
+            <template v-if="item.type === 'array'">
+              <Input
+                v-model:value="item.minItems"
+                dataType="number"
+                :decimalPoint="0"
+                placeholder="minItems" />
+              <Input
+                v-model:value="item.maxItems"
+                dataType="number"
+                :decimalPoint="0"
+                placeholder="maxItems" />
+            </template>
+            <Input
+              v-model:value="item.description"
+              :maxlength="1000"
+              placeholder="描述"
+              type="textarea" />
+          </div>
+      </TabPane>
+      <TabPane key="refs" tab="Components">
         <Input
-          v-model:value="minItems"
-          dataType="number"
-          :decimalPoint="0"
-          placeholder="minItems" />
-        <Input
-          v-model:value="maxItems"
-          dataType="number"
-          :decimalPoint="0"
-          placeholder="maxItems" />
-      </template>
-      <Input
-        v-model:value="description"
-        :maxlength="1000"
-        placeholder="描述"
-        type="textarea" />
-    </div>
-  </template>
+          v-if="!!props.parentType && index === 0"
+          v-model:value="item.name"
+          placeholder="参数名称"
+          class="mb-2"
+          :class="{'border-status-error': validate && !item.name}"
+          :maxLength="200" />
+        <Select
+          v-model:value="item.$ref"
+          :options="refsOpt"
+          :class="{'error-ant-select': index > 0 && validate && item.tab === 'refs' && !item.$ref}"
+          class="w-full"
+          @change="(...arg) => changeRef(...arg, index)" />
+      </TabPane>
+    </Tabs>
+  </div>
+  
 </template>
+<style scoped>
+:deep(.error-ant-select) > .ant-select-selector {
+  @apply border-status-error;
+}
+</style>

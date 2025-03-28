@@ -1,8 +1,17 @@
 <script lang="ts" setup>
 import { inject, onMounted, ref, watch } from 'vue';
-import { Button, TabPane, Tabs, Dropdown, Input, Select } from 'ant-design-vue';
+import { Button, TabPane, Tabs, Input, Select } from 'ant-design-vue';
+import { NotificationOutlined } from '@ant-design/icons-vue';
 import { CONTENT_TYPE } from '../basic/utils';
 import BodyContentTypeTab from '../basic/bodyContentTypeTab.vue';
+import Dropdown from '@/components/Dropdown/index.vue';
+
+import EasyMDE from 'easymde';
+import 'easymde/dist/easymde.min.css'
+
+
+const easyMDE = ref();
+const descRef = ref();
 
 interface Props {
     dataSource: {
@@ -21,21 +30,23 @@ const requestBodiesDataRef = ref([]);
 const contentTypes = ref<string[]>([]);
 
 const data = ref({});
-const serviceId = inject('serviceId', ref());
-const compParams = { types: ['requestBodies'] };
 const refComp = ref();
 
 
-const changeRef = (value, option) => {
-  if (value) {
-    data.value = JSON.parse(option.model);
-  } else {
-    data.value = {};
-  }
-  contentTypes.value = Object.keys(data.value.content || {});
-};
+// const changeRef = (value, option) => {
+//   if (value) {
+//     data.value = JSON.parse(option.model);
+//   } else {
+//     data.value = {};
+//   }
+//   contentTypes.value = Object.keys(data.value.content || {});
+// };
 
 onMounted(() => {
+  easyMDE.value = new EasyMDE({
+    element: descRef.value, 
+    autoDownloadFontAwesome: true
+  });
   watch(() => props.dataSource, () => {
     data.value = props.dataSource;
     contentTypes.value = Object.keys(data.value.content || {});
@@ -112,9 +123,10 @@ defineExpose({
 <template>
   <div>
     <div class="font-medium text-4 border-b pb-1 mb-2 flex items-center">
-      <span>推送通知Icon</span>
-      <!-- <Icon icon="icon-tuisongtongzhi" class="text-5 mr-2" /> -->
-      RequestBody Description
+      <div class="flex items-center space-x-1">
+        <NotificationOutlined />
+        <span>RequestBody Description</span>
+      </div>
       <div class="flex-1 text-right">
         <!-- <Select
           v-model:value="refComp"
@@ -127,41 +139,34 @@ defineExpose({
           @change="changeRef" /> -->
       </div>
     </div>
-    <Input
+    <textarea ref="descRef"></textarea>
+    <!-- <Input
       v-model:value="data.ddescription"
       type="textarea"
-      :maxlength="1000" />
+      :maxlength="1000" /> -->
   </div>
   <div class="mt-4">
-    <div class="font-medium text-4 border-b pb-1 mb-2 flex items-center"><Icon icon="icon-tuisongtongzhi" class="text-5 mr-2" /> Body</div>
+    <div class="font-medium text-4 border-b pb-1 mb-2 flex justify-between items-center">
+      <span>
+         Body
+      </span>
+      <Dropdown
+        :disabledKeys="contentTypes"
+        :menuItems="CONTENT_TYPE.map(i => ({key: i, name: i, disabled: contentTypes.includes(i)}))"
+        @click="addContentType">
+        <Button
+          size="small"
+          type="primary">
+          + Add
+        </Button>
+      </Dropdown>
+    </div>
     <Tabs
       type="editable-card"
       hideAdd
       size="small"
       class="mt-2"
       @edit="editTab">
-      <template #rightExtra>
-        <div class="flex items-center">
-          <!-- <Select
-                v-model:value="selectRequestContentType"
-                placeholder="Add"
-                :allowClear="true"
-                :options="CONTENT_TYPE.map(i => ({value: i, label: i, disabled: contentTypes.includes(i)}))"
-                class="w-80" /> -->
-          <Dropdown
-            :disabledKeys="contentTypes"
-            :menuItems="CONTENT_TYPE.map(i => ({key: i, name: i, disabled: contentTypes.includes(i)}))"
-            @click="addContentType">
-            <Button
-              size="small"
-              type="primary">
-              <Icon
-                icon="icon-jia"
-                class="text-3.5" />
-            </Button>
-          </Dropdown>
-        </div>
-      </template>
       <TabPane
         v-for="(contentType, idx) in contentTypes"
         :key="contentType"

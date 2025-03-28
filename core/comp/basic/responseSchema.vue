@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch } from 'vue';
-import { Button, TabPane, Tabs, Dropdown } from 'ant-design-vue';
+import { Button, TabPane, Tabs } from 'ant-design-vue';
 import { parseSchemaArrToObj, parseSchemaObjToArr } from './utils';
 import { CONTENT_TYPE } from './utils';
 
 import BodyContentTypeTab from './bodyContentTypeTab.vue';
 import AttrItemList from './attrItemList.vue';
 import AddAttrModal from './addAttrModal.vue';
+import Dropdown from '@/components/Dropdown/index.vue';
 
 interface Props {
   data: {
@@ -176,7 +177,36 @@ defineExpose({
 });
 </script>
 <template>
-  <div class="flex pt-2">
+  <div class="pt-2">
+    <div class="flex-1 min-w-0 px-2">
+      <span class="text-3.5 mb-4">
+        Headers
+        <Icon
+          v-show="!props.viewType"
+          icon="icon-tianjiamokuai"
+          class="ml-2"
+          @click="addAttr()" /></span>
+      <!-- <div class="obj-top relative font-medium text-3.5 mb-1">
+        Object
+        <span>{ {{ headerObjList.length }} }</span>
+
+      </div> -->
+      <AttrItemList
+        :dataSource="headerObjList"
+        parentType="object"
+        :withoutBorder="true"
+        :viewType="props.viewType"
+        @add="addAttr"
+        @del="delAttr"
+        @edit="editAttr" />
+      <AddAttrModal
+        v-model:visible="addVisible"
+        :parentType="addFromType"
+        :data="editAttrData"
+        :excludesAttr="excludesAttr"
+        @ok="changeAttrList"
+        @cancel="closeModal" />
+    </div>
     <div class="flex-1 min-w-0 border-r px-2">
       <!-- <span class="text-4 font-medium mb-4">content</span> -->
       <div class="flex space-x-2 items-center mb-2">
@@ -228,34 +258,6 @@ defineExpose({
         </TabPane>
       </Tabs>
     </div>
-    <div class="flex-1 min-w-0 px-2">
-      <span class="text-3.5 mb-4">
-        响应头
-        <Icon
-          v-show="!props.viewType"
-          icon="icon-tianjiamokuai"
-          class="ml-2"
-          @click="addAttr()" /></span>
-      <!-- <div class="obj-top relative font-medium text-3.5 mb-1">
-        Object
-        <span>{ {{ headerObjList.length }} }</span>
-
-      </div> -->
-      <AttrItemList
-        :dataSource="headerObjList"
-        parentType="object"
-        :withoutBorder="true"
-        :viewType="props.viewType"
-        @add="addAttr"
-        @del="delAttr"
-        @edit="editAttr" />
-      <AddAttrModal
-        v-model:visible="addVisible"
-        :parentType="addFromType"
-        :data="editAttrData"
-        :excludesAttr="excludesAttr"
-        @ok="changeAttrList"
-        @cancel="closeModal" />
-    </div>
+    
   </div>
 </template>
