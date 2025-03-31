@@ -2,15 +2,16 @@
 import { ref, defineAsyncComponent, onMounted, watch, inject } from 'vue';
 import { Tabs, TabPane, Button } from 'ant-design-vue';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue'
-import YAML from 'yaml';
 
 const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
 const CodeView = defineAsyncComponent(() => import('./codeView/index.vue'));
+const SecurityBasic = defineAsyncComponent(() => import('../comp/basic/securityBasic.vue'));
 
 const getAppFunc = inject('getAppFunc', ()=>{});
 
 interface Props {
-  viewMode: 'form'|'code'|'preview'
+  viewMode: 'form'|'code'|'preview';
+  dataSource: Record<string, any>;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -55,6 +56,8 @@ onMounted(() => {
           <DeleteOutlined class="text-5" />
         </Button>
       </div>
+
+      <SecurityBasic :dataSource="props.dataSource?.security" />
     </TabPane>
     <TabPane key="code" class="pr-2">
       <CodeView

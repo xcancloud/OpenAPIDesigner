@@ -18,7 +18,7 @@ const ExternalDoc = defineAsyncComponent(() => import('./externalDoc/formView/in
 const Server = defineAsyncComponent(() => import('./server/formView/index.vue'));
 const Tag = defineAsyncComponent(() => import('./tag/formView/index.vue'));
 const Extensions = defineAsyncComponent(() => import('./extensions/formView/index.vue'));
-const Security = defineAsyncComponent(() => import('./security/formView/index.vue'));
+const Security = defineAsyncComponent(() => import('./security/index.vue'));
 const Comp = defineAsyncComponent(() => import('./comp/index.vue'));
 const ApiModel = defineAsyncComponent(() => import('./comp/apisModel/index.vue'));
 
@@ -32,6 +32,7 @@ const activeMenuKey = ref();
 const schemaType = ref();
 const viewMode = ref<'form'|'code'|'preview'>('form');
 const updateData = (comp: {name: string; value: any; type: string}) => {
+  debugger;
   dataSource.value.components && dataSource.value.components[comp.type]
     ? dataSource.value.components[comp.type][comp.name] = comp.value
     : dataSource.value.components ? dataSource.value.components[comp.type] = {

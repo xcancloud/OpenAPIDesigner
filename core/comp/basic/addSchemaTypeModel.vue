@@ -23,7 +23,7 @@ const refsOpt = computed(() => {
   return Object.keys(schemas).map(key => {
     return {
       label: key,
-      value: key,
+      value: `#/components/schemas/${key}`,
       valueItem: {
         name: key,
         ...schemas[key]

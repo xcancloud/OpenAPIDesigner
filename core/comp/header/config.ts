@@ -1,0 +1,1 @@
+export  const stringFormatOpt = ['date-time', 'date', 'time', 'duration', 'emial', 'idn-email', 'idn-hostname', 'ipv4', 'ipv6', 'uri', 'uri-reference', 'iri', 'iri-reference', 'uuid', 'uuid-template', 'json-pointer', 'relative-json-pointer', 'binary'].map(i => ({label: i, value: i}));

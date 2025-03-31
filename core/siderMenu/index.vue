@@ -130,7 +130,7 @@ const defaultMenu = computed(() => [
       },
       {
         title: '安全方案',
-        key: 'security',
+        key: 'securitySchemes',
         selectable: false,
         children: [...securityChildren.value]
       },
@@ -258,13 +258,12 @@ const addModel = () => {
       // key: `#/components/${addType}/${createName.value}`,
     });
     emits('addComp', {name: createName.value, type:addType.value, value: {
-      type: 'object',
-      name: createName.value
+      name: createName.value,
     }});
     return;
   }
 
-  if (addType.value === 'security') {
+  if (addType.value === 'securitySchemes') {
     if (securityChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
         message: '提示',

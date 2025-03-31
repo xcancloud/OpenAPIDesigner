@@ -1,29 +1,34 @@
 <script lang="ts" setup>
-import { provide, ref, watch } from 'vue';
-import { Button, Divider, TabPane, Tabs, Dropdown, Input, notification, Select } from 'ant-design-vue';
+import { provide, ref, watch, onMounted } from 'vue';
+import { Button, Divider, TabPane, Tabs, Input, notification, Select } from 'ant-design-vue';
 import { parseSchemaArrToObj, parseSchemaObjToArr, CONTENT_TYPE } from '../basic/utils';
 
-import AddAttrModal from '../basic/addAttrModal.vue';
-import AttrItemList from '../basic/attrItemList.vue';
-import AddSchemaTypeModel from '../basic/addSchemaTypeModel.vue';
 import BodyContentTypeTab from '../basic/bodyContentTypeTab.vue';
-import ResponseSchema from '../basic/responseSchema.vue';
-import AddSchemaModel from '../basic/addSchemaModel.vue';
+import parameterBasic from '../basic/parameterBasic.vue';
+import Dropdown from '@/components/Dropdown/index.vue';
+
+import EasyMDE from 'easymde';
+import 'easymde/dist/easymde.min.css'
+
+
+const easyMDE = ref();
+const descRef = ref();
 
 interface Props {
-  id: string;
-  pid: string;
-  type: string;
   name: string;
   data?: Record<string, any>
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  id: undefined,
-  pid: undefined
+  name: ''
 });
 
-const emits = defineEmits<{(e: 'cancel'):void;(e: 'ok'):void}>();
+// import AddAttrModal from '../basic/addAttrModal.vue';
+// import AttrItemList from '../basic/attrItemList.vue';
+// import AddSchemaTypeModel from '../basic/addSchemaTypeModel.vue';
+// import BodyContentTypeTab from '../basic/bodyContentTypeTab.vue';
+// import ResponseSchema from '../basic/responseSchema.vue';
+// import AddSchemaModel from '../basic/addSchemaModel.vue';
 
 // const deleteTabPane = inject('deleteTabPane', (value) => value);
 const addSchemaTypeRef = ref();
@@ -35,86 +40,7 @@ const requestBodiesContentType = ref<string|undefined>('application/json');
 const schemaType = ref('responses');
 const modelType = ref<string|undefined>('object');
 const description = ref();
-const modelOpt = [
-  {
-    label: '数据模型',
-    value: 'schemas'
-  },
-  {
-    label: '响应',
-    value: 'responses'
-  },
-  {
-    label: '参数',
-    value: 'parameters'
-  },
-  {
-    label: '请求体',
-    value: 'requestBodies'
-  }
-];
 
-const modelTypeOpt = [
-  {
-    label: 'String',
-    value: 'string'
-  },
-  {
-    label: 'Array',
-    value: 'array'
-  },
-  {
-    label: 'Object',
-    value: 'object'
-  },
-  {
-    label: 'Number',
-    value: 'number'
-  },
-  {
-    label: 'Integer',
-    value: 'integer'
-  },
-  {
-    label: 'Boolean',
-    value: 'boolean'
-  }
-];
-
-const disabledBodyModelType = (type) => {
-  return ['application/x-www-form-urlencoded',
-    'multipart/form-data',
-    'application/json',
-    'application/xml'].includes(type);
-};
-
-// const schema = ref<Record<string, any>>({});
-const objectAttrList = ref<{name: string, [key: string]: any}[]>([
-  {
-    name: 'name0',
-    schema: {
-      type: 'string'
-    }
-  },
-  {
-    name: 'name1',
-    schema: {
-      type: 'object'
-    },
-    children: [
-      {
-        name: 'name2',
-        $ref: '#components/schema/name2'
-      }
-    ]
-  },
-  {
-    name: 'name3',
-    schema: {
-      type: 'string'
-    }
-  }
-]);
 
 const addFromType = ref<'object'|'array'>('object');
 let currentAddNode;
@@ -185,107 +111,14 @@ const closeCurrentTab = () => {
 };
 
 const validate = ref(false);
-const submitSchema = async () => {
-  validate.value = true;
-  // projectOrServiceId:string, type:string, key:string, component:any
-  const component = parseSchemaArrToObj(JSON.parse(JSON.stringify(objectAttrList.value)), modelType.value);
-  let comp;
-  if (schemaType.value === 'schemas') {
-    if (modelType.value === 'array') {
-      comp = {
-        type: 'array',
-        description: description.value,
-        items: component
-      };
-    } else if (modelType.value === 'object') {
-      comp = {
-        ...component,
-        description: description.value
-      };
-    } else {
-      const schemaData = addSchemaTypeRef.value.getData();
-      delete schemaData.required;
-      comp = {
-        // ...,
-        ...schemaData,
-        description: description.value
-      };
-    }
-  }
-  if (schemaType.value === 'parameters') {
-    const component = parameterSchemaRef.value.getData();
-    if (!component) {
-      return;
-    }
-    comp = {
-      ...parameterData.value,
-      name: schemaName.value,
-      in: parameterIn.value,
-      description: description.value,
-      schema: component
-    };
-  }
 
-  if (schemaType.value === 'requestBodies') {
-    const resps = requestBodiesDataRef.map((i) => {
-      const data = i?.getData();
-      if (data) {
-        Object.assign(requestBodyData.value?.content || {}, data);
-      }
-      return data;
-    });
-    if (resps.some(i => i === false)) {
-      return;
-    }
-    Object.keys(requestBodyData.value?.content || {}).forEach(key => {
-      if (!contentTypes.value.includes(key)) {
-        delete requestBodyData.value.content?.[key];
-      }
-    });
-    comp = {
-      ...requestBodyData.value,
-      description: description.value
-    };
-  }
-
-  if (schemaType.value === 'responses') {
-    const respData = responseDataRef.value.getData();
-    if (respData === false) {
-      return;
-    }
-    comp = {
-      ...respData,
-      description: description.value
-    };
-  }
-  if (!schemaName.value) {
-    return;
-  }
-  // const [error] = await services.addComponent(props.id, schemaType.value, schemaName.value, JSON.stringify(comp));
-  // if (error) {
-  //   return;
-  // }
-  // notification.success('保存成功');
-  emits('ok');
-};
-// const activeDrawerKey = ref('componnet');
-// const drawerCompNav = computed(() => {
-//   return serviceNavItem.map(item => {
-//     return {
-//       ...item,
-//       key: item.value,
-//       name: (item.value === 'projectInfo' && props.type === 'PROJECT') ? '项目信息' : item.name
-//     };
-//   });
-// });
 
 const schemaData = ref({});
 const parameterData = ref({});
-const requestBodyData = ref<{description?: string, content?: {[key: string]: any}, headers?: {[key: string]: any}}>({});
+const responseData = ref<{description?: string, content?: {[key: string]: any}, headers?: {[key: string]: any}}>({});
 const contentTypes = ref<string[]>([]);
 const requestBodiesDataRef:any[] = [];
 const responseSchemaData = ref({});
-const parameterSchemaRef = ref();
 
 // 获取需要编辑的数据模型
 const loadSchemaContent = async () => {
@@ -322,7 +155,7 @@ const loadSchemaContent = async () => {
     schemaType.value = data.type.value;
     const schemaObj = JSON.parse(data.model) || {};
     description.value = schemaObj.description;
-    requestBodyData.value = schemaObj;
+    responseData.value = schemaObj;
     contentTypes.value = Object.keys(schemaObj.content || {});
     modelType.value = undefined;
     requestBodiesContentType.value = contentTypes.value[0] || undefined;
@@ -372,40 +205,143 @@ const editTab = (key:string) => {
 
 const responseDataRef = ref();
 
-watch(() => props.data?.ref, newValue => {
-  if (newValue) {
-    schemaName.value = props.data.key;
-    loadSchemaContent();
+
+const respHeader = ref<Record<string, any>>([]);
+const getDefaultExtensionName = () => {
+  const allDefaultNames = respHeader.value.map(i => i.name).filter(name => name.startsWith('header-'));
+  const nameIdxs = allDefaultNames.map(name => {
+    const num = Number(name.slice(7));
+    return isNaN(num) ? 0 : num;
+  });
+  const max = nameIdxs.length ? Math.max(...nameIdxs) : respHeader.value.length;
+  return `header-${max + 1}`;
+};
+
+const addHeader = () => {
+  const name = getDefaultExtensionName()
+  respHeader.value.push({name: name, schema: {type: 'string'}});
+};
+
+const disabledBodyModelType = (type) => {
+  return ['application/x-www-form-urlencoded',
+    'multipart/form-data',
+    'application/json',
+    'application/xml'].includes(type);
+};
+
+const addBody = (item: {key: string}) => {
+
+  contentTypes.value.push(item.key);
+  if (responseData.value?.content) {
+    if (!responseData.value.content[item.key]) {
+      responseData.value.content[item.key] = {
+        schema: {
+          type: disabledBodyModelType(item.key) ? 'object' : 'string'
+        }
+      };
+    }
   } else {
-    resetschemas();
+    responseData.value.content = {
+      [item.key]: {
+        schema: {
+          type: disabledBodyModelType(item.key) ? 'object' : 'string'
+        }
+      }
+    };
   }
-}, {
-  immediate: true
+}
+
+onMounted(() => {
+  easyMDE.value = new EasyMDE({
+    element: descRef.value, 
+    autoDownloadFontAwesome: true
+  });
+
+  watch(() => props.data, () => {
+    responseData.value = props.data || {};
+    contentTypes.value = Object.keys(responseData.value?.content || {});
+    respHeader.value = Object.keys(responseData.value?.headers || {}).map(key => {
+      return {
+        name: key,
+        ...responseData.value?.headers?.[key]
+      }
+    })
+  }, {
+    immediate: true,
+  })
 });
 
-provide('serviceId', props.id);
+
 </script>
 <template>
-  <div class="flex h-full overflow-y-scroll">
-    <div class="p-2 flex-1 min-w-100">
-      <div class="flex items-center space-x-2 mt-2 text-3.5">
+  <div class="h-full overflow-y-scroll text-center">
+    <div class="inline-block w-200 text-left">
 
-        <template v-if="schemaType === 'requestBodies'">
-        </template>
+      <div class="font-semibold mt-4 text-5"></div>
+      <textarea ref="descRef"></textarea>
+  
+      <div class="flex justify-between items-center border-b">
+        <div class="font-semibold mt-4 text-5">Headers</div>
+        <Button type="primary" @click="addHeader">Add + </Button>
       </div>
 
-      <template v-if="schemaType === 'responses'">
-        <ResponseSchema
-          ref="responseDataRef"
-          :data="responseSchemaData" />
-      </template>
-      <AddAttrModal
-        v-model:visible="addVisible"
-        :parentType="addFromType"
-        :excludesAttr="excludesAttr"
-        :data="editAttrData"
-        @ok="changeAttrList"
-        @cancel="closeModal" />
+      <div class="space-y-2">
+        <parameterBasic
+          v-for="(header, idx) in respHeader"
+          :key="idx"
+          v-model:parameter-obj="respHeader[idx]"
+          v-model:parameter-priorities="header.schema"
+          :refrenceBtnProps="{show: true, disabled: false}" />
+      </div>
+
+      <div class="flex justify-between items-center border-b mt-4">
+        <div class="font-semibold mt-4 text-5">Body</div>
+        <Dropdown
+          :disabledKeys="contentTypes"
+          :menuItems="CONTENT_TYPE.map(i => ({key: i, name: i, disabled: contentTypes.includes(i)}))"
+          @click="addBody">
+          <Button
+            type="primary">
+            Add +
+          </Button>
+        </Dropdown>
+      </div>
+
+
+      <Tabs
+        type="editable-card"
+        hideAdd
+        size="small"
+        class="mt-2"
+        @edit="editTab">
+        <TabPane
+          v-for="(contentType, idx) in contentTypes"
+          :key="contentType"
+          :tab="contentType"
+          :closable="true">
+          <BodyContentTypeTab
+            :ref="dom => requestBodiesDataRef[idx] = dom"
+            :contentType="contentType"
+            :data="responseData?.content?.[contentType] || {}" />
+        </TabPane>
+      </Tabs>
+    <div>
+  
+  
+        <!-- <template v-if="schemaType === 'responses'">
+          <ResponseSchema
+            ref="responseDataRef"
+            :data="responseSchemaData" />
+        </template>
+        <AddAttrModal
+          v-model:visible="addVisible"
+          :parentType="addFromType"
+          :excludesAttr="excludesAttr"
+          :data="editAttrData"
+          @ok="changeAttrList"
+          @cancel="closeModal" /> -->
+      </div>
     </div>
+
   </div>
 </template>

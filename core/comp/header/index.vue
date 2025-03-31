@@ -18,7 +18,6 @@ const props = withDefaults(defineProps<Props>(), {
 const emits = defineEmits<{(e: 'del'):void}>();
 
 const parameterObj = ref<Record<string, any>>({
-  in: 'query',
   description: '',
   required: false,
   name: '',
@@ -52,7 +51,6 @@ const resetParameterPriorities = (schema = {}) => {
 
 const resetParameterObj = (param = {}) => {
   parameterObj.value = {
-    in: 'query',
     description: '',
     required: false,
     name: '',
@@ -82,60 +80,6 @@ const parameterPriorities = ref({
     type: 'string',
 })
 
-// const parameterStyleOpt = {
-//   string: [{label: 'none', value: ''}, {label: 'form', value: 'form'}],
-//   number: [{label: 'none', value: ''}, {label: 'form', value: 'form'}],
-//   array: [{label: 'none', value: ''}, {label: 'form', value: 'form'}, {label: 'spaceDelimited', value: 'spaceDelimited'}, {label: 'pipeDelimited', value: 'pipeDelimited'}],
-//   boolean: undefined,
-//   integer: [{label: 'none', value: ''}, {label: 'form', value: 'form'}],
-//   any: [{label: 'none', value: ''}]
-// };
-
-// const parameterFormateOpt = {
-//   string: [{label: 'none', value: ''}, ...stringFormatOpt],
-//   any: [{label: 'none', value: ''}],
-//   number: [{label: 'none', value: ''}, {value: 'float', label: 'float'}, {value: 'double', label: 'double'},],
-//   integer: [{label: 'none', value: ''}, {label: 'int32', value: 'int32'}, {value: 'int64', label: 'int64'}],
-//   array: [{label: 'none', value: ''},],
-//   boolean: [{label: 'none', value: ''},]
-// };
-
-// const typeOpt = [
-//   {
-//     label: 'string',
-//     value: 'string'
-//   },
-//   {
-//     label: 'number',
-//     value: 'number'
-//   },
-//   {
-//     label: 'integer',
-//     value: 'integer'
-//   },
-//   {
-//     label: 'boolean',
-//     value: 'boolean'
-//   },
-//   {
-//     label: 'array',
-//     value: 'array'
-//   },
-//   {
-//     label: 'any',
-//     value: 'any'
-//   }
-// ];
-
-// const handleChangeType = () => {
-//   parameterPriorities.value.format = '';
-//   parameterObj.value.style = '';
-// }
-
-// const handleRequired = () => {
-//   parameterObj.value.required = !parameterObj.value.required;
-// };
-
 const handleDelete = () => {
   emits('del');
 };
@@ -154,16 +98,13 @@ watch(() => props.name, () => {
 </script>
 <template>
   <div class="h-full overflow-y-scroll text-center">
-    <div class="flex items-center space-x-2 mt-2 text-3.5">
-    </div>
     <div class="w-200 mx-0 inline-block text-left mt-4">
-      <div class="text-5"> {{ `${parameterObj.in} Parameter` }} </div>
+      <div class="text-5 font-semibold"> Header </div>
       <ParameterBasic
         v-model:parameterPriorities="parameterPriorities"
         v-model:parameterObj="parameterObj"
+        :refrence-btn-props="{show: false, disabled: true}"
         @del="handleDelete" />
     </div>
-
-    
   </div>
 </template>

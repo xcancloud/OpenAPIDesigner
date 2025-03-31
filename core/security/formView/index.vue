@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, inject, onBeforeUnmount, computed, reactive } from 'vue';
+import { ref, onMounted, inject, onBeforeUnmount, computed, reactive, watch } from 'vue';
 import { Form, FormItem, Input, Select, Button } from 'ant-design-vue';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import { flowAuthKeys, authLabels, encryptionTypeOpt, API_EXTENSION_KEY } from './data.ts';
@@ -11,6 +11,7 @@ type Authentication = {
   type: 'basic'|'bearer'|'apiKey'|'oauth2';
   name: string;
 };
+
 
 const flowAuthType = [
   {
@@ -30,6 +31,25 @@ const flowAuthType = [
     label: '客户端模式（Client Credentials））'
   }
 ];
+
+interface AuthItem {
+  name?: string;
+  type: 'http'|'apiKey'|'oauth2'|'extends';
+  flows?: Record<string, any>;
+  in?: string;
+  scheme?: string;
+  $ref?: string;
+  'x-xc-value'?: string
+}
+
+interface Props {
+  data:AuthItem;
+  name: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  name: ''
+});
 
 const oauthKey = ref(1);
 const scheme = ref(); // http 类型下 值
@@ -107,6 +127,23 @@ const oauthData = reactive({
   'x-xc-oauth2-password': undefined,
   'x-xc-oauth2-clientAuthType': 'REQUEST_BODY'
 });
+
+// apikey 方案
+const initApiKeyContentList = (newValue) => {
+  // const { name, in } = newValue;
+  const first = { name: newValue.name, in: newValue.in || 'header', [valueKey]: newValue[valueKey] };
+  const others = newValue[securityApiKeyPerfix] || [];
+  apiKeyContentList.value = [first, ...others];
+};
+
+const initHttpBasicData = (data: {name: string; value: string}) => {
+  // const decodeMap = decode(scheme.value.replace(/Basic\s+/, '')) as {name: string, value: string};
+  // httpAuthData.name = decodeMap.name;
+  // httpAuthData.value = decodeMap.value;
+  const { name = '', value = '' } = data || {};
+  httpAuthData.name = name || '';
+  httpAuthData.value = value || '';
+};
 
 const addApiKey = () => {
   apiKeyContentList.value.push({
@@ -193,6 +230,50 @@ const getData = () => {
 };
 
 onMounted(() => {
+
+  watch(() => props.data, (newValue) => {
+    if (!newValue) {
+      return;
+    }
+    if (newValue?.scheme) {
+      if (newValue.scheme === 'basic') {
+        // scheme.value = newValue[valueKey];
+        initHttpBasicData(newValue[basicAuthKey]);
+        formState.value.type = 'basic';
+      } else if (newValue.scheme === 'bearer') {
+        formState.value.type = 'bearer';
+        scheme.value = newValue[valueKey];
+        httpAuthData.name = scheme.value;
+      }
+      return;
+    }
+    if (newValue?.type === 'oauth2') {
+      formState.value.type = 'oauth2';
+      if (newValue[newTokenKey]) {
+        oauthKey.value = 2;
+      }
+      authType.value = newValue[oAuth2Key] || 'clientCredentials';
+      if (newValue.flows) {
+        oauthData['x-xc-oauth2-clientAuthType'] = newValue.flows[authType.value]?.['x-xc-oauth2-clientAuthType'];
+        flowAuthKeys[authType.value].forEach(i => {
+          if (i === 'scopes') {
+            scopesObj = newValue.flows[authType.value]?.[i] || {};
+            oauthData[i] = Object.keys(scopesObj);
+          } else {
+            oauthData[i] = newValue.flows[authType.value]?.[i];
+          }
+        });
+        scheme.value = newValue[oAuth2Token];
+      }
+      return;
+    }
+    if (newValue?.type === 'apiKey') {
+      formState.value.type = 'apiKey';
+      initApiKeyContentList(newValue);
+    }
+  }, {
+    immediate: true
+  })
 
   // getAppFunc({name: 'getDocInfoFormData', func: getData});
 });
