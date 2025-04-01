@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, provide, ref, watch } from 'vue';
-
 import { Button, Popover, Switch, TabPane, Tabs, Tag, Tooltip, Select } from 'ant-design-vue';
+import { TagsOutlined, DeleteOutlined } from '@ant-design/icons-vue';
 
 import { Props } from './PropTypes';
 
@@ -125,8 +125,8 @@ provide('serviceId', props.id);
         <Button
           ref="addTagRef"
           size="small"
-          class="py-0 leading-5 h-5">
-          标签
+          class="">
+          <TagsOutlined />
         </Button>
         <template #content>
           <Select
@@ -143,7 +143,7 @@ provide('serviceId', props.id);
             :key="tag"
             :closable="false"
             color="green"
-            class="leading-4">
+            class="leading-6">
             {{ tag }}
           </Tag>
         </div>
@@ -151,9 +151,9 @@ provide('serviceId', props.id);
       <Button
         v-show="!!_tags.length"
         size="small"
-        class="py-0 leading-5 h-5"
+        class=""
         @click="delTags">
-        删除
+        <DeleteOutlined />
       </Button>
       <div class="flex items-center space-x-1 ml-5">
         <span>DEPRECATED</span>

@@ -108,6 +108,9 @@ onMounted(() => {
   //   deep: true,
   //   immediate: true
   // });
+  }, {
+    immediate: true,
+    deep: true,
   });
 });
 
