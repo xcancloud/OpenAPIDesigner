@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { onMounted, ref, watch, computed } from 'vue';
-import { Button, Input, Select, Tag, InputGroup } from 'ant-design-vue';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue';
-import { apiStatus, methodColor } from './PropTypes';
+import { onMounted, ref, watch } from 'vue';
+import { Input, Tag } from 'ant-design-vue';
+import { methodColor } from './PropTypes';
 import EasyMDE from 'easymde';
 import 'easymde/dist/easymde.min.css'
 import SecurityBasic from '../basic/securityBasic.vue';
+import Extensions from '@/extensions/formView/index.vue';
 
 const easyMDE = ref();
 const descRef = ref();
@@ -35,6 +35,7 @@ const props = withDefaults(defineProps<Props>(), {
 const securityRef = ref();
 
 const data = ref<Props['dataSource']>({method: '', summary: '', operationId: ''});
+const extensionData = ref<{name: string; value: string |null}[]>([]);
 // const security = ref<{name: string, scopes: string[]}[][]>([]);
 
 // const allSecurityOpt = computed<{label: string;value: string;scopes?: string[]}[]>(() => {
@@ -82,6 +83,17 @@ onMounted(() => {
   watch(() => props.dataSource, () => {
     data.value = props.dataSource;
     data.value[statusKey] = data.value[statusKey] || 'UNKNOWN';
+    extensionData.value = Object.keys(props.dataSource || {}).map(key => {
+      if (key.startsWith('x-')) {
+        return {name: key, value: props.dataSource?.[key] && typeof props.dataSource?.[key] === 'string'
+        ? props.dataSource?.[key]
+        : props.dataSource?.[key] 
+        ? JSON.stringify(props.dataSource?.[key])
+        : null};
+      }
+      return null;
+    }).filter(Boolean);
+    
   //   security.value = (props.dataSource?.security || []).map((securityGroup: {[key:string]: string[]}) => {
   //     return [
   //       ...(Object.keys(securityGroup).map((key) => {
@@ -96,6 +108,7 @@ onMounted(() => {
   //   deep: true,
   //   immediate: true
   // });
+  });
 });
 
 // const addSecurity = () => {
@@ -173,6 +186,8 @@ defineExpose({
     </div> -->
     <SecurityBasic ref="securityRef" :dataSource="props.dataSource?.security"/>
 
+    <Extensions :dataSource="extensionData" />
+
     <!-- <div v-if="security" class="space-y-4 mt-2">
       <div v-for="(item ,idx) in security" :key="idx" class="space-y-2">
         <div class="flex items-center space-x-2">
@@ -199,7 +214,7 @@ defineExpose({
         </div>
       </div>
     </div> -->
-    <div class="flex items-center justify-between border-b pb-2 mt-6">
+    <!-- <div class="flex items-center justify-between border-b pb-2 mt-6">
       <span class="text-4 font-medium"><Icon icon="icon-anquan" class="text-5" /> Status</span>
     </div>
     <div class="mt-2 flex space-x-2">
@@ -210,6 +225,6 @@ defineExpose({
       <Select
         v-model:value="data[statusKey]"
         :options="apiStatus" />
-    </div>
+    </div> -->
   </div>
 </template>

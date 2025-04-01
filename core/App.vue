@@ -15,8 +15,8 @@ const securitySchemes: Record<string, any> = data.components?.securitySchemes ||
 
 const DocInfo = defineAsyncComponent(() => import('./docInfo/formView/index.vue'));
 const ExternalDoc = defineAsyncComponent(() => import('./externalDoc/formView/index.vue'));
-const Server = defineAsyncComponent(() => import('./server/formView/index.vue'));
-const Tag = defineAsyncComponent(() => import('./tag/formView/index.vue'));
+const Server = defineAsyncComponent(() => import('./server/index.vue'));
+const Tag = defineAsyncComponent(() => import('./tag/index.vue'));
 const Extensions = defineAsyncComponent(() => import('./extensions/formView/index.vue'));
 const Security = defineAsyncComponent(() => import('./security/index.vue'));
 const Comp = defineAsyncComponent(() => import('./comp/index.vue'));

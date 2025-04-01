@@ -26,6 +26,17 @@ type DocInfo = {
   }
 };
 
+interface Props {
+  dataSource?: {
+    info: DocInfo
+  };
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  dataSource: undefined
+});
+
+
 const formState = ref<DocInfo>({
   title: undefined,
   version: undefined,
@@ -80,6 +91,8 @@ onMounted(() => {
     element: descRef.value, 
     autoDownloadFontAwesome: true
   });
+  formState.value = props.dataSource?.info;
+
   getAppFunc({name: 'getDocInfoFormData', func: getData});
 });
 
