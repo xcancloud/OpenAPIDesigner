@@ -10,31 +10,45 @@ const CodeView = defineAsyncComponent(() => import('./codeView/index.vue'));
 const getAppFunc = inject('getAppFunc', ()=>{});
 
 interface Props {
-  viewMode: 'form'|'code'|'preview'
+  viewMode: 'form'|'code'|'preview',
+  dataSource?: Record<string, any>;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  viewMode: 'form'
+  viewMode: 'form',
+  dataSource: undefined
 });
+
+type Tag = {
+  name: string;
+  description?: string;
+  externalDocs?:{
+    url?: string;
+    description?: string
+  }
+}
 
 const formViewRef = ref();
 const codeValue = ref();
 
-const tagKeyList = ref([1]);
+const tags = ref<Tag[]>([]);
 const addTag = () => {
-  tagKeyList.value.push(Math.random());
+  tags.value.push({
+    name: '',
+    description: '',
+  });
 };
 
 const deleteTag = (idx: number) => {
-  tagKeyList.value.splice(idx, 1);
+  tags.value.splice(idx, 1);
 };
 
 onMounted(() => {
   watch(() => props.viewMode, () => {
-    if (props.viewMode === 'code') {
-      codeValue.value = YAML.stringify(formViewRef.value.getFormData());
-    }
-  })
+    tags.value = props.dataSource?.tags || [];
+  }, {
+    immediate: true
+  });
 });
 
 </script>
@@ -47,10 +61,10 @@ onMounted(() => {
         </Button>
       </div>
       <div
-        v-for="(key, idx) in tagKeyList" :key="key"
+        v-for="(tag, idx) in tags" :key="idx"
         class="flex w-full mb-5"
-        :class="{'border-b': idx !== tagKeyList.length - 1}">
-        <FormView ref="formViewRef" class="flex-1" />
+        :class="{'border-b': idx !== tags.length - 1}">
+        <FormView ref="formViewRef" class="flex-1" :dataSource="tag" />
         <Button size="small" type="link" class="mt-8 w-8" @click="deleteTag(idx)">
           <DeleteOutlined class="text-5" />
         </Button>

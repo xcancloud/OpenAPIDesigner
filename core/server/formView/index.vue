@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, inject, onBeforeUnmount } from 'vue';
+import { ref, onMounted, inject, onBeforeUnmount, watch } from 'vue';
 import { Form, FormItem, Input, Select, Button } from 'ant-design-vue';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import EasyMDE from 'easymde';
@@ -9,7 +9,7 @@ const getAppFunc = inject('getAppFunc', ()=>{});
 const descRef = ref(); // 用于init markdown 编辑器
 const easyMDE = ref();
 
-type ExternalDoc = {
+type Server = {
   url: string;
   description?: string;
   variables?: {
@@ -22,7 +22,27 @@ type ExternalDoc = {
   }[]
 };
 
-const formState = ref<ExternalDoc>({
+interface Props {
+  dataSource: {
+    url: string;
+    description?: string;
+    variables: {
+      [key: string]: {
+        enum: string[];
+        default: string;
+        description?: string
+      }
+    }
+  };
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  dataSource: () => []
+});
+
+
+
+const formState = ref<Server>({
     url: '',
     description: undefined,
     variables: [{name: '', value: {enum: [''], default: ''}}]
@@ -55,6 +75,19 @@ onMounted(() => {
   easyMDE.value = new EasyMDE({
     element: descRef.value, 
     autoDownloadFontAwesome: true
+  });
+  watch(() => props.dataSource, () => {
+    formState.value = {
+      ...props.dataSource,
+      variables: Object.keys(props.dataSource?.variables || {}).map(key => {
+        return {
+          name: key,
+          value: props.dataSource?.variables?.[key]
+        }
+      })
+    };
+  }, {
+    immediate: true
   });
   // getAppFunc({name: 'getDocInfoFormData', func: getData});
 });

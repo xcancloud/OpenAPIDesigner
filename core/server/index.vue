@@ -10,26 +10,51 @@ const CodeView = defineAsyncComponent(() => import('./codeView/index.vue'));
 const getAppFunc = inject('getAppFunc', ()=>{});
 
 interface Props {
-  viewMode: 'form'|'code'|'preview'
+  viewMode: 'form'|'code'|'preview',
+  dataSource: Record<string, any>;
 }
 
+
+
 const props = withDefaults(defineProps<Props>(), {
-  viewMode: 'form'
+  viewMode: 'form',
+  dataSource: undefined
 });
 
 const formViewRef = ref();
 const codeValue = ref();
 
-const serverKeyList = ref([1]);
+const servers= ref<{
+    url: string;
+    description?: string;
+    variables: {
+      [key: string]: {
+        enum: string[];
+        default: string;
+        description?: string
+      }
+    }
+  }[]>([]);
 const addServer = () => {
-  serverKeyList.value.push(Math.random());
+  servers.value.push({
+    url: '',
+    description: undefined,
+    variables: {}
+  });
+};
+
+const handleDel = (idx: number) => {
+  servers.value.splice(idx, 1);
 };
 
 onMounted(() => {
-  watch(() => props.viewMode, () => {
-    if (props.viewMode === 'code') {
-      // codeValue.value = YAML.stringify(formViewRef.value.getFormData());
-    }
+  watch(() => props.dataSource, () => {
+
+    servers.value = props.dataSource?.servers || [];
+    // if (props.viewMode === 'code') {
+    // codeValue.value = YAML.stringify(formViewRef.value.getFormData());
+    // }
+
   })
 })
 
@@ -43,11 +68,11 @@ onMounted(() => {
           </Button>
         </div>
         <div
-          v-for="(key, idx) in serverKeyList" :key="key"
+          v-for="(server, idx) in servers" :key="idx"
           class="flex w-full mb-5"
-          :class="{'border-b': idx !== serverKeyList.length - 1}">
-          <FormView ref="formViewRef" class="flex-1" />
-          <Button size="small" type="link" class="mt-8 w-8">
+          :class="{'border-b': idx !== servers.length - 1}">
+          <FormView ref="formViewRef" :dataSource="server" class="flex-1" />
+          <Button size="small" type="link" class="mt-8 w-8" @click="handleDel(idx)">
             <DeleteOutlined class="text-5" />
           </Button>
         </div>

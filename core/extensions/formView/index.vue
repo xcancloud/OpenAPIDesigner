@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, inject, onBeforeUnmount } from 'vue';
-import { Form, FormItem, Input, Select, Button } from 'ant-design-vue';
+import { ref, onMounted, inject, onBeforeUnmount, watch } from 'vue';
+import { Form, FormItem, Input, Select, Button, Textarea } from 'ant-design-vue';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue';
 
 const getAppFunc = inject('getAppFunc', ()=>{});
@@ -12,11 +12,17 @@ type Extension = {
 };
 
 
-const extensionList = ref<Extension[]>([
-  {name: 'x-extension-1', value: ''}
-]);
+interface Props {
+  dataSource: Extension[]
+}
 
-const selectedExtension = ref<Extension|undefined>({...extensionList.value[0], oldName: extensionList.value[0].name});
+const props = withDefaults(defineProps<Props>(), {
+  dataSource: () => ([])
+});
+
+const extensionList = ref<Extension[]>([]);
+
+const selectedExtension = ref<Extension|undefined>(props.dataSource.length ? {...props.dataSource[0], oldName: props.dataSource[0].name} : undefined);
 
 const getDefaultExtensionName = () => {
   const allDefaultNames = extensionList.value.map(i => i.name).filter(name => name.startsWith('x-extension-'));
@@ -49,7 +55,6 @@ const deleteExtention = (name: string) => {
       selectedExtension.value = undefined;
     }
   }
-  console.log(selectedExtension.value)
 };
 
 const changeSelectExtension = (event: InputEvent, oldName: string) => {
@@ -95,6 +100,15 @@ const getData = () => {
 
 onMounted(() => {
 
+  watch(() => props.dataSource, () => {
+    extensionList.value = JSON.parse(JSON.stringify(props.dataSource));
+    if (extensionList.value.length) {
+      selectExtension(extensionList.value[0]);
+    }
+  }, {
+    immediate: true
+  });
+
   // getAppFunc({name: 'getDocInfoFormData', func: getData});
 });
 
@@ -115,7 +129,6 @@ defineExpose({
     </div>
 
     <div class="flex border">
-
       <div v-if="extensionList.length" class="w-50 min-h-50 border-r">
         <div
           v-for="(extension) in extensionList"
@@ -135,9 +148,10 @@ defineExpose({
             :bordered="false"
             placeholder="x- (Required)"
             @blur="changeSelectExtension($event, selectedExtension.oldName)" />
-          <Input
+          <Textarea
             v-model:value="selectedExtension.value"
             :bordered="false"
+            type="textarea"
             placeholder="输入扩展值，最大支持20000个字符"
             @blur="changeSelectExtensionValue($event, selectedExtension.name)" />
         </template>

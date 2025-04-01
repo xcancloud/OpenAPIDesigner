@@ -118,7 +118,7 @@ defineExpose({
       type="primary"
       size="small"
       @click="addSecurity">
-      Add
+      Add + 
     </Button>
   </div>
 

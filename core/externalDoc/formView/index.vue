@@ -13,6 +13,23 @@ type ExternalDoc = {
   description?: string;
 };
 
+interface Props {
+  dataSource?: {
+    externalDocs: ExternalDoc
+  }
+};
+
+const props = withDefaults(defineProps<Props>(), {
+  dataSource: () => ({
+    externalDocs: {
+      url: '',
+      description: undefined
+    }
+  })
+});
+
+
+
 const formState = ref<ExternalDoc>({
   url: '',
   description: undefined
@@ -29,6 +46,8 @@ onMounted(() => {
     element: descRef.value, 
     autoDownloadFontAwesome: true
   });
+  formState.value = props.dataSource?.externalDocs;
+
   // getAppFunc({name: 'getDocInfoFormData', func: getData});
 });
 

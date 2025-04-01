@@ -12,16 +12,24 @@ const easyMDE = ref();
 const externalDescRef = ref();
 const externalEasyMDE = ref();
 
-type ExternalDoc = {
+type Tag = {
   url: string;
   description?: string;
-  externalDocs: {
+  externalDocs?: {
     url?: string;
     description?: string
   }
 };
 
-const formState = ref<ExternalDoc>({
+interface Props {
+  dataSource: Tag[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  dataSource: () => []
+})
+
+const formState = ref<Tag>({
     url: '',
     description: undefined,
     externalDocs: {
@@ -45,6 +53,14 @@ onMounted(() => {
     element: externalDescRef.value, 
     autoDownloadFontAwesome: true
   });
+  formState.value = props.dataSource || {
+    url: '',
+    description: undefined,
+    externalDocs: {
+      url: undefined,
+      description: undefined
+    }
+  }
   // getAppFunc({name: 'getDocInfoFormData', func: getData});
 });
 
@@ -61,9 +77,9 @@ defineExpose({
 <template>
 <Form
   layout="vertical">
-  <FormItem label="名称" name="url" required>
+  <FormItem label="名称" name="name" required>
     <Input
-      v-model:value="formState.url"
+      v-model:value="formState.name"
       :maxlength="200"
       placeholder="标签名称，最多200个字符" />
   </FormItem>
