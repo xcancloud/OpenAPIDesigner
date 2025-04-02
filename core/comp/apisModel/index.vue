@@ -115,8 +115,6 @@ const confirm = () => {
   emits('ok', data);
 };
 
-provide('serviceId', props.id);
-
 </script>
 <template>
   <div class="p-2 flex flex-col h-full">
