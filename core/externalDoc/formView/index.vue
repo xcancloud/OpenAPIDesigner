@@ -42,11 +42,12 @@ const getData = () => {
 };
 
 onMounted(() => {
+  
+  formState.value = props.dataSource?.externalDocs;
   easyMDE.value = new EasyMDE({
     element: descRef.value, 
     autoDownloadFontAwesome: true
   });
-  formState.value = props.dataSource?.externalDocs;
 
   // getAppFunc({name: 'getDocInfoFormData', func: getData});
 });
@@ -73,7 +74,7 @@ layout="vertical">
   </FormItem>
 
   <FormItem label="描述">
-    <textarea ref="descRef"></textarea>
+    <textarea ref="descRef">{{ formState.description }}</textarea>
   </FormItem>
 </Form>
 </template>

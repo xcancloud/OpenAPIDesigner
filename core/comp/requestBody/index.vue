@@ -25,8 +25,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emits = defineEmits<{(e: 'cancel'):void;(e: 'ok'):void}>();
 
-const description = ref();
-
 const disabledBodyModelType = (type) => {
   return ['application/x-www-form-urlencoded',
     'multipart/form-data',
@@ -65,17 +63,16 @@ const editTab = (key:string) => {
 };
 
 onMounted(() => {
-  easyMDE.value = new EasyMDE({
-    element: descRef.value, 
-    autoDownloadFontAwesome: true
-  });
-
   watch(() => props.data, () => {
     requestBodyData.value = props.data || {};
     contentTypes.value = Object.keys(requestBodyData.value?.content || {});
   }, {
     immediate: true,
   })
+  easyMDE.value = new EasyMDE({
+    element: descRef.value, 
+    autoDownloadFontAwesome: true
+  });
 });
 
 </script>
@@ -83,7 +80,7 @@ onMounted(() => {
   <div class="flex h-full overflow-y-scroll">
     <div class="p-2 flex-1 min-w-100">
       <div class="text-5 font-semibold">{{props.name}}</div>
-      <textarea ref="descRef"></textarea>
+      <textarea ref="descRef">{{ requestBodyData.description }}</textarea>
 
       <Tabs
         type="editable-card"

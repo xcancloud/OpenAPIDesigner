@@ -4,13 +4,12 @@ export interface Props {
         operationId: string;
         parameters?: Array<any>;
         tags?: string[];
-        responses: Record<string, Record<string, any>>;
+        responses?: Record<string, Record<string, any>>;
         method: string;
         endpoint: string;
         summary: string;
         description: string;
-        security: {[key: string]: string[]}[];
-        'x-xc-status': string;
+        security?: {[key: string]: string[]}[];
     };
     id: string;
     openapiDoc: {[key: string]: any};

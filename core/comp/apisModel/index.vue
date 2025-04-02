@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, provide, ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { Button, Popover, Switch, TabPane, Tabs, Tag, Tooltip, Select } from 'ant-design-vue';
 import { TagsOutlined, DeleteOutlined } from '@ant-design/icons-vue';
 
@@ -10,24 +10,19 @@ import Parameters from './parameters.vue';
 import RequestBody from './requestBody.vue';
 import Responses from './responses.vue';
 
-const statusKey = 'x-xc-status';
-
 const props = withDefaults(defineProps<Props>(), {
   dataSource: () => ({
     parameters: [],
     tags: [],
     responses: {},
     deprecated: false,
-    operationId: '',
-    [statusKey]: ''
+    operationId: ''
   }),
   openapiDoc: () => ({})
 });
 
 const emits = defineEmits<{(e: 'cancel'):void, (e: 'ok', value: Props['dataSource']):void}>();
 const activeKey = ref('general');
-const selectStr = ref({});
-const path = ref('');
 
 const generalRef = ref();
 const parametersRef = ref();
@@ -36,18 +31,23 @@ const responsesRef = ref();
 
 const addTagRef = ref();
 
-const _tags = ref<string[]>([]);
-const _deprecated = ref(false);
-
 const docs = ref<{[key: string]: any}>({});
+const sourceData = ref<Props['dataSource']>();
+
+const getData = ():Props['dataSource'] => {
+  // return 
+  return {
+    ...sourceData.value,
+  }
+}
 
 onMounted(() => {
-  watch([() => props.dataSource.method, () => props.dataSource.endpoint], () => {
-    _deprecated.value = props.dataSource.deprecated;
-    _tags.value = props.dataSource.tags || [];
+  watch([() => props.dataSource.method, () => props.dataSource.endpoint], ([newValue1, newValue2], [oldNewValue1, oldNewValue2]) => {
+    if (oldNewValue1 && oldNewValue2) {
+      emits('ok', getData())
+    }
+    sourceData.value = props.dataSource;
     const { method, endpoint, ...datas } = props.dataSource;
-    selectStr.value = { [method]: { ...datas } };
-    path.value = endpoint;
   }, {
     immediate: true
   });
@@ -55,70 +55,20 @@ onMounted(() => {
 });
 
 const delTags = () => {
-  _tags.value = [];
+  sourceData.value.tags = [];
 };
 
 
-const getFormData = () => {
-  const data = JSON.parse(JSON.stringify(props.dataSource));
-  const generalData = generalRef.value.getData;
-  Object.assign(data, generalData);
 
-  if (parametersRef.value) {
-    const parameters = parametersRef.value.getData();
-    Object.assign(data, { parameters });
-  }
-  if (requestBodyRef.value) {
-    const body = requestBodyRef.value.getData;
-    if (!body) {
-      activeKey.value = 'request';
-      return;
-    }
-    Object.assign(data, { body });
-  }
-  if (responsesRef.value) {
-    const responses = responsesRef.value.getDate();
-    if (!responses) {
-      activeKey.value = 'response';
-      return;
-    }
-    Object.assign(data, { responses });
-  }
-  return data;
-};
+defineExpose({
+  
+});
 
-const confirm = () => {
-  const data = JSON.parse(JSON.stringify(props.dataSource));
-  const generalData = generalRef.value.getData;
-  Object.assign(data, generalData);
-
-  if (parametersRef.value) {
-    const parameters = parametersRef.value.getData();
-    Object.assign(data, { parameters });
-  }
-  if (requestBodyRef.value) {
-    const body = requestBodyRef.value.getData;
-    if (!body) {
-      activeKey.value = 'request';
-      return;
-    }
-    Object.assign(data, { body });
-  }
-  if (responsesRef.value) {
-    const responses = responsesRef.value.getDate();
-    if (!responses) {
-      activeKey.value = 'response';
-      return;
-    }
-    Object.assign(data, { responses });
-  }
-  emits('ok', data);
-};
 
 </script>
 <template>
   <div class="p-2 flex flex-col h-full">
-    <div class="flex items-center">
+    <div class="flex items-center py-2">
       <Popover trigger="click" placement="bottomLeft">
         <Button
           ref="addTagRef"
@@ -128,7 +78,8 @@ const confirm = () => {
         </Button>
         <template #content>
           <Select
-            v-model:value="_tags"
+            v-if="sourceData"
+            v-model:value="sourceData.tags"
             mode="tags"
             class="w-100"
             :getPopupContainer="(triggerNode) => triggerNode" />
@@ -137,7 +88,7 @@ const confirm = () => {
       <Tooltip title="Tags">
         <div class="h-6 flex items-center ml-2">
           <Tag
-            v-for="tag in _tags"
+            v-for="tag in (sourceData?.tags || [])"
             :key="tag"
             :closable="false"
             color="green"
@@ -147,7 +98,7 @@ const confirm = () => {
         </div>
       </Tooltip>
       <Button
-        v-show="!!_tags.length"
+        v-show="!!sourceData?.tags?.length"
         size="small"
         class=""
         @click="delTags">
@@ -156,7 +107,8 @@ const confirm = () => {
       <div class="flex items-center space-x-1 ml-5">
         <span>DEPRECATED</span>
         <Switch
-          v-model:checked="_deprecated"
+          v-if="sourceData"
+          v-model:checked="sourceData.deprecated"
           size="small" />
       </div>
     </div>
@@ -177,7 +129,7 @@ const confirm = () => {
       <TabPane
         key="request"
         tab="请求体">
-        <RequestBody ref="requestBodyRef" :dataSource="props.dataSource.requestBody" />
+        <RequestBody ref="requestBodyRef" :dataSource="props.dataSource?.requestBody" />
       </TabPane>
       <TabPane
         key="response"

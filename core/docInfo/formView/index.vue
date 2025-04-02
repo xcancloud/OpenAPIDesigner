@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted, inject, onBeforeUnmount } from 'vue';
+import { ref, onMounted, inject, onBeforeUnmount, nextTick } from 'vue';
 import { Form, FormItem, Input, Select } from 'ant-design-vue';
 import EasyMDE from 'easymde';
-import 'easymde/dist/easymde.min.css'
+import 'easymde/dist/easymde.min.css';
 
 const getAppFunc = inject('getAppFunc', ()=>{});
 const descRef = ref(); // 用于init markdown 编辑器
@@ -87,11 +87,15 @@ const getData = () => {
 
 
 onMounted(() => {
-  easyMDE.value = new EasyMDE({
-    element: descRef.value, 
-    autoDownloadFontAwesome: true
-  });
+  
   formState.value = props.dataSource?.info;
+  nextTick(() => {
+    easyMDE.value = new EasyMDE({
+      element: descRef.value, 
+      autoDownloadFontAwesome: false,
+      maxHeight: '300px'
+    });
+  })
 
   getAppFunc({name: 'getDocInfoFormData', func: getData});
 });
@@ -128,7 +132,7 @@ layout="vertical">
       placeholder="接口文档摘要，最多400个字符" />
   </FormItem>
   <FormItem label="描述">
-    <textarea ref="descRef"></textarea>
+    <textarea ref="descRef">{{ formState.description }}</textarea>
   </FormItem>
   <FormItem label="服务条款">
     <Input

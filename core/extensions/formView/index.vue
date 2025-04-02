@@ -91,9 +91,16 @@ const selectExtension = (value: Extension) => {
 
 
 const getData = () => {
-  const data = JSON.parse(JSON.stringify(extensionList.value));
+  const data = extensionList.value.reduce((pre, cur) => {
+    if (cur.name) {
+      return {
+        ...pre,
+        [cur.name]: cur.value || null
+      }
+    }
+  }, {});
   return {
-    extension: data
+    ...data
   };
 };
 

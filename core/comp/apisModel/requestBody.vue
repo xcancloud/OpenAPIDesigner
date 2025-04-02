@@ -32,26 +32,17 @@ const contentTypes = ref<string[]>([]);
 const data = ref({});
 const refComp = ref();
 
-
-// const changeRef = (value, option) => {
-//   if (value) {
-//     data.value = JSON.parse(option.model);
-//   } else {
-//     data.value = {};
-//   }
-//   contentTypes.value = Object.keys(data.value.content || {});
-// };
-
 onMounted(() => {
-  easyMDE.value = new EasyMDE({
-    element: descRef.value, 
-    autoDownloadFontAwesome: true
-  });
+  
   watch(() => props.dataSource, () => {
     data.value = props.dataSource;
     contentTypes.value = Object.keys(data.value.content || {});
   }, {
     immediate: true
+  });
+  easyMDE.value = new EasyMDE({
+    element: descRef.value, 
+    autoDownloadFontAwesome: true
   });
 });
 
@@ -125,29 +116,18 @@ defineExpose({
     <div class="font-medium text-4 border-b pb-1 mb-2 flex items-center">
       <div class="flex items-center space-x-1">
         <NotificationOutlined />
-        <span>RequestBody Description</span>
+        <span class="text-5 font-medium">RequestBody Description</span>
       </div>
       <div class="flex-1 text-right">
-        <!-- <Select
-          v-model:value="refComp"
-          class="w-40 text-left"
-          placeholder="选择使用body模型"
-          :action="`${ALTESTER}/services/${serviceId}/comp/type?ignoreModel=false`"
-          :params="compParams"
-          :allowClear="true"
-          :fieldNames="{value: 'ref', label: 'key'}"
-          @change="changeRef" /> -->
+        
       </div>
     </div>
-    <textarea ref="descRef"></textarea>
-    <!-- <Input
-      v-model:value="data.ddescription"
-      type="textarea"
-      :maxlength="1000" /> -->
+    <textarea ref="descRef">{{ data.description }}</textarea>
+
   </div>
   <div class="mt-4">
     <div class="font-medium text-4 border-b pb-1 mb-2 flex justify-between items-center">
-      <span>
+      <span  class="text-5 font-medium">
          Body
       </span>
       <Dropdown

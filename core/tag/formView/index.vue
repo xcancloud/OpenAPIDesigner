@@ -45,14 +45,7 @@ const getData = () => {
 };
 
 onMounted(() => {
-  easyMDE.value = new EasyMDE({
-    element: descRef.value, 
-    autoDownloadFontAwesome: true
-  });
-  externalEasyMDE.value = new EasyMDE({
-    element: externalDescRef.value, 
-    autoDownloadFontAwesome: true
-  });
+ 
   formState.value = props.dataSource || {
     url: '',
     description: undefined,
@@ -61,6 +54,16 @@ onMounted(() => {
       description: undefined
     }
   }
+  easyMDE.value = new EasyMDE({
+    element: descRef.value, 
+    autoDownloadFontAwesome: true
+  });
+  externalEasyMDE.value = new EasyMDE({
+    element: externalDescRef.value, 
+    autoDownloadFontAwesome: true
+  });
+  // easyMDE.value.value(formState.value.description);
+  // externalEasyMDE.value.value(formState.value.externalDocs?.description);
   // getAppFunc({name: 'getDocInfoFormData', func: getData});
 });
 
@@ -85,18 +88,18 @@ defineExpose({
   </FormItem>
 
   <FormItem label="描述">
-    <textarea ref="descRef"></textarea>
+    <textarea ref="descRef">{{ formState.description }}</textarea>
   </FormItem>
 
   <FormItem label="外部文档URL" required>
     <Input
-      v-model:value="formState.externalDocs.url"
+      v-model:value="formState.externalDocs?.url"
       :maxlength="400"
       placeholder="标签外部接口文档链接地址，必须以URI的形式表示，最多400个字符" />
   </FormItem>
 
   <FormItem label="外部文档描述" required>
-    <textarea ref="externalDescRef"></textarea>
+    <textarea ref="externalDescRef">{{ formState.externalDocs?.description }}</textarea>
   </FormItem>
 
 </Form>

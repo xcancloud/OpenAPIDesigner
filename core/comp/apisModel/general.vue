@@ -33,6 +33,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const securityRef = ref();
+const extensionsRef = ref();
 
 const data = ref<Props['dataSource']>({method: '', summary: '', operationId: ''});
 const extensionData = ref<{name: string; value: string |null}[]>([]);
@@ -76,10 +77,7 @@ const extensionData = ref<{name: string; value: string |null}[]>([]);
 // };
 
 onMounted(() => {
-  easyMDE.value = new EasyMDE({
-    element: descRef.value, 
-    autoDownloadFontAwesome: true
-  });
+  
   watch(() => props.dataSource, () => {
     data.value = props.dataSource;
     data.value[statusKey] = data.value[statusKey] || 'UNKNOWN';
@@ -93,65 +91,28 @@ onMounted(() => {
       }
       return null;
     }).filter(Boolean);
-    
-  //   security.value = (props.dataSource?.security || []).map((securityGroup: {[key:string]: string[]}) => {
-  //     return [
-  //       ...(Object.keys(securityGroup).map((key) => {
-  //         return {
-  //           name: key,
-  //           scopes: securityGroup[key]
-  //         }
-  //       }))
-  //     ]
-  //   })
-  // }, {
-  //   deep: true,
-  //   immediate: true
-  // });
   }, {
     immediate: true,
     deep: true,
   });
+  easyMDE.value = new EasyMDE({
+    element: descRef.value, 
+    autoDownloadFontAwesome: true
+  });
 });
 
-// const addSecurity = () => {
-//   if (!security.value) {
-//     security.value = [];
-//   }
-//   if (!allSecurityOpt.value.length) {
-//     return;
-//   }
-//   security.value.push([{name:allSecurityOpt.value[0].value , scopes: []}])
-// };
 
-// const handleAddSunbSecurity = (idx: number) => {
-//   const name = allSecurityOpt.value.find(item => !security.value[idx].find(security => security.name === item.value))?.value;
-//   if (!name) {
-//     return;
-//   }
-//   security.value[idx].push({
-//     name: name,
-//     scopes: []
-//   });
-// };
-
-// const delSubSecurity = (idx: number, subIdx:number) => {
-//   security.value[idx].splice(subIdx, 1);
-//   if (security.value[idx].length === 0) {
-//     security.value.splice(idx, 1)
-//   }
-// };
 
 const getData = () => {
-
   const _security = securityRef.value.getData();
   const { summary, operationId, description } = data.value;
+  const extensions = extensionsRef.value.getData();
   return {
     security: _security,
     summary,
     operationId,
     description,
-    [statusKey]: data.value[statusKey]
+    ...extensions
   };
 };
 
@@ -174,7 +135,7 @@ defineExpose({
       </div>
       <div>
         <span class="text-4 font-medium"><Icon icon="icon-anquan" class="text-5" /> Description</span>
-        <textarea ref="descRef"></textarea>
+        <textarea ref="descRef">{{ data.description }}</textarea>
       </div>
     </div>
 
@@ -189,7 +150,7 @@ defineExpose({
     </div> -->
     <SecurityBasic ref="securityRef" :dataSource="props.dataSource?.security"/>
 
-    <Extensions :dataSource="extensionData" />
+    <Extensions ref="extensionsRef" :dataSource="extensionData" />
 
     <!-- <div v-if="security" class="space-y-4 mt-2">
       <div v-for="(item ,idx) in security" :key="idx" class="space-y-2">

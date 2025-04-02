@@ -113,7 +113,7 @@ defineExpose({
   </FormItem>
 
   <FormItem label="描述">
-    <textarea ref="descRef"></textarea>
+    <textarea ref="descRef">{{ formState.description }}</textarea>
   </FormItem>
   <FormItem>
     <template #label>

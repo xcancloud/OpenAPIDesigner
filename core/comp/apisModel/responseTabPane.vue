@@ -18,6 +18,7 @@ const props = withDefaults(defineProps<Props>(), {
   content: () => ({}),
   description: undefined
 });
+
 const responseSchemaRef = ref();
 onMounted(() => {
   easyMDE.value = new EasyMDE({
@@ -29,7 +30,7 @@ onMounted(() => {
 </script>
 <template>
 <div>
-  <textarea ref="descRef"></textarea>
+  <textarea ref="descRef">{{ props.description }}</textarea>
   <ResponseSchema
     ref="responseSchemaRef"
     :data="props" />

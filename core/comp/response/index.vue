@@ -252,10 +252,7 @@ const addBody = (item: {key: string}) => {
 }
 
 onMounted(() => {
-  easyMDE.value = new EasyMDE({
-    element: descRef.value, 
-    autoDownloadFontAwesome: true
-  });
+  
 
   watch(() => props.data, () => {
     responseData.value = props.data || {};
@@ -269,6 +266,10 @@ onMounted(() => {
   }, {
     immediate: true,
   })
+  easyMDE.value = new EasyMDE({
+    element: descRef.value, 
+    autoDownloadFontAwesome: true
+  });
 });
 
 
@@ -278,7 +279,7 @@ onMounted(() => {
     <div class="inline-block w-200 text-left">
 
       <div class="font-semibold mt-4 text-5"></div>
-      <textarea ref="descRef"></textarea>
+      <textarea ref="descRef">{{ responseData.description }}</textarea>
   
       <div class="flex justify-between items-center border-b">
         <div class="font-semibold mt-4 text-5">Headers</div>

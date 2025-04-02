@@ -168,28 +168,24 @@ defineExpose({
     </div>
 
     <div class="flex-1 min-w-0 border-r px-2">
-      <div class="flex space-x-2 items-center mb-2">
+      <div class="flex justify-between space-x-2 items-center pb-2 mb-2 border-b">
         <span class="text-3.5 font-medium">Response Bodies</span>
+        <Dropdown
+          :disabledKeys="contentTypes"
+          :menuItems="CONTENT_TYPE.filter(i => !['application/octet-stream'].includes(i)).map(i => ({key: i, name: i, disabled: contentTypes.includes(i)}))"
+          @click="addContentType">
+          <Button
+            type="primary"
+            size="small">
+            Add +
+          </Button>
+        </Dropdown>
       </div>
       <Tabs
         type="editable-card"
         hideAdd
         size="small"
         @edit="editTab">
-        <template #rightExtra>
-          <Dropdown
-            :disabledKeys="contentTypes"
-            :menuItems="CONTENT_TYPE.filter(i => !['application/octet-stream'].includes(i)).map(i => ({key: i, name: i, disabled: contentTypes.includes(i)}))"
-            @click="addContentType">
-            <Button
-              type="primary"
-              size="small">
-              <Icon
-                icon="icon-jia"
-                class="text-3.5" />
-            </Button>
-          </Dropdown>
-        </template>
         <TabPane
           v-for="(contentType, idx) in contentTypes"
           :key="contentType"

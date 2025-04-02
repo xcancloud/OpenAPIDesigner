@@ -11,8 +11,6 @@ export type Props = {
 
 const dataSource = ref<{[key: string]: any}>(data);
 
-const securitySchemes: Record<string, any> = data.components?.securitySchemes || {};
-
 const DocInfo = defineAsyncComponent(() => import('./docInfo/formView/index.vue'));
 const ExternalDoc = defineAsyncComponent(() => import('./externalDoc/formView/index.vue'));
 const Server = defineAsyncComponent(() => import('./server/index.vue'));
@@ -24,7 +22,7 @@ const ApiModel = defineAsyncComponent(() => import('./comp/apisModel/index.vue')
 
 const CodeView = defineAsyncComponent(() => import('./comp/basic/code.vue'));
 
-const props =withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   api: ''
 });
 
@@ -32,7 +30,6 @@ const activeMenuKey = ref();
 const schemaType = ref();
 const viewMode = ref<'form'|'code'|'preview'>('form');
 const updateData = (comp: {name: string; value: any; type: string}) => {
-  debugger;
   dataSource.value.components && dataSource.value.components[comp.type]
     ? dataSource.value.components[comp.type][comp.name] = comp.value
     : dataSource.value.components ? dataSource.value.components[comp.type] = {
