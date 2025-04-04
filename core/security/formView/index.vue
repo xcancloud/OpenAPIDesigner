@@ -45,10 +45,12 @@ interface AuthItem {
 interface Props {
   data:AuthItem;
   name: string;
+  showName: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  name: ''
+  name: '',
+  showName: true
 });
 
 const oauthKey = ref(1);
@@ -136,13 +138,13 @@ const initApiKeyContentList = (newValue) => {
   apiKeyContentList.value = [first, ...others];
 };
 
-const initHttpBasicData = (data: {name: string; value: string}) => {
-  // const decodeMap = decode(scheme.value.replace(/Basic\s+/, '')) as {name: string, value: string};
-  // httpAuthData.name = decodeMap.name;
-  // httpAuthData.value = decodeMap.value;
-  const { name = '', value = '' } = data || {};
-  httpAuthData.name = name || '';
-  httpAuthData.value = value || '';
+const initHttpBasicData = (data: {name: string, value: string}) => {
+  // const decodeMap = decode(data[valueKey].replace(/Basic\s+/, '')) as {name: string, value: string};
+  // httpAuthData.value.name = decodeMap.name;
+  // httpAuthData.value.value = decodeMap.value;
+  const {name = '', value = '' } = data || {};
+  httpAuthData.value.name = name || '';
+  httpAuthData.value.value = value || '';
 };
 
 const addApiKey = () => {
@@ -202,12 +204,12 @@ const pakageOauthData = () => {
 const getData = () => {
   let data = {};
   if (formState.value.type === 'basic') {
-    data = { type: 'http', [basicAuthKey]: httpAuthData.value, scheme: formState.value.type }
+    data = { type: 'http', [basicAuthKey]: {name: httpAuthData.value?.name, value: httpAuthData.value?.value}, scheme: 'basic' }
   }
   if (formState.value.type === 'bearer') {
     httpAuthData.value.value = httpAuthData.value.value.startsWith('Bearer ') ? httpAuthData.value.value : 'Bearer ' + httpAuthData.value.value;
-    scheme.value = httpAuthData.value;
-    data = { type: 'http', [valueKey]: scheme.value, scheme: formState.value.type };
+    scheme.value = httpAuthData.value.value;
+    data = { type: 'http', [valueKey]: httpAuthData.value.value, scheme: 'bearer' };
   }
 
   if (formState.value.type === 'apiKey') {
@@ -226,7 +228,9 @@ const getData = () => {
     data = pakageOauthData();
   }
   // const data = JSON.parse(JSON.stringify(formState.value));
-  return JSON.parse(JSON.stringify(data));
+  return JSON.parse(JSON.stringify({
+    [formState.value.securityName]: data
+  }));
 };
 
 onMounted(() => {
@@ -235,6 +239,7 @@ onMounted(() => {
     if (!newValue) {
       return;
     }
+    formState.value.securityName = newValue.securityName;
     if (newValue?.scheme) {
       if (newValue.scheme === 'basic') {
         // scheme.value = newValue[valueKey];
@@ -242,8 +247,8 @@ onMounted(() => {
         formState.value.type = 'basic';
       } else if (newValue.scheme === 'bearer') {
         formState.value.type = 'bearer';
-        scheme.value = newValue[valueKey];
-        httpAuthData.name = scheme.value;
+        // scheme.value = newValue[valueKey];
+        httpAuthData.value.name = newValue[valueKey];
       }
       return;
     }
@@ -283,7 +288,7 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  getFormData: getData
+  getData: getData
 });
 
 </script>
@@ -298,9 +303,9 @@ defineExpose({
         v-model:value="formState.type"
         :options="authTypeOpt" />
     </FormItem>
-    <FormItem label="名称" name="name" required  class="flex-2/3">
+    <FormItem v-show="props.showName" label="名称" name="securityName" required  class="flex-2/3">
       <Input
-        v-model:value="formState.name"
+        v-model:value="formState.securityName"
         :maxlength="100"
         placeholder="安全方案名称，要求不能重复，会在安全需求中引用，最多100个字符" />
     </FormItem>

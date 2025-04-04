@@ -124,7 +124,7 @@ const defaultMenu = computed(() => [
       },
       {
         title: '头',
-        key: 'header',
+        key: 'headers',
         selectable: false,
         children: [...headerChildren.value]
       },
@@ -243,7 +243,7 @@ const addModel = () => {
     return;
   }
 
-  if (addType.value === 'header') {
+  if (addType.value === 'headers') {
     if (headerChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
         message: '提示',

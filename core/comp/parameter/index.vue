@@ -1,8 +1,5 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue';
-import { Input, Select, Button, Popover, Switch, InputNumber } from 'ant-design-vue';
-import { DeleteOutlined, ExclamationCircleOutlined, UnorderedListOutlined } from '@ant-design/icons-vue';
-import { stringFormatOpt } from './config';
 
 import ParameterBasic from '../basic/parameterBasic.vue';
 
@@ -82,59 +79,6 @@ const parameterPriorities = ref({
     type: 'string',
 })
 
-// const parameterStyleOpt = {
-//   string: [{label: 'none', value: ''}, {label: 'form', value: 'form'}],
-//   number: [{label: 'none', value: ''}, {label: 'form', value: 'form'}],
-//   array: [{label: 'none', value: ''}, {label: 'form', value: 'form'}, {label: 'spaceDelimited', value: 'spaceDelimited'}, {label: 'pipeDelimited', value: 'pipeDelimited'}],
-//   boolean: undefined,
-//   integer: [{label: 'none', value: ''}, {label: 'form', value: 'form'}],
-//   any: [{label: 'none', value: ''}]
-// };
-
-// const parameterFormateOpt = {
-//   string: [{label: 'none', value: ''}, ...stringFormatOpt],
-//   any: [{label: 'none', value: ''}],
-//   number: [{label: 'none', value: ''}, {value: 'float', label: 'float'}, {value: 'double', label: 'double'},],
-//   integer: [{label: 'none', value: ''}, {label: 'int32', value: 'int32'}, {value: 'int64', label: 'int64'}],
-//   array: [{label: 'none', value: ''},],
-//   boolean: [{label: 'none', value: ''},]
-// };
-
-// const typeOpt = [
-//   {
-//     label: 'string',
-//     value: 'string'
-//   },
-//   {
-//     label: 'number',
-//     value: 'number'
-//   },
-//   {
-//     label: 'integer',
-//     value: 'integer'
-//   },
-//   {
-//     label: 'boolean',
-//     value: 'boolean'
-//   },
-//   {
-//     label: 'array',
-//     value: 'array'
-//   },
-//   {
-//     label: 'any',
-//     value: 'any'
-//   }
-// ];
-
-// const handleChangeType = () => {
-//   parameterPriorities.value.format = '';
-//   parameterObj.value.style = '';
-// }
-
-// const handleRequired = () => {
-//   parameterObj.value.required = !parameterObj.value.required;
-// };
 
 const handleDelete = () => {
   emits('del');
@@ -149,6 +93,17 @@ watch(() => props.name, () => {
   resetData();
 }, {
   immediate: true
+});
+
+defineExpose({
+  getData: () => {
+    return {
+      ...parameterObj.value,
+      schema: parameterPriorities.value.$ref ? {
+        $ref: parameterPriorities.value.$ref
+      } : parameterPriorities.value
+    }
+  }
 });
 
 </script>

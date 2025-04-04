@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { onMounted, watch, ref } from 'vue';
 import { defineAsyncComponent } from 'vue';
 
 interface Props {
@@ -30,6 +29,6 @@ const Security = defineAsyncComponent(() => import('./security/index.vue'));
 <Parameter v-if="schemaType === 'parameters'" :name="schemaName" :data="props.dataSource.components[schemaType][props.schemaName]" @del="emits('del')" />
 <RequestBodies v-if="schemaType === 'requestBodies'" :name="schemaName" :data="props.dataSource.components[schemaType][props.schemaName]" @del="emits('del')" />
 <Response v-if="schemaType === 'responses'" :name="schemaName" :data="props.dataSource.components[schemaType][props.schemaName]" @del="emits('del')" />
-<Header v-if="schemaType === 'header'" :name="schemaName" :data="props.dataSource.components[schemaType][props.schemaName]" @del="emits('del')" />
+<Header v-if="schemaType === 'headers'" :name="schemaName" :data="props.dataSource.components[schemaType][props.schemaName]" @del="emits('del')" />
 <Security v-if="schemaType === 'securitySchemes'" :name="schemaName" :data="props.dataSource.components[schemaType][props.schemaName]" @del="emits('del')" />
 </template>

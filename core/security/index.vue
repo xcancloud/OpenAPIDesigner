@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onMounted, watch, inject } from 'vue';
+import { ref, defineAsyncComponent, onMounted, watch, inject, onBeforeUnmount, Ref } from 'vue';
 import { Tabs, TabPane, Button } from 'ant-design-vue';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue'
 
@@ -18,55 +18,68 @@ const props = withDefaults(defineProps<Props>(), {
   viewMode: 'form'
 });
 
-const formViewRef = ref();
-const codeValue = ref();
+const emits = defineEmits<{(e: 'save', value: {[key: string]: any})}>();
 
-const tagKeyList = ref([1]);
+const formViewRef = ref<Ref[]>([]);
+
+
+const securityList = ref<{[key: string]: any}[]>([]);
 const addTag = () => {
-  tagKeyList.value.push(Math.random());
+  securityList.value.push({
+    scheme: 'basic',
+    type: 'http'
+  });
 };
 
 const deleteTag = (idx: number) => {
-  tagKeyList.value.splice(idx, 1);
+  securityList.value.splice(idx, 1);
 };
 
+const securitySource = ref();
+
 onMounted(() => {
-  watch(() => props.viewMode, () => {
-    if (props.viewMode === 'code') {
-      // codeValue.value = YAML.stringify(formViewRef.value.getFormData());
-    }
+  watch(() => props.dataSource, () => {
+    securitySource.value = props.dataSource.components?.securitySchemes;
+    securityList.value = Object.keys(props.dataSource.components?.securitySchemes || {}).map(key => {
+      return {
+        securityName: key,
+        ...props.dataSource.components?.securitySchemes?.[key]
+      }
+    })
+  }, {
+    immediate: true
   })
+});
+
+onBeforeUnmount(() => {
+  const security = formViewRef.value.map(formView => formView.getData()).reduce((pre, cur) => {
+    return {
+      ...pre,
+      ...cur
+    }
+  }, {});
+  emits('save', security);
 });
 
 </script>
 <template>
-  <Tabs :activeKey="viewMode" class="flex-1 min-h-100">
-    <TabPane key="form" forceRender class="overflow-auto pr-3" >
-      <div class="flex justify-between pr-8">
-        <span class="font-semibold">安全方案</span>
-        <Button size="small" type="primary" @click="addTag">
-          + 添加
-        </Button>
-      </div>
-      <div
-        v-for="(key, idx) in tagKeyList" :key="key"
-        class="flex w-full mb-5 border-t mt-3 pt-2">
-        <FormView ref="formViewRef" class="flex-1" />
-        <Button size="small" type="link" class="mt-8 w-8" @click="deleteTag(idx)">
-          <DeleteOutlined class="text-5" />
-        </Button>
-      </div>
-
-      <SecurityBasic :dataSource="props.dataSource?.security" />
-    </TabPane>
-    <TabPane key="code" class="pr-2">
-      <CodeView
-        :value="codeValue" />
-    </TabPane>
-    <TabPane key="preview" class="overflow-auto pr-3">
-
-    </TabPane>
-  </Tabs>
+  <div class="min-h-100">
+    <div class="flex justify-between pr-8">
+      <span class="font-semibold">安全方案</span>
+      <Button size="small" type="primary" @click="addTag">
+        + 添加
+      </Button>
+    </div>
+    <div
+      v-for="(security, idx) in securityList" :key="idx"
+      class="flex w-full mb-5 border-t mt-3 pt-2">
+      <FormView :ref="dom => formViewRef[idx] = dom" class="flex-1" :data="security" />
+      <Button size="small" type="link" class="mt-8 w-8" @click="deleteTag(idx)">
+        <DeleteOutlined class="text-5" />
+      </Button>
+    </div>
+    <SecurityBasic :dataSource="props.dataSource?.security" />
+  </div>
 </template>
 <style scoped>
 :deep(.ant-tabs) .ant-tabs-nav {

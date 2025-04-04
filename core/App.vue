@@ -65,6 +65,10 @@ const handleDelComp = () => {
   activeMenuKey.value = 'docInfo';
 };
 
+const saveSecurity = (data) => {
+  dataSource.value.components.securitySchemes = data;
+};
+
 provide('dataSource', dataSource);
 </script>
 
@@ -94,7 +98,7 @@ provide('dataSource', dataSource);
           <Server v-else-if="activeMenuKey === 'server'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
           <Tag v-else-if="activeMenuKey === 'tag'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
           <Extensions v-else-if="activeMenuKey === 'extensions'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
-          <Security v-else-if="activeMenuKey === 'securities'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
+          <Security v-else-if="activeMenuKey === 'securities'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" @save="saveSecurity" />
           <ApiModel v-else-if="selectedApi" :dataSource="selectedApi" :openapiDoc="dataSource"/>
           <Comp v-else  class="mt-4" :dataSource="dataSource" :schemaType="schemaType" :schemaName="activeMenuKey" @del="handleDelComp" />
         </TabPane>

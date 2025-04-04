@@ -1,9 +1,5 @@
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
-import { Input, Select, Button, Popover, Switch, InputNumber } from 'ant-design-vue';
-import { DeleteOutlined, ExclamationCircleOutlined, UnorderedListOutlined } from '@ant-design/icons-vue';
-import { stringFormatOpt } from './config';
-
+import { ref, watch, inject, onBeforeUnmount } from 'vue';
 import ParameterBasic from '../basic/parameterBasic.vue';
 
 interface Props {
@@ -16,6 +12,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emits = defineEmits<{(e: 'del'):void}>();
+const dataSource = inject('dataSource', ref());
 
 const parameterObj = ref<Record<string, any>>({
   description: '',
@@ -84,16 +81,33 @@ const handleDelete = () => {
   emits('del');
 };
 
+const saveData = (name = props.name) => {
+  dataSource.value.components.headers[name] = {
+    ...parameterObj.value,
+    schema: {
+      ...parameterPriorities.value
+    }
+  }
+};
+
 const resetData = () => {
   resetParameterObj(props.data);
   resetParameterPriorities(props.data?.schema);
 };
 
-watch(() => props.name, () => {
+watch(() => props.name, (newValue, oldValue) => {
+  if (oldValue) {
+    saveData(oldValue)
+  }
   resetData();
+  
 }, {
   immediate: true
 });
+
+onBeforeUnmount(() => {
+  saveData();
+})
 
 </script>
 <template>

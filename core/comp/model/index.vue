@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { provide, ref, watch } from 'vue';
+import { inject, ref, watch, onBeforeUnmount } from 'vue';
 import { Button, Divider, TabPane, Tabs, Dropdown, Input, notification, Select } from 'ant-design-vue';
 import { parseSchemaArrToObj, parseSchemaObjToArr, CONTENT_TYPE } from '../basic/utils';
 
@@ -7,9 +7,6 @@ import AddAttrModal from '../basic/addAttrModal.vue';
 import AttrItemList from '../basic/attrItemList.vue';
 
 interface Props {
-  id: string;
-  pid: string;
-  type: string;
   name: string;
   data?: Record<string, any>
 }
@@ -20,6 +17,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emits = defineEmits<{(e: 'cancel'):void;(e: 'ok'):void}>();
+const dataSource = inject('dataSource', ref());
 
 // const deleteTabPane = inject('deleteTabPane', (value) => value);
 // const useAuth = ref<string[]>([]);
@@ -133,7 +131,6 @@ const loadSchemaContent = async () => {
   } else {
     objectAttrList.value = parseSchemaObjToArr(schemaObj, schemaObj.required);
   }
-  schemaName.value = schemaObj.key;
   schemaType.value = schemaObj.type;
   modelType.value = schemaObj.type;
   schemaData.value = schemaObj;
@@ -150,9 +147,22 @@ const onSchemaTypeChange = () => {
   modelType.value = 'object';
 };
 
-watch(() => props.data, newValue => {
+const saveData = (name = props.name) => {
+  const schemaObj = parseSchemaArrToObj(objectAttrList.value);
+  dataSource.value.components.schemas[name] = {
+    ...schemaObj,
+    title: schemaName.value,
+    description: description.value
+  }
+};
+
+watch(() => props.name, (newValue, oldName) => {
   if (newValue) {
-    schemaName.value = props.data.key;
+    if (oldName) {
+      saveData(oldName)
+    }
+    schemaName.value = props.data?.title;
+    description.value = props.data?.description;
     loadSchemaContent();
   } else {
     resetschemas();
@@ -161,13 +171,16 @@ watch(() => props.data, newValue => {
   immediate: true
 });
 
+onBeforeUnmount(() => {
+  saveData(props.name);
+})
+
 </script>
 <template>
   <div class="flex h-full overflow-y-scroll">
     <div class="p-2 flex-1 min-w-100 space-y-2">
       <Input
         v-model:value="schemaName"
-        :readonly="props.data?.key"
         :error="validate && !schemaName"
         :maxlength="200"
         :bordered="false"

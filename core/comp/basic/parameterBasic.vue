@@ -199,11 +199,13 @@ onMounted(() => {
       class="flex-1" />
     <Select
       v-model:value="parameterPriorities.type"
+      :disabled="!!parameterPriorities.$ref"
       :options="typeOpt"
       class="w-30"
       @change="handleChangeType" />
     <Input
       v-model:value="parameterObj.description"
+      :disabled="!!parameterPriorities.$ref"
       :maxlength="200"
       class="flex-1"
       placeholder="描述..." />
@@ -230,14 +232,20 @@ onMounted(() => {
     <Button
       :type="parameterObj.required ? 'primary' : 'default'"
       class="px-1"
-      :disabled="props.requiredProps.disabled"
+      :disabled="props.requiredProps.disabled || parameterPriorities.$ref"
       @click="handleRequired">
       <ExclamationCircleOutlined />
     </Button>
+    <Button
+      v-if="!!parameterPriorities.$ref"
+      disabled
+      class="px-1">
+      <UnorderedListOutlined />
+      </Button>
     <Popover trigger="click">
       <Button
-        class="px-1"
-        :disabled="!!parameterPriorities.$ref">
+        v-if="!parameterPriorities.$ref"
+        class="px-1">
         <UnorderedListOutlined />
       </Button>
       <template #content>

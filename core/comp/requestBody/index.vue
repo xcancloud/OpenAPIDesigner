@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { ref, watch, onMounted } from 'vue';
-import { Button, Divider, TabPane, Tabs, Input, Select  } from 'ant-design-vue';
+import { ref, watch, onMounted, nextTick, Ref, inject, onBeforeUnmount } from 'vue';
+import { Button, TabPane, Tabs  } from 'ant-design-vue';
 import { CONTENT_TYPE } from '../basic/utils';
 import Dropdown from '@/components/Dropdown/index.vue';
 
@@ -24,6 +24,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emits = defineEmits<{(e: 'cancel'):void;(e: 'ok'):void}>();
+const dataSource = inject('dataSource', ref());
 
 const disabledBodyModelType = (type) => {
   return ['application/x-www-form-urlencoded',
@@ -34,7 +35,7 @@ const disabledBodyModelType = (type) => {
 
 const requestBodyData = ref<{description?: string, content?: {[key: string]: any}, headers?: {[key: string]: any}}>({});
 const contentTypes = ref<string[]>([]);
-const requestBodiesDataRef:any[] = [];
+const requestBodiesDataRef = ref<Ref[]>([]);
 
 const addContentType = (item: {key: string}) => {
   contentTypes.value.push(item.key);
@@ -62,18 +63,44 @@ const editTab = (key:string) => {
   contentTypes.value = contentTypes.value.filter(i => i !== key);
 };
 
+const saveData = (name: string) => {
+  const description = easyMDE.value.value();
+  const content = requestBodiesDataRef.value.reduce((pre, cur) => {
+    const curContent = cur.getData()
+    return {
+      ...pre,
+      ...curContent
+    }
+  }, {});
+  dataSource.value.components.requestBodies[name] = {
+    ...requestBodyData.value,
+    description,
+    content
+  }
+};
+
+
 onMounted(() => {
-  watch(() => props.data, () => {
+  watch(() => props.name, (newValue, oldName) => {
+    if (oldName) {
+      saveData(oldName);
+    }
     requestBodyData.value = props.data || {};
     contentTypes.value = Object.keys(requestBodyData.value?.content || {});
+    nextTick(() => {
+      easyMDE.value = new EasyMDE({
+        element: descRef.value, 
+        autoDownloadFontAwesome: true
+      });
+    })
   }, {
     immediate: true,
   })
-  easyMDE.value = new EasyMDE({
-    element: descRef.value, 
-    autoDownloadFontAwesome: true
-  });
 });
+onBeforeUnmount(() => {
+  saveData(props.name);
+});
+
 
 </script>
 <template>
@@ -81,7 +108,6 @@ onMounted(() => {
     <div class="p-2 flex-1 min-w-100">
       <div class="text-5 font-semibold">{{props.name}}</div>
       <textarea ref="descRef">{{ requestBodyData.description }}</textarea>
-
       <Tabs
         type="editable-card"
         hideAdd

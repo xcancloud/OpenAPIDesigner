@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, inject, onBeforeUnmount } from 'vue';
-import { Form, FormItem, Input, Select, Button } from 'ant-design-vue';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue'
+import { Form, FormItem, Input } from 'ant-design-vue';
 import EasyMDE from 'easymde';
 import 'easymde/dist/easymde.min.css'
 
@@ -54,6 +53,12 @@ onMounted(() => {
       description: undefined
     }
   }
+  if (!formState.value.externalDocs) {
+    formState.value.externalDocs = {
+      url: undefined,
+      description: undefined
+    }
+  }
   easyMDE.value = new EasyMDE({
     element: descRef.value, 
     autoDownloadFontAwesome: true
@@ -93,7 +98,8 @@ defineExpose({
 
   <FormItem label="外部文档URL" required>
     <Input
-      v-model:value="formState.externalDocs?.url"
+      v-if="formState.externalDocs"
+      v-model:value="formState.externalDocs.url"
       :maxlength="400"
       placeholder="标签外部接口文档链接地址，必须以URI的形式表示，最多400个字符" />
   </FormItem>
