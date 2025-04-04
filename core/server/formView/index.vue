@@ -92,12 +92,8 @@ onMounted(() => {
   // getAppFunc({name: 'getDocInfoFormData', func: getData});
 });
 
-onBeforeUnmount(() => {
-  // getAppFunc({name: 'getDocInfoFormData', func: () => ({})});
-});
-
 defineExpose({
-  getFormData: getData
+  getData: getData
 })
 
 </script>

@@ -77,7 +77,7 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  getFormData: getData
+  getData: getData
 })
 
 </script>

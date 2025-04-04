@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onMounted, watch, inject } from 'vue';
+import { ref, defineAsyncComponent, onMounted, watch, inject, Ref, onBeforeUnmount } from 'vue';
 import { Tabs, TabPane, Button } from 'ant-design-vue';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue';
-import YAML from 'yaml';
+import { DeleteOutlined } from '@ant-design/icons-vue';
 
 const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
 const CodeView = defineAsyncComponent(() => import('./codeView/index.vue'));
@@ -21,7 +20,9 @@ const props = withDefaults(defineProps<Props>(), {
   dataSource: undefined
 });
 
-const formViewRef = ref();
+const dataSource = inject('dataSource', ref());
+
+const formViewRef = ref<Ref[]>([]);
 const codeValue = ref();
 
 const servers= ref<{
@@ -47,16 +48,26 @@ const handleDel = (idx: number) => {
   servers.value.splice(idx, 1);
 };
 
+const saveData = () => {
+  const servers = formViewRef.value.map(dom => {
+    return dom.getData();
+  });
+
+  dataSource.value.servers = servers;
+};
+
 onMounted(() => {
   watch(() => props.dataSource, () => {
-
     servers.value = props.dataSource?.servers || [];
-    // if (props.viewMode === 'code') {
-    // codeValue.value = YAML.stringify(formViewRef.value.getFormData());
-    // }
-
+  }, {
+    immediate: true
   })
 })
+
+
+onBeforeUnmount(() => {
+  saveData();
+});
 
 </script>
 <template>
@@ -64,14 +75,14 @@ onMounted(() => {
       <TabPane key="form" forceRender class="overflow-auto pr-3" >
         <div class="flex justify-end pr-8">
           <Button size="small" type="primary" @click="addServer">
-            添加服务器
+            添加服务器 +
           </Button>
         </div>
         <div
           v-for="(server, idx) in servers" :key="idx"
           class="flex w-full mb-5"
           :class="{'border-b': idx !== servers.length - 1}">
-          <FormView ref="formViewRef" :dataSource="server" class="flex-1" />
+          <FormView :ref="dpm => formViewRef[idx] = dom" :dataSource="server" class="flex-1" />
           <Button size="small" type="link" class="mt-8 w-8" @click="handleDel(idx)">
             <DeleteOutlined class="text-5" />
           </Button>

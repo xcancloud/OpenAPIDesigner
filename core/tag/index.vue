@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onMounted, watch, inject } from 'vue';
+import { ref, defineAsyncComponent, onMounted, watch, inject, Ref, onBeforeUnmount } from 'vue';
 import { Tabs, TabPane, Button } from 'ant-design-vue';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue'
-import YAML from 'yaml';
+import { DeleteOutlined } from '@ant-design/icons-vue'
 
 const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
 const CodeView = defineAsyncComponent(() => import('./codeView/index.vue'));
 
 const getAppFunc = inject('getAppFunc', ()=>{});
+const dataSource = inject('dataSource', ref());
 
 interface Props {
   viewMode: 'form'|'code'|'preview',
@@ -28,7 +28,8 @@ type Tag = {
   }
 }
 
-const formViewRef = ref();
+
+const formViewRef = ref<Ref[]>([]);
 const codeValue = ref();
 
 const tags = ref<Tag[]>([]);
@@ -43,12 +44,24 @@ const deleteTag = (idx: number) => {
   tags.value.splice(idx, 1);
 };
 
-onMounted(() => {
-  watch(() => props.viewMode, () => {
-    tags.value = props.dataSource?.tags || [];
-  }, {
-    immediate: true
+const saveData = () => {
+  const tags = formViewRef.value.map(form => {
+    return form.getData();
   });
+  dataSource.value.tags = tags;
+};
+
+onMounted(() => {
+  // watch(() => props.viewMode, () => {
+  //   // tags.value = props.dataSource?.tags || [];
+  // }, {
+  //   immediate: true
+  // });
+  tags.value = props.dataSource?.tags || [];
+});
+
+onBeforeUnmount(() => {
+  saveData();
 });
 
 </script>
@@ -57,14 +70,14 @@ onMounted(() => {
     <TabPane key="form" forceRender class="overflow-auto pr-3" >
       <div class="flex justify-end pr-8">
         <Button size="small" type="primary" @click="addTag">
-          添加标签
+          添加标签 +
         </Button>
       </div>
       <div
         v-for="(tag, idx) in tags" :key="idx"
         class="flex w-full mb-5"
         :class="{'border-b': idx !== tags.length - 1}">
-        <FormView ref="formViewRef" class="flex-1" :dataSource="tag" />
+        <FormView :ref="dom => formViewRef[idx] = dom" class="flex-1" :dataSource="tag" />
         <Button size="small" type="link" class="mt-8 w-8" @click="deleteTag(idx)">
           <DeleteOutlined class="text-5" />
         </Button>
