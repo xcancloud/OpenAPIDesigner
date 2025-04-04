@@ -18,7 +18,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  activeMenuKey: 'docInfo',
+  activeMenuKey: 'info',
   dataSource: () => ({}),
   schemaType: undefined
 });
@@ -65,27 +65,27 @@ const selectApi = (endpoint: string, method: string) => {
 const defaultMenu = computed(() => [
   {
     title: '文档信息',
-    key: 'docInfo',
+    key: 'info',
     icon: docInfoSvg
   },
   {
     title: '外部文档',
-    key: 'externalDoc',
+    key: 'externalDocs',
     icon: outDocSvg
   },
   {
     title: '服务器',
-    key: 'server',
+    key: 'servers',
     icon: serverSvg
   },
   {
     title: '安全',
-    key: 'securities',
+    key: 'security',
     icon: anquanSvg
   },
   {
     title: '标签',
-    key: 'tag',
+    key: 'tags',
     icon: tagSvg
   },
   {
@@ -312,7 +312,7 @@ const handleSelectComp = (selectedKeys: string, schemaType: string) => {
 }
 
 onMounted(() => {
-  emits('update:activeMenuKey', 'docInfo');
+  emits('update:activeMenuKey', 'info');
   watch(() => props.dataSource?.paths, (newValue) => {
     apiPaths.value = newValue || {};
   }, {

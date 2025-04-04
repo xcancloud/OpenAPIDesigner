@@ -68,7 +68,7 @@ onMounted(() => {
 const getData = () => {
   const _security = securityRef.value.getData();
   const { summary, operationId, description } = data.value;
-  const extensions = extensionsRef.value.getData();
+  const extensions = extensionsRef.value.getFormData();
   return {
     security: _security,
     summary,
@@ -114,43 +114,5 @@ defineExpose({
 
     <Extensions ref="extensionsRef" :dataSource="extensionData" />
 
-    <!-- <div v-if="security" class="space-y-4 mt-2">
-      <div v-for="(item ,idx) in security" :key="idx" class="space-y-2">
-        <div class="flex items-center space-x-2">
-          <span>security{{ idx + 1 }}</span>
-          <PlusOutlined @click="handleAddSunbSecurity(idx)" />
-        </div>
-        <div v-for="(subItem, subIdx) in item" :key="`${idx}_${subIdx}`" class=mb-2>
-          <InputGroup :compact="true">
-            <Select
-              v-model:value="subItem.name"
-              class="w-50"
-              :disabled="getSecurityOptions(subItem.name, idx).length <= 1"
-              :options="getSecurityOptions(subItem.name, idx)" />
-            <Select
-              v-if="hasScopes(subItem.name)"
-              v-model:value="subItem.scopes"
-              :options="(hasScopes(subItem.name) || []).map(i => ({value: i, label: i}))"
-              mode="tags"
-              class="w-80" />
-            <Button @click="delSubSecurity(idx, subIdx)">
-              <DeleteOutlined />
-            </Button>
-          </InputGroup>
-        </div>
-      </div>
-    </div> -->
-    <!-- <div class="flex items-center justify-between border-b pb-2 mt-6">
-      <span class="text-4 font-medium"><Icon icon="icon-anquan" class="text-5" /> Status</span>
-    </div>
-    <div class="mt-2 flex space-x-2">
-      <Input
-        readOnly
-        value="x-xc-status"
-        class="inline-block w-auto" />
-      <Select
-        v-model:value="data[statusKey]"
-        :options="apiStatus" />
-    </div> -->
   </div>
 </template>

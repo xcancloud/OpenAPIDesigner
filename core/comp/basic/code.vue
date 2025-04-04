@@ -17,7 +17,7 @@ const selectRange = ref({});
 const props = withDefaults(defineProps<Props>(), {
   dataSource: () => ({}),
   selectStr: undefined,
-  startKey: ''
+  startKey: undefined
 });
 onMounted(() => {
   watch(() => props.dataSource, newValue => {
@@ -36,6 +36,7 @@ onMounted(() => {
       return;
     }
 
+    debugger;
     let lineNumber = 1;
     let hasKey = false;
     const targetStr = YAML.stringify(newValue);
@@ -43,11 +44,11 @@ onMounted(() => {
     const targetFirstLineStr = targetStrs[0];
     const allStrs = data.value.split('\n');
     for (let i = 0; i < allStrs.length; i++) {
-      if (hasKey && allStrs[i].trim() === targetFirstLineStr.trim()) {
+      if (hasKey && (((props.startKey !== undefined) && allStrs[i].trim() === targetFirstLineStr.trim()) || (!props.startKey && allStrs[i] === targetFirstLineStr))) {
         lineNumber = 1 + i;
         break;
       } else {
-        if (allStrs[i].trim() === (props.startKey.trim() + ':')) {
+        if ((props.startKey !== undefined && (allStrs[i].trim() === (props.startKey.trim() + ':'))) || props.startKey === undefined) {
           hasKey = true;
         }
       }

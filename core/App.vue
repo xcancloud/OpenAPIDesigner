@@ -42,6 +42,7 @@ const updateData = (comp: {name: string; value: any; type: string}) => {
 };
 
 const selectedApi = ref();
+const selectApiObj = ref();
 const apiEndpoint = ref();
 watch(() => activeMenuKey.value, (newValue) => {
   if (newValue) {
@@ -51,18 +52,20 @@ watch(() => activeMenuKey.value, (newValue) => {
       const path = newValue.slice(0, newValue.length - (method.length + 1) );
       if (dataSource.value?.paths?.[path]?.[method]) {
         selectedApi.value = {...dataSource.value.paths[path][method], endpoint: path, method};
+        selectApiObj.value = {[method]: {...dataSource.value.paths[path][method]}};
         apiEndpoint.value = path;
         return;
       }
     }
   }
   selectedApi.value = undefined;
+  selectApiObj.value = undefined;
   apiEndpoint.value = undefined;
 });
 
 const handleDelComp = () => {
   delete dataSource.value.components[schemaType.value][activeMenuKey.value];
-  activeMenuKey.value = 'docInfo';
+  activeMenuKey.value = 'info';
 };
 
 const saveSecurity = (data) => {
@@ -93,17 +96,19 @@ provide('dataSource', dataSource);
       </div>
       <Tabs v-model:activeKey="viewMode" class="flex-1 view-type-tab">
         <TabPane key="form" forceRender class="overflow-auto pr-3" >
-          <DocInfo v-if="activeMenuKey === 'docInfo'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
-          <ExternalDoc v-else-if="activeMenuKey === 'externalDoc'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
-          <Server v-else-if="activeMenuKey === 'server'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
-          <Tag v-else-if="activeMenuKey === 'tag'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
+          {{ schemaType }}
+          <DocInfo v-if="activeMenuKey === 'info'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
+          <ExternalDoc v-else-if="activeMenuKey === 'externalDocs'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
+          <Server v-else-if="activeMenuKey === 'servers'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
+          <Tag v-else-if="activeMenuKey === 'tags'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
           <Extensions v-else-if="activeMenuKey === 'extensions'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
-          <Security v-else-if="activeMenuKey === 'securities'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" @save="saveSecurity" />
+          <Security v-else-if="activeMenuKey === 'security'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" @save="saveSecurity" />
           <ApiModel v-else-if="selectedApi" :dataSource="selectedApi" :openapiDoc="dataSource"/>
           <Comp v-else  class="mt-4" :dataSource="dataSource" :schemaType="schemaType" :schemaName="activeMenuKey" @del="handleDelComp" />
         </TabPane>
         <TabPane key="code">
-          <CodeView class="h-full" :selectStr="selectedApi || dataSource[activeMenuKey]" :startKey="apiEndpoint" :dataSource="dataSource" />
+          <CodeView v-if="!schemaType" class="h-full" :selectStr="selectApiObj || {[activeMenuKey]: dataSource[activeMenuKey]}" :startKey="selectApiObj ? (apiEndpoint || 'paths') : undefined" :dataSource="dataSource" />
+          <CodeView v-else class="h-full" :selectStr="{[activeMenuKey]: dataSource.components?.[schemaType]?.[activeMenuKey]}" startKey="components" :dataSource="dataSource"  />
         </TabPane>
       </Tabs>
 
