@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, inject, onBeforeUnmount } from 'vue';
 import { Button, Popover, Switch, TabPane, Tabs, Tag, Tooltip, Select } from 'ant-design-vue';
 import { TagsOutlined, DeleteOutlined } from '@ant-design/icons-vue';
 
@@ -21,6 +21,8 @@ const props = withDefaults(defineProps<Props>(), {
   openapiDoc: () => ({})
 });
 
+const dataSource = inject('dataSource', ref());
+
 const emits = defineEmits<{(e: 'cancel'):void, (e: 'ok', value: Props['dataSource']):void}>();
 const activeKey = ref('general');
 
@@ -32,21 +34,34 @@ const responsesRef = ref();
 const addTagRef = ref();
 
 const docs = ref<{[key: string]: any}>({});
-const sourceData = ref<Props['dataSource']>();
+const sourceApi = ref<Props['dataSource']>();
 
-const getData = ():Props['dataSource'] => {
-  // return 
-  return {
-    ...sourceData.value,
+const saveData = (method: string, endpoint: string):Props['dataSource'] => {
+  const apiData = {
+    ...sourceApi.value,
   }
-}
+  if (generalRef.value) {
+    Object.assign(apiData, generalRef.value.getData());
+  }
+  if (parametersRef.value) {
+    apiData.parameters = parametersRef.value.getData();
+  }
+  if (responsesRef.value && responsesRef.value.getData()) {
+    apiData.responses = responsesRef.value.getData()
+  }
+
+  if (requestBodyRef.value && requestBodyRef.value.getData()) {
+    apiData.requestBody = requestBodyRef.value.getData()
+  }
+  dataSource.value.paths[endpoint][method] = apiData;
+};
 
 onMounted(() => {
   watch([() => props.dataSource.method, () => props.dataSource.endpoint], ([newValue1, newValue2], [oldNewValue1, oldNewValue2]) => {
     if (oldNewValue1 && oldNewValue2) {
-      emits('ok', getData())
+      saveData(oldNewValue1, oldNewValue2);
     }
-    sourceData.value = props.dataSource;
+    sourceApi.value = props.dataSource;
     const { method, endpoint, ...datas } = props.dataSource;
   }, {
     immediate: true
@@ -55,13 +70,11 @@ onMounted(() => {
 });
 
 const delTags = () => {
-  sourceData.value.tags = [];
+  sourceApi.value.tags = [];
 };
 
-
-
-defineExpose({
-  
+onBeforeUnmount(() => {
+  saveData(props.dataSource.method, props.dataSource.endpoint);
 });
 
 
@@ -78,8 +91,8 @@ defineExpose({
         </Button>
         <template #content>
           <Select
-            v-if="sourceData"
-            v-model:value="sourceData.tags"
+            v-if="sourceApi"
+            v-model:value="sourceApi.tags"
             mode="tags"
             class="w-100"
             :getPopupContainer="(triggerNode) => triggerNode" />
@@ -88,7 +101,7 @@ defineExpose({
       <Tooltip title="Tags">
         <div class="h-6 flex items-center ml-2">
           <Tag
-            v-for="tag in (sourceData?.tags || [])"
+            v-for="tag in (sourceApi?.tags || [])"
             :key="tag"
             :closable="false"
             color="green"
@@ -98,7 +111,7 @@ defineExpose({
         </div>
       </Tooltip>
       <Button
-        v-show="!!sourceData?.tags?.length"
+        v-show="!!sourceApi?.tags?.length"
         size="small"
         class=""
         @click="delTags">
@@ -107,8 +120,8 @@ defineExpose({
       <div class="flex items-center space-x-1 ml-5">
         <span>DEPRECATED</span>
         <Switch
-          v-if="sourceData"
-          v-model:checked="sourceData.deprecated"
+          v-if="sourceApi"
+          v-model:checked="sourceApi.deprecated"
           size="small" />
       </div>
     </div>

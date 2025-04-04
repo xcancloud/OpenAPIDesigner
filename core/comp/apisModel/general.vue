@@ -37,44 +37,6 @@ const extensionsRef = ref();
 
 const data = ref<Props['dataSource']>({method: '', summary: '', operationId: ''});
 const extensionData = ref<{name: string; value: string |null}[]>([]);
-// const security = ref<{name: string, scopes: string[]}[][]>([]);
-
-// const allSecurityOpt = computed<{label: string;value: string;scopes?: string[]}[]>(() => {
-//   if (!props.openapiDoc?.components?.securitySchemes) {
-//     return []
-//   };
-//   const securitySchemes = props.openapiDoc.components.securitySchemes;
-//   return Object.keys(securitySchemes).map(name => {
-//     let scopes;
-//     if (securitySchemes[name].flows) {
-//       scopes = [];
-//       const flows = securitySchemes[name].flows;
-//       Object.values(flows).forEach(val => {
-//         if (val.scopes) {
-//           scopes.push(...Object.keys(val.scopes));
-//         }
-//       })
-//     }
-//     return {
-//       label: name,
-//       value: name,
-//       scopes
-//     }
-//   });
-// });
-
-// const getSecurityOptions = (defaultOpt: string, idx: number) => {
-//   return allSecurityOpt.value.filter(item => {
-//     if (item.value === defaultOpt) {
-//       return true;
-//     }
-//     return !security.value[idx].find(subItem => subItem.name === item.value)
-//   });
-// };
-
-// const hasScopes = (securityName: string) => {
-//   return allSecurityOpt.value.find(item => item.label === securityName)?.scopes;
-// };
 
 onMounted(() => {
   

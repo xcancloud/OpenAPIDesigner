@@ -10,6 +10,9 @@ export interface Props {
         summary: string;
         description: string;
         security?: {[key: string]: string[]}[];
+        requestBody?: {
+          [key: string]: any
+        }
     };
     id: string;
     openapiDoc: {[key: string]: any};

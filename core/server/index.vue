@@ -62,7 +62,7 @@ onMounted(() => {
   }, {
     immediate: true
   })
-})
+});
 
 
 onBeforeUnmount(() => {
@@ -82,7 +82,7 @@ onBeforeUnmount(() => {
           v-for="(server, idx) in servers" :key="idx"
           class="flex w-full mb-5"
           :class="{'border-b': idx !== servers.length - 1}">
-          <FormView :ref="dpm => formViewRef[idx] = dom" :dataSource="server" class="flex-1" />
+          <FormView :ref="dom => formViewRef[idx] = dom" :dataSource="server" class="flex-1" />
           <Button size="small" type="link" class="mt-8 w-8" @click="handleDel(idx)">
             <DeleteOutlined class="text-5" />
           </Button>
