@@ -1,39 +1,56 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onMounted, watch } from 'vue';
+import { ref, defineAsyncComponent, onMounted, watch, onBeforeUnmount, inject } from 'vue';
 import { Tabs, TabPane } from 'ant-design-vue';
-import YAML from 'yaml';
 
 const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
-const CodeView = defineAsyncComponent(() => import('./codeView/index.vue'));
 
 interface Props {
-  viewMode: 'form'|'code'|'preview'
+  viewMode: 'form'|'code'|'preview';
+  dataSource?: Record<string, any>;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  viewMode: 'form'
+  viewMode: 'form',
+  dataSource: undefined
 });
 
 const formViewRef = ref();
-const codeValue = ref();
+const dataSource = inject('dataSource', ref());
+
+const extensions = ref<{name: string, value?: string, oldName?: string}[]>([]);
 
 onMounted(() => {
-  watch(() => props.viewMode, () => {
-    if (props.viewMode === 'code') {
-      codeValue.value = YAML.stringify(formViewRef.value.getFormData());
+  watch(() => props.dataSource, (newValue) => {
+    if (newValue) {
+      extensions.value = [];
+      Object.keys(newValue).forEach(key => {
+        if (key.startsWith('x-')) {
+          extensions.value.push({
+            name: key,
+            value: newValue[key]
+          })
+        }
+      })
+    } else {
+      extensions.value = [];
     }
+  }, {
+    immediate: true
   })
-})
+});
+
+onBeforeUnmount(() => {
+
+  const extensionObj = formViewRef.value.getFormData();
+  debugger;
+  Object.assign(dataSource.value, extensionObj);
+});
 
 </script>
 <template>
   <Tabs :activeKey="viewMode" class="flex-1 min-h-100">
       <TabPane key="form" forceRender class="overflow-auto pr-3" >
-        <FormView ref="formViewRef" />
-      </TabPane>
-      <TabPane key="code" class="pr-2">
-        <CodeView
-          :value="codeValue" />
+        <FormView ref="formViewRef" :dataSource="extensions" />
       </TabPane>
       <TabPane key="preview" class="overflow-auto pr-3">
 

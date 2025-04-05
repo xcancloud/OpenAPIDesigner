@@ -15,7 +15,7 @@ const DocInfo = defineAsyncComponent(() => import('./docInfo/formView/index.vue'
 const ExternalDoc = defineAsyncComponent(() => import('./externalDoc/formView/index.vue'));
 const Server = defineAsyncComponent(() => import('./server/index.vue'));
 const Tag = defineAsyncComponent(() => import('./tag/index.vue'));
-const Extensions = defineAsyncComponent(() => import('./extensions/formView/index.vue'));
+const Extensions = defineAsyncComponent(() => import('./extensions/index.vue'));
 const Security = defineAsyncComponent(() => import('./security/index.vue'));
 const Comp = defineAsyncComponent(() => import('./comp/index.vue'));
 const ApiModel = defineAsyncComponent(() => import('./comp/apisModel/index.vue'));
@@ -96,7 +96,6 @@ provide('dataSource', dataSource);
       </div>
       <Tabs v-model:activeKey="viewMode" class="flex-1 view-type-tab">
         <TabPane key="form" forceRender class="overflow-auto pr-3" >
-          {{ schemaType }}
           <DocInfo v-if="activeMenuKey === 'info'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
           <ExternalDoc v-else-if="activeMenuKey === 'externalDocs'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
           <Server v-else-if="activeMenuKey === 'servers'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />

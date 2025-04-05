@@ -144,10 +144,7 @@ const defaultMenu = computed(() => [
   },
   {
     title: '扩展',
-    key: 'extensions',
-    children: [
-
-    ]
+    key: 'extensions'
   }
 ]);
 
@@ -395,7 +392,7 @@ const methodColorConfig:Record<string, string> = {
             v-if="menu.children"
             v-model:open="compExpandMap[menu.key]" />
           <span class="truncate">{{ menu.title }}</span>
-          <template v-if="['apis', 'extensions'].includes(menu.key)">{{ `(${menu.children?.length})` }}</template>
+          <template v-if="['apis'].includes(menu.key)">{{ `(${menu.children?.length})` }}</template>
         </div>
       </div>
 
