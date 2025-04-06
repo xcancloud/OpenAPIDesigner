@@ -1,7 +1,7 @@
 /* stylelint-disable at-rule-no-deprecated */
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue';
-import { Input, Select, Dropdown, Menu, MenuItem, Modal, notification } from 'ant-design-vue';
+import { computed, onMounted, ref, watch, inject } from 'vue';
+import { Input, Select, Dropdown, Menu, MenuItem, Modal, notification, Button } from 'ant-design-vue';
 import Arrow from '@/components/Arrow/index.vue';
 
 import docInfoSvg  from '../Icons/docInfo.svg';
@@ -9,6 +9,7 @@ import outDocSvg from '../Icons/outDoc.svg';
 import serverSvg from '../Icons/server.svg';
 import anquanSvg from '../Icons/anquan.svg';
 import tagSvg from '../Icons/tag.svg';
+import MenuDropdown from '@/components/Dropdown/index.vue';
 
 
 interface Props {
@@ -29,12 +30,13 @@ interface MenuItem {
   key: string;
   title: string;
   children?: MenuItem[]
-}
+};
 
 const emits = defineEmits<{
   (e: 'update:activeMenuKey', value: string): void;
   (e: 'update:schemaType', value?: string):void;
-  (e:'addComp', value: {name: string, value: any; type: string;}):void}>();
+  (e:'addComp', value: {name: string, value: any; type: string;}):void;
+  (e: 'delComp'):void}>();
 const createNameModalVisible = ref(false);
 const createName = ref();
 const parameterIn = ref('query');
@@ -306,7 +308,11 @@ const handleSelect = (selectedKeys: string) => {
 const handleSelectComp = (selectedKeys: string, schemaType: string) => {
   handleSelect(selectedKeys);
   emits('update:schemaType', schemaType);
-}
+};
+
+const handleDelComp = () => {
+  emits('delComp');
+};
 
 onMounted(() => {
   emits('update:activeMenuKey', 'info');
@@ -317,6 +323,7 @@ onMounted(() => {
   });
 
   watch(() => props.dataSource?.components, (newValue) => {
+    debugger;
     modelChildren.value = Object.keys(newValue.schemas || {}).map(path => {
       // const title = path.split('/').reverse()[0];
       return {
@@ -425,7 +432,17 @@ const methodColorConfig:Record<string, string> = {
               :class="{'text-blue-1': subsubMenu.key === props.activeMenuKey && props.schemaType === subMenu.key}"
               class="h-8 pl-4 leading-8 px-2 cursor-pointer flex items-center justify-between font-medium bg-bg-content hover:bg-gray-200"
               @click="handleSelectComp(subsubMenu.key, subMenu.key)">
-              {{ subsubMenu.title }}
+              <div class="truncate">
+                {{ subsubMenu.title }}
+              </div>
+              <MenuDropdown
+                trigger="click"
+                :menuItems="[{key: 'del', name: '删除'}]"
+                @click="handleDelComp(subMenu.key, subsubMenu.key)">
+                <Button type="text" size="small">
+                  ...
+                </Button>
+              </MenuDropdown>
             </div>
           </div>
         </div>

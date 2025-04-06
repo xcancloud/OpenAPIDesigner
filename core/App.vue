@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, watch, provide } from 'vue';
+import { defineAsyncComponent, ref, watch, provide, nextTick } from 'vue';
 import { RadioGroup, RadioButton, Tabs, TabPane } from 'ant-design-vue';
 import SiderMenu from './siderMenu/index.vue';
 import { data1 as data } from './data.ts';
@@ -64,8 +64,13 @@ watch(() => activeMenuKey.value, (newValue) => {
 });
 
 const handleDelComp = () => {
-  delete dataSource.value.components[schemaType.value][activeMenuKey.value];
+  
+  const schema = schemaType.value;
+  const compName = activeMenuKey.value;
   activeMenuKey.value = 'info';
+  nextTick(() => {
+    delete dataSource.value.components[schema][compName];
+  });
 };
 
 const saveSecurity = (data) => {
@@ -82,7 +87,8 @@ provide('dataSource', dataSource);
         v-model:active-menu-key="activeMenuKey"
         v-model:schemaType="schemaType"
         :dataSource="dataSource"
-        @addComp="updateData" />
+        @addComp="updateData"
+        @delComp="handleDelComp" />
     </div>
     <div class="flex flex-col flex-1 min-w-200 py-2 pl-2 h-full overflow-auto">
       <div></div>

@@ -5,6 +5,7 @@ import { parseSchemaArrToObj, parseSchemaObjToArr, CONTENT_TYPE } from '../basic
 
 import AddAttrModal from '../basic/addAttrModal.vue';
 import AttrItemList from '../basic/attrItemList.vue';
+import ExampleBasic from '../basic/exampleBasic.vue';
 
 interface Props {
   name: string;
@@ -149,12 +150,19 @@ const onSchemaTypeChange = () => {
 
 const saveData = (name = props.name) => {
   const schemaObj = parseSchemaArrToObj(objectAttrList.value);
+  if (exampleRef.value) {
+    const examples = exampleRef.value.getData();
+    schemaObj.examples = examples;
+  };
   dataSource.value.components.schemas[name] = {
     ...schemaObj,
     title: schemaName.value,
     description: description.value
   }
 };
+
+const examples = ref();
+const exampleRef = ref();
 
 watch(() => props.name, (newValue, oldName) => {
   if (newValue) {
@@ -163,6 +171,7 @@ watch(() => props.name, (newValue, oldName) => {
     }
     schemaName.value = props.data?.title;
     description.value = props.data?.description;
+    examples.value = props.data?.examples || []
     loadSchemaContent();
   } else {
     resetschemas();
@@ -211,11 +220,7 @@ onBeforeUnmount(() => {
                 @cancel="closeModal" />
             </TabPane>
             <TabPane key="examples" tab="Examples">
-
-            </TabPane>
-
-            <TabPane key="extensions" tab="Extensions">
-
+              <ExampleBasic ref="exampleRef" :examples="examples" />
             </TabPane>
           </Tabs>
         </div>
