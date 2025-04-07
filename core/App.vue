@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, watch, provide, nextTick } from 'vue';
+import { defineAsyncComponent, ref, watch, provide, nextTick, inject, onMounted } from 'vue';
 import { RadioGroup, RadioButton, Tabs, TabPane } from 'ant-design-vue';
 import SiderMenu from './siderMenu/index.vue';
 import { data1 as data } from './data.ts';
@@ -9,6 +9,7 @@ export type Props = {
   api: string
 }
 
+const getAppFunc = inject('getAppFunc', (arg: {name: string, func: Function}):void => {});
 const dataSource = ref<{[key: string]: any}>(data);
 
 const DocInfo = defineAsyncComponent(() => import('./docInfo/formView/index.vue'));
@@ -76,6 +77,12 @@ const handleDelComp = () => {
 const saveSecurity = (data) => {
   dataSource.value.components.securitySchemes = data;
 };
+
+onMounted(() => {
+  getAppFunc({name: 'getDocApi', func: () => {
+    return dataSource.value;
+  }});
+});
 
 provide('dataSource', dataSource);
 </script>

@@ -51,6 +51,7 @@ class OpenApiDesign {
     }
   }
 
+  getDocApi: Function
   // 获取文档信息表单信息
   getDocInfoFormData: Function;
 
