@@ -323,7 +323,6 @@ onMounted(() => {
   });
 
   watch(() => props.dataSource?.components, (newValue) => {
-    debugger;
     modelChildren.value = Object.keys(newValue.schemas || {}).map(path => {
       // const title = path.split('/').reverse()[0];
       return {

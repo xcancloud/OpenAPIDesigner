@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, inject, onBeforeUnmount, watch } from 'vue';
+import { Textarea, Button } from 'ant-design-vue';
+import { TagsOutlined, DeleteOutlined } from '@ant-design/icons-vue';
 interface Props {
   examples: (string | object)[],
   type: 'string'|'object'
@@ -24,13 +26,17 @@ const deleteExample = (idx: number) => {
   if (selectedIdx.value && selectedIdx.value < 0) {
     selectedIdx.value = undefined;
   }
+  exampleList.value.splice(idx, 1);
+  saveData.splice(idx, 1);
 };
 
 const addExample = () => {
   if (props.type === 'string') {
     exampleList.value.push('');
+    saveData.push('""')
   } else {
     exampleList.value.push('{}');
+    saveData.push('{}');
   }
 };
 
@@ -49,7 +55,7 @@ onMounted(() => {
     exampleList.value = props.examples.map(i => {
       return JSON.stringify(i);
     });
-    saveData = exampleList.value;
+    saveData = JSON.parse(JSON.stringify(exampleList.value));
   }, {
     immediate: true
   });
@@ -77,14 +83,13 @@ defineExpose({
         :class="{'bg-blue-300': idx === selectedIdx}"
         class="p-2 w-full flex items-center cursor-pointer"
         @click="selectExample(idx)">
-        <div class="truncate flex-1 min-w-0" >{{ example }}</div>
+        <div class="truncate flex-1 min-w-0" >example-{{ idx }}</div>
         <Button size="small" type="text" @click.stop="deleteExample(idx)"><DeleteOutlined /></Button>
       </div>
     </div>
 
     <div class="flex-1 min-w-0 p-1">
-      <template v-if="!!selectedIdx">
-        <div>example-{{ selectedIdx }}</div>
+      <template v-if="selectedIdx !== undefined">
         <Textarea
           v-model:value="exampleList[selectedIdx]"
           :bordered="false"
