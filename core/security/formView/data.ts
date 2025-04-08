@@ -49,84 +49,95 @@ export const authInOpt = [
   }
 ];
 
-export const flowAuthType = [
-  {
-    value: 'authorizationCode',
-    label: '授权码模式（Authorization Code）'
-  },
-  {
-    value: 'password',
-    label: '密码模式（Password Credentials）'
-  },
-  {
-    value: 'implicit',
-    label: '隐式模式（Implicit）'
-  },
-  {
-    value: 'clientCredentials',
-    label: '客户端模式（Client Credentials））'
-  }
-];
+// export const flowAuthType = [
+//   {
+//     value: 'authorizationCode',
+//     label: '授权码模式（Authorization Code）'
+//   },
+//   {
+//     value: 'password',
+//     label: '密码模式（Password Credentials）'
+//   },
+//   {
+//     value: 'implicit',
+//     label: '隐式模式（Implicit）'
+//   },
+//   {
+//     value: 'clientCredentials',
+//     label: '客户端模式（Client Credentials））'
+//   }
+// ];
 
 export const authLabels = [
   {
     valueKey: 'authorizationUrl',
     label: '授权URL',
+    label_i18n: 'authorization_url',
     maxLength: 400,
     required: true
   },
   {
     valueKey: 'x-xc-oauth2-callbackUrl',
     label: '回调URL',
+    label_i18n: 'callback_url',
     maxLength: 400,
     required: true
   },
   {
     valueKey: 'tokenUrl',
     label: '访问令牌URL',
+    label_i18n: 'token_url',
     maxLength: 400,
     required: true
   },
   {
     valueKey: 'refreshUrl',
+    label_i18n: 'refresh_url',
     label: '刷新令牌URL',
     maxLength: 400
   },
   {
     valueKey: 'x-xc-oauth2-clientId',
+    label_i18n: 'client_id',
     label: '客户端ID',
     maxLength: 400,
     required: true
   },
   {
     valueKey: 'x-xc-oauth2-clientSecret',
+    label_i18n: 'client_secret',
     label: '客户端密钥',
     maxLength: 1024,
     required: true
   },
   {
     valueKey: 'x-xc-oauth2-username',
+    label_i18n: 'username',
     label: '用户名',
     maxLength: 400,
     required: true
   },
   {
     valueKey: 'x-xc-oauth2-password',
+    label_i18n: 'password',
     label: '密码',
     maxLength: 1024,
     required: true
   },
   {
     valueKey: 'x-xc-oauth2-challengeMethod',
+    label_i18n: 'challenge_method',
     label: '加密方式'
   },
   {
     valueKey: 'x-xc-oauth2-codeVerifier',
+    label_i18n: 'code_verifier',
     label: '验证码'
   },
   {
     valueKey: 'scopes',
     label: 'Scope',
+    label_i18n: 'scope',
     maxLength: 200
   }
 ];

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, inject, onBeforeUnmount, watch } from 'vue';
-import { Form, FormItem, Input, Select, Button, Textarea } from 'ant-design-vue';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue';
+import { Input, Button, Textarea } from 'ant-design-vue';
+import { DeleteOutlined } from '@ant-design/icons-vue';
+import { useI18n } from 'vue-i18n';
 
 const getAppFunc = inject('getAppFunc', ()=>{});
 
@@ -15,7 +16,7 @@ type Extension = {
 interface Props {
   dataSource: Extension[]
 }
-
+const { t } = useI18n();
 const props = withDefaults(defineProps<Props>(), {
   dataSource: () => ([])
 });
@@ -132,7 +133,7 @@ defineExpose({
 <template>
   <div>
     <div class="flex justify-end mb-2">
-      <Button size="small" type="primary" @click="addExtension">+ 添加</Button>
+      <Button size="small" type="primary" @click="addExtension">+ {{ t('add') }}</Button>
     </div>
 
     <div class="flex border">
@@ -159,7 +160,7 @@ defineExpose({
             v-model:value="selectedExtension.value"
             :bordered="false"
             type="textarea"
-            placeholder="输入扩展值，最大支持20000个字符"
+            :placeholder="t('extension_value_placeholder')"
             @blur="changeSelectExtensionValue($event, selectedExtension.name)" />
         </template>
         <div v-else class="text-center">

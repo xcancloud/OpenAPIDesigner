@@ -2,6 +2,7 @@
 import { onMounted, ref, watch, inject, onBeforeUnmount } from 'vue';
 import { Button, Popover, Switch, TabPane, Tabs, Tag, Tooltip, Select } from 'ant-design-vue';
 import { TagsOutlined, DeleteOutlined } from '@ant-design/icons-vue';
+import { useI18n } from 'vue-i18n';
 
 import { Props } from './PropTypes';
 
@@ -10,6 +11,7 @@ import Parameters from './parameters.vue';
 import RequestBody from './requestBody.vue';
 import Responses from './responses.vue';
 
+const { t } = useI18n();
 const props = withDefaults(defineProps<Props>(), {
   dataSource: () => ({
     parameters: [],
@@ -131,22 +133,22 @@ onBeforeUnmount(() => {
       class="flex-1 overflow-auto">
       <TabPane
         key="general"
-        tab="常规">
+        :tab="t('general')">
         <Genaral ref="generalRef" :dataSource="props.dataSource" :openapiDoc="props.openapiDoc" />
       </TabPane>
       <TabPane
         key="parameter"
-        tab="参数">
+        :tab="t('parameter')">
         <Parameters ref="parametersRef" :dataSource="props.dataSource.parameters" />
       </TabPane>
       <TabPane
         key="request"
-        tab="请求体">
+        :tab="t('request_body')">
         <RequestBody ref="requestBodyRef" :dataSource="props.dataSource?.requestBody" />
       </TabPane>
       <TabPane
         key="response"
-        tab="响应">
+        :tab="t('response')">
         <Responses ref="responsesRef" :dataSource="props.dataSource.responses" />
       </TabPane>
     </Tabs>

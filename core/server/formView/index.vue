@@ -2,12 +2,14 @@
 import { ref, onMounted, inject, onBeforeUnmount, watch } from 'vue';
 import { Form, FormItem, Input, Select, Button } from 'ant-design-vue';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue'
+import { useI18n } from 'vue-i18n';
 import EasyMDE from 'easymde';
 import 'easymde/dist/easymde.min.css'
 
 const getAppFunc = inject('getAppFunc', ()=>{});
 const descRef = ref(); // 用于init markdown 编辑器
 const easyMDE = ref();
+const { t } = useI18n();
 
 type Server = {
   url: string;
@@ -105,17 +107,17 @@ defineExpose({
     <Input
       v-model:value="formState.url"
       :maxlength="400"
-      placeholder="指向目标主机的URL，当在{大括号}中命名变量时，将进行变量替换，必须以URI的形式表示，最多400个字符" />
+      :placeholder="t('server_name_placeholder')" />
   </FormItem>
 
-  <FormItem label="描述">
+  <FormItem :label="t('desc')">
     <textarea ref="descRef">{{ formState.description }}</textarea>
   </FormItem>
   <FormItem>
     <template #label>
       <div class="flex space-x-4">
-        <label>变量</label>
-        <Button size="small" type="primary" @click="addVariable">添加变量</Button>
+        <label>{{ t('variable') }}</label>
+        <Button size="small" type="primary" @click="addVariable">{{ t('add_variable') }}</Button>
       </div>
     </template>
     <div v-for="(variable, varIdx) in formState.variables" class="border p-2 mb-2">
@@ -124,22 +126,22 @@ defineExpose({
           <Input
             v-model:value="variable.name"
             :maxlength="100"
-            placeholder="变量名称，最多100个字符" />
+            :placeholder="t('variabe_name_placeholder')" />
         </FormItem>
-        <FormItem label="描述" class="w-2/3">
+        <FormItem :label="t('desc')" class="w-2/3">
           <Input
             v-model:value="variable.description"
             :maxlength="400"
-            placeholder="变量描述，最多400个字符" />
+            :placeholder="t('variabe_desc_placeholder')" />
         </FormItem>
         <Button type="link" size="small" @click="deleteVariable(varIdx)"><delete-outlined /></Button>
       </div>
-      <FormItem label="值" required>
+      <FormItem :label="t('value')" required>
         <div v-for="(_enumValue, idx) in variable.value.enum" class="flex mb-2">
           <Input
             v-model:value="variable.value.enum[idx]"
             class="w-1/3"
-            placeholder="变量名称，最多100个字符" />
+            :placeholder="t('variabe_value_placeholder')" />
           <Button v-show="variable.value.enum?.length > 1" type="link" size="small" @click="deleteEnum(varIdx, idx)"><delete-outlined /></Button>
           <Button v-show="idx === 0" type="link" size="small" @click="addEnum(varIdx)"><plus-outlined /></Button>
         </div>

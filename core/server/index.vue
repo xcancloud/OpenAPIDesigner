@@ -2,9 +2,9 @@
 import { ref, defineAsyncComponent, onMounted, watch, inject, Ref, onBeforeUnmount } from 'vue';
 import { Tabs, TabPane, Button } from 'ant-design-vue';
 import { DeleteOutlined } from '@ant-design/icons-vue';
+import { useI18n } from 'vue-i18n';
 
 const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
-const CodeView = defineAsyncComponent(() => import('./codeView/index.vue'));
 
 const getAppFunc = inject('getAppFunc', ()=>{});
 
@@ -14,7 +14,7 @@ interface Props {
 }
 
 
-
+const { t } = useI18n();
 const props = withDefaults(defineProps<Props>(), {
   viewMode: 'form',
   dataSource: undefined
@@ -23,7 +23,6 @@ const props = withDefaults(defineProps<Props>(), {
 const dataSource = inject('dataSource', ref());
 
 const formViewRef = ref<Ref[]>([]);
-const codeValue = ref();
 
 const servers= ref<{
     url: string;
@@ -75,7 +74,7 @@ onBeforeUnmount(() => {
       <TabPane key="form" forceRender class="overflow-auto pr-3" >
         <div class="flex justify-end pr-8">
           <Button size="small" type="primary" @click="addServer">
-            添加服务器 +
+            {{ t('add_server') }} +
           </Button>
         </div>
         <div
@@ -87,10 +86,6 @@ onBeforeUnmount(() => {
             <DeleteOutlined class="text-5" />
           </Button>
         </div>
-      </TabPane>
-      <TabPane key="code" class="pr-2">
-        <CodeView
-          :value="codeValue" />
       </TabPane>
       <TabPane key="preview" class="overflow-auto pr-3">
 

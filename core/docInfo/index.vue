@@ -17,14 +17,8 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const formViewRef = ref();
-const codeValue = ref();
 
 onMounted(() => {
-  watch(() => props.viewMode, () => {
-    if (props.viewMode === 'code') {
-      codeValue.value = YAML.stringify(formViewRef.value.getFormData());
-    }
-  })
   watch(() => props.dataSource, () => {
 
   }, {

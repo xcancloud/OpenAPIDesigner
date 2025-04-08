@@ -3,6 +3,7 @@ import { ref, onMounted, inject, onBeforeUnmount, computed, reactive, watch } fr
 import { Form, FormItem, Input, Select, Button } from 'ant-design-vue';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import { flowAuthKeys, authLabels, encryptionTypeOpt, API_EXTENSION_KEY } from './data.ts';
+import { useI18n } from 'vue-i18n';
 
 const { valueKey, securityApiKeyPerfix, oAuth2Key, oAuth2Token, newTokenKey, basicAuthKey } = API_EXTENSION_KEY;
 const getAppFunc = inject('getAppFunc', ()=>{});
@@ -11,24 +12,25 @@ type Authentication = {
   type: 'basic'|'bearer'|'apiKey'|'oauth2';
   name: string;
 };
+const { t } = useI18n();
 
 
 const flowAuthType = [
   {
     value: 'authorizationCode',
-    label: '授权码模式（Authorization Code）'
+    label: t('authorization_code')
   },
   {
     value: 'password',
-    label: '密码模式（Password Credentials）'
+    label: t('password_credentials')
   },
   {
     value: 'implicit',
-    label: '隐式模式（Implicit）'
+    label: t('implicit')
   },
   {
     value: 'clientCredentials',
-    label: '客户端模式（Client Credentials））'
+    label: t('client_credentials')
   }
 ];
 
@@ -104,15 +106,15 @@ const authTypeOpt = [
 const authClientInOpt = [
     {
       value: "QUERY_PARAMETER",
-      label: "通过Query参数发送"
+      label: t('security_query_parameter')
     },
     {
       value: "BASIC_AUTH_HEADER",
-      label: "通过Basic认证头发送"
+      label: t('security_basic_auth_header')
     },
     {
       value: "REQUEST_BODY",
-      label: "通过请求体发送"
+      label: t('security_request_body')
     }
 ]
 
@@ -298,65 +300,66 @@ defineExpose({
   :model="formState"
   layout="vertical">
   <div class="flex space-x-2">
-    <FormItem label="类型" name="type" required class="flex-1/3">
+    <FormItem :label="t('type')" name="type" required class="flex-1/3">
       <Select
         v-model:value="formState.type"
         :options="authTypeOpt" />
     </FormItem>
-    <FormItem v-show="props.showName" label="名称" name="securityName" required  class="flex-2/3">
+    <FormItem v-show="props.showName" :label="t('name')" name="securityName" required  class="flex-2/3">
       <Input
         v-model:value="formState.securityName"
         :maxlength="100"
-        placeholder="安全方案名称，要求不能重复，会在安全需求中引用，最多100个字符" />
+        :placeholder="t('security_name_placeholder')" />
     </FormItem>
   </div>
 
   <template v-if="formState.type === 'basic'">
     <div class="flex space-x-2">
-      <FormItem label="用户名" class="flex-1/3">
+      <FormItem :label="t('username')" class="flex-1/3">
         <Input
           v-model:value="httpAuthData.name"
           :maxlength="200"
-          placeholder="Basic认证用户名，最多200个字符" />
+          :placeholder="t('security_username_placeholder')" />
       </FormItem>
 
-      <FormItem label="密码" class="flex-2/3">
+      <FormItem :label="t('password')" class="flex-2/3">
         <Input
           v-model:value="httpAuthData.value"
           :maxlength="800"
-          placeholder="Basic认证用密码，最多800个字符" />
+          :placeholder="t('security_password_placeholder')" />
       </FormItem>
     </div>
   </template>
 
   <template v-if="formState.type==='bearer'">
-    <FormItem label="令牌">
+    <FormItem :label="t('token')">
       <Input
         v-model:value="httpAuthData.value"
         :maxlength="800"
-        placeholder="Bearer认证访问令牌，最多800个字符" />
+        :placeholder="t('security_bearer_token_placeholder')" />
     </FormItem>
   </template>
 
   <template v-if="formState.type==='apiKey'">
     <div class="flex space-x-2">
-      <FormItem label="参数名称" class="flex-1/3">
+      <FormItem :label="t('param_name')" class="flex-1/3">
         <Input
           v-for="(, idx) in apiKeyContentList"
           v-model:value="apiKeyContentList[idx].name"
           :key="idx+'name'"
           class="mb-2"
-          placeholder="API认证参数名称，最多100个字符" />
+          :maxlength="100"
+          :placeholder="t('security_apikey_name_placeholder')" />
       </FormItem>
-      <FormItem label="参数值" class="flex-1/3">
+      <FormItem :label="t('param_value')" class="flex-1/3">
         <Input
           v-for="(, idx) in apiKeyContentList"
           class="mb-2"
           v-model:value="apiKeyContentList[idx]['x-xc-value']"
           :key="idx+'value'"
-          placeholder="API认证参数值，最多800个字符" />
+          :placeholder="t('security_apikey_value_placeholder')" />
       </FormItem>
-      <FormItem label="参数位置" class="flex-1/3">
+      <FormItem :label="t('param_in')" class="flex-1/3">
         <div v-for="(, idx) in apiKeyContentList" :key="idx+'in'" class="flex items-center mb-2">
           <Select
             v-model:value="apiKeyContentList[idx].in"
@@ -381,13 +384,13 @@ defineExpose({
       <FormItem class="flex-1/3">
         <Select
           v-model:value="oauthKey"
-          :options="[{value: 1, label: '已有令牌'}, {value: 2, label: '生成令牌'}]" />
+          :options="[{value: 1, label: t('has_token')}, {value: 2, label: t('generate_token')}]" />
       </FormItem>
       <FormItem v-if="oauthKey === 1"  class="flex-2/3">
         <Input
           v-model:value="scheme"
           :maxlength="800"
-          placeholder="证访问令牌，最多800个字符" />
+          :placeholder="t('token_placeholder')" />
       </FormItem>
       <FormItem v-if="oauthKey === 2"  class="flex-2/3">
         <Select
@@ -397,25 +400,25 @@ defineExpose({
       </FormItem>
     </div>
     <template v-if="oauthKey === 2">
-      <FormItem v-for="item in flowauthLabel" :key="item.valueKey" :required="item.required" :label="item.label">
+      <FormItem v-for="item in flowauthLabel" :key="item.valueKey" :required="item.required" :label="t(item.label_i18n)">
         <Select
           v-if="item.valueKey === 'x-xc-oauth2-challengeMethod'"
           v-model:value="oauthData[item.valueKey]"
-          :placeholder="item.maxLength ? `最多可输入${ item.maxLength }个字符` : ''"
+          :placeholder="item.maxLength ? t('input_max_placeholder', {num: item.maxLength}) : ''"
           :options="encryptionTypeOpt" />
         <Select
           v-else-if="item.valueKey==='scopes'"
           v-model:value="oauthData[item.valueKey]"
-          :placeholder="item.maxLength ? `最多可输入${ item.maxLength }个字符` : ''"
+          :placeholder="item.maxLength ? t('input_max_placeholder', {num: item.maxLength}) : ''"
           mode="tags" />
         <Input
           v-else
           v-model:value="oauthData[item.valueKey]"
           :allowClear="true"
-          :placeholder="item.maxLength ? `最多可输入${ item.maxLength }个字符` : ''"
+          :placeholder="item.maxLength ? t('input_max_placeholder', {num: item.maxLength}) : ''"
           :maxlength="item.maxLength" />
       </FormItem>
-      <FormItem label="客户端认证">
+      <FormItem :label="t('client_auth')">
         <Select
           v-model:value="oauthData['x-xc-oauth2-clientAuthType']"
           :options="authClientInOpt" />

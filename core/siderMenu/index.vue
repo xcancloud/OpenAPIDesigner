@@ -1,6 +1,7 @@
 /* stylelint-disable at-rule-no-deprecated */
 <script lang="ts" setup>
 import { computed, onMounted, ref, watch, inject } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { Input, Select, Dropdown, Menu, MenuItem, Modal, notification, Button } from 'ant-design-vue';
 import Arrow from '@/components/Arrow/index.vue';
 
@@ -23,6 +24,8 @@ const props = withDefaults(defineProps<Props>(), {
   dataSource: () => ({}),
   schemaType: undefined
 });
+
+const { t } = useI18n();
 
 // const emits = defineEmits<{}>();
 
@@ -66,86 +69,80 @@ const selectApi = (endpoint: string, method: string) => {
 
 const defaultMenu = computed(() => [
   {
-    title: '文档信息',
+    title: t('doc_info'),
     key: 'info',
     icon: docInfoSvg
   },
   {
-    title: '外部文档',
+    title: t('external_doc'),
     key: 'externalDocs',
     icon: outDocSvg
   },
   {
-    title: '服务器',
+    title: t('servers'),
     key: 'servers',
     icon: serverSvg
   },
   {
-    title: '安全',
+    title: t('security'),
     key: 'security',
     icon: anquanSvg
   },
   {
-    title: '标签',
+    title: t('tag'),
     key: 'tags',
     icon: tagSvg
   },
   {
-    title: '接口',
+    title: t('apis'),
     key: 'apis',
     children: [...Object.keys(apiPaths.value)]
   },
   {
-    title: '组件',
+    title: t('component'),
     key: 'components',
     selectable: false,
     children: [ // const compType = ['schemas', 'parameters', 'responses', 'requestBodies'];
       {
-        title: '模型',
+        title: t('model'),
         key: 'schemas',
         selectable: false,
         children: [...modelChildren.value]
       },
       {
-        title: '参数',
+        title: t('parameter'),
         key: 'parameters',
         selectable: false,
         children: [...parameterChildren.value]
       },
       {
-        title: '请求体',
+        title: t('request_body'),
         key: 'requestBodies',
         selectable: false,
         children: [...bodyChildren.value]
       },
       {
-        title: '响应',
+        title: t('response'),
         key: 'responses',
         selectable: false,
         children: [...responseChildren.value]
       },
       {
-        title: '头',
+        title: t('header'),
         key: 'headers',
         selectable: false,
         children: [...headerChildren.value]
       },
       {
-        title: '安全方案',
+        title: t('security_schema'),
         key: 'securitySchemes',
         selectable: false,
         children: [...securityChildren.value]
-      },
-      {
-        title: '扩展',
-        key: 'extension',
-        selectable: false,
-        children: [...extensionChildren.value]
       }
     ]
   },
   {
-    title: '扩展',
+    title: t('extension'),
     key: 'extensions'
   }
 ]);
