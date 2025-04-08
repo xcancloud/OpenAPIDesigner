@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted, inject, onBeforeUnmount, nextTick } from 'vue';
 import { Form, FormItem, Input, Select } from 'ant-design-vue';
+import { useI18n } from 'vue-i18n';
 import EasyMDE from 'easymde';
 import 'easymde/dist/easymde.min.css';
 
 const getAppFunc = inject('getAppFunc', ()=>{});
 const descRef = ref(); // 用于init markdown 编辑器
 const easyMDE = ref();
+const { t } = useI18n();
 
 type DocInfo = {
   title?: string;
@@ -114,59 +116,59 @@ defineExpose({
 <Form
 layout="vertical">
   <div class="flex space-x-4">
-    <FormItem label="标题" name="" required class="w-2/3">
+    <FormItem :label="t('title')" name="" required class="w-2/3">
       <Input
         v-model:value="formState.title"
         :maxlength="200"
-        placeholder="接口文档标题，最多200个字符" />
+        :placeholder="t('title_placeholder')" />
     </FormItem>
-    <FormItem label="版本" name="" required class="w-1/3">
+    <FormItem :label="t('version')" name="" required class="w-1/3">
       <Input
         v-model:value="formState.version" />
     </FormItem>
   </div>
-  <FormItem label="摘要">
+  <FormItem :label="t('summary')">
     <Input
       v-model:value="formState.summary"
       :maxlength="400"
-      placeholder="接口文档摘要，最多400个字符" />
+      :placeholder="t('summary_placeholder')" />
   </FormItem>
-  <FormItem label="描述">
+  <FormItem :label="t('desc')">
     <textarea ref="descRef">{{ formState.description }}</textarea>
   </FormItem>
-  <FormItem label="服务条款">
+  <FormItem :label="t('terms_service')">
     <Input
       v-model:value="formState.termsOfService"
       :maxlength="400"
-      placeholder="接口文档服务条款，必须以URI的形式表示，最多400个字符" />
+      :placeholder="t('terms_service_placeholder')" />
   </FormItem>
-  <FormItem label="联系人">
-    <div class="flex space-x-2 pt-2 border-t">
+  <FormItem :label="t('contact_name')">
+    <div v-if="formState.contact" class="flex space-x-2 pt-2 border-t">
       <Input
         v-model:value="formState.contact.name"
         :maxlength="200"
         class="flex-1/4"
-        placeholder="联系人名称，最多200个字符" />
+        :placeholder="t('contact_name_placeholder')" />
       <Input
         v-model:value="formState.contact.url"
         :maxlength="200"
         class="flex-1/2"
-        placeholder="联系人URL，最多400个字符" />
+        :placeholder="t('contact_url_placeholder')" />
       <Input
         v-model:value="formState.contact.email"
         :maxlength="100"
         class="flex-1/4"
-        placeholder="联系人邮箱，最多100个字符" />
+        :placeholder="t('contact_email_placeholder')" />
     </div>
   </FormItem>
 
-  <FormItem label="许可">
-    <div class="flex space-x-2 pt-2 border-t">
+  <FormItem :label="t('license')">
+    <div v-if="formState.license" class="flex space-x-2 pt-2 border-t">
       <Input
         v-model:value="formState.license.name"
         :maxlength="200"
         class="flex-1/4"
-        placeholder="许可名称，最多200个字符" />
+        :placeholder="t('lisence_name_placeholder')" />
       <Select
         v-model:value="licenseType"
         class="flex-1/4"

@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted, inject, onBeforeUnmount } from 'vue';
-import { Form, FormItem, Input, Select } from 'ant-design-vue';
+import { Form, FormItem, Input } from 'ant-design-vue';
+import { useI18n } from 'vue-i18n';
 import EasyMDE from 'easymde';
 import 'easymde/dist/easymde.min.css'
 
 const getAppFunc = inject('getAppFunc', ()=>{});
 const descRef = ref(); // 用于init markdown 编辑器
 const easyMDE = ref();
+const { t } = useI18n();
 
 type ExternalDoc = {
   url: string;
@@ -70,10 +72,10 @@ layout="vertical">
     <Input
       v-model:value="formState.url"
       :maxlength="200"
-      placeholder="接口文档标题，最多200个字符" />
+      :placeholder="t('external_url_placeholder')" />
   </FormItem>
 
-  <FormItem label="描述">
+  <FormItem :label="t('desc')">
     <textarea ref="descRef">{{ formState.description }}</textarea>
   </FormItem>
 </Form>

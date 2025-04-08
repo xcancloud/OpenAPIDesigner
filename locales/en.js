@@ -68,5 +68,13 @@ export default {
   security_basic_auth_header: '通过Basic认证头发送',
   security_request_body: '通过请求体发送',
   add_server: '添加服务器',
-  extension_value_placeholder: '输入扩展值，最大支持20000个字符'
+  extension_value_placeholder: '输入扩展值，最大支持20000个字符',
+  title_placeholder: '接口文档标题，最多200个字符',
+  summary_placeholder: '接口文档摘要，最多400个字符',
+  terms_service_placeholder: '接口文档服务条款，必须以URI的形式表示，最多400个字符',
+  contact_name_placeholder: '联系人名称，最多200个字符',
+  contact_url_placeholder: '联系人URL，最多400个字符',
+  contact_email_placeholder: '联系人邮箱，最多100个字符',
+  lisence_name_placeholder: '许可名称，最多200个字符',
+  external_url_placeholder: '外部文档URL，最多200个字符',
 };
