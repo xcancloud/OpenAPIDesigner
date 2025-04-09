@@ -21,6 +21,8 @@ const Security = defineAsyncComponent(() => import('./security/index.vue'));
 const Comp = defineAsyncComponent(() => import('./comp/index.vue'));
 const ApiModel = defineAsyncComponent(() => import('./comp/apisModel/index.vue'));
 
+const DocInfoPreview = defineAsyncComponent(() => import('./docInfo/preview/index.vue'));
+
 const CodeView = defineAsyncComponent(() => import('./comp/basic/code.vue'));
 
 const props = withDefaults(defineProps<Props>(), {
@@ -121,6 +123,9 @@ provide('dataSource', dataSource);
         <TabPane key="code">
           <CodeView v-if="!schemaType" class="h-full" :selectStr="selectApiObj || {[activeMenuKey]: dataSource[activeMenuKey]}" :startKey="selectApiObj ? (apiEndpoint || 'paths') : undefined" :dataSource="dataSource" />
           <CodeView v-else class="h-full" :selectStr="{[activeMenuKey]: dataSource.components?.[schemaType]?.[activeMenuKey]}" startKey="components" :dataSource="dataSource"  />
+        </TabPane>
+        <TabPane key="preview">
+          <DocInfoPreview />
         </TabPane>
       </Tabs>
 

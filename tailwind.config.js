@@ -19,7 +19,8 @@ module.exports = {
       },
       fontSize: {
         6: '24px',
-        5: '20px'
+        5: '20px',
+        8: '32px'
       },
       flex: {
         '1/2': '1 1 50%',
