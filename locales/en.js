@@ -77,4 +77,8 @@ export default {
   contact_email_placeholder: '联系人邮箱，最多100个字符',
   lisence_name_placeholder: '许可名称，最多200个字符',
   external_url_placeholder: '外部文档URL，最多200个字符',
+  
+  tag_name_placeholder: '标签名称，最多200个字符',
+  tag_external_url_placeholder: '标签外部接口文档链接地址，必须以URI的形式表示，最多400个字符',
+  add_tag: '添加标签',
 };

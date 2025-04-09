@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted, inject, onBeforeUnmount } from 'vue';
 import { Form, FormItem, Input } from 'ant-design-vue';
+import { useI18n } from 'vue-i18n';
 import EasyMDE from 'easymde';
 import 'easymde/dist/easymde.min.css'
 
 const getAppFunc = inject('getAppFunc', ()=>{});
 const descRef = ref(); // 用于init markdown 编辑器
 const easyMDE = ref();
+const { t } = useI18n();
 
 const externalDescRef = ref();
 const externalEasyMDE = ref();
@@ -85,26 +87,26 @@ defineExpose({
 <template>
 <Form
   layout="vertical">
-  <FormItem label="名称" name="name" required>
+  <FormItem :label="t('name')" name="name" required>
     <Input
       v-model:value="formState.name"
       :maxlength="200"
-      placeholder="标签名称，最多200个字符" />
+      :placeholder="t('tag_name_placeholder')" />
   </FormItem>
 
-  <FormItem label="描述">
+  <FormItem :label="t('desc')">
     <textarea ref="descRef">{{ formState.description }}</textarea>
   </FormItem>
 
-  <FormItem label="外部文档URL" required>
+  <FormItem :label="t('external_url')" required>
     <Input
       v-if="formState.externalDocs"
       v-model:value="formState.externalDocs.url"
       :maxlength="400"
-      placeholder="标签外部接口文档链接地址，必须以URI的形式表示，最多400个字符" />
+      :placeholder="t('tag_external_url_placeholder')" />
   </FormItem>
 
-  <FormItem label="外部文档描述" required>
+  <FormItem :label="t('external_desc')" required>
     <textarea ref="externalDescRef">{{ formState.externalDocs?.description }}</textarea>
   </FormItem>
 

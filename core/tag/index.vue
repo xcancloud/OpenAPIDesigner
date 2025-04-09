@@ -2,6 +2,7 @@
 import { ref, defineAsyncComponent, onMounted, watch, inject, Ref, onBeforeUnmount } from 'vue';
 import { Tabs, TabPane, Button } from 'ant-design-vue';
 import { DeleteOutlined } from '@ant-design/icons-vue'
+import { useI18n } from 'vue--i18n'; 
 
 const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
 const CodeView = defineAsyncComponent(() => import('./codeView/index.vue'));
@@ -14,6 +15,7 @@ interface Props {
   dataSource?: Record<string, any>;
 }
 
+const { t } = useI18n();
 const props = withDefaults(defineProps<Props>(), {
   viewMode: 'form',
   dataSource: undefined
@@ -70,7 +72,7 @@ onBeforeUnmount(() => {
     <TabPane key="form" forceRender class="overflow-auto pr-3" >
       <div class="flex justify-end pr-8">
         <Button size="small" type="primary" @click="addTag">
-          添加标签 +
+          {{ t('add_tag') }} +
         </Button>
       </div>
       <div
