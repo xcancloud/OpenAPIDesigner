@@ -1,15 +1,13 @@
 <script lang="ts" setup>
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, defineAsyncComponent } from 'vue';
 import { Input, Tag } from 'ant-design-vue';
 import { methodColor } from './PropTypes';
-import EasyMDE from 'easymde';
-import 'easymde/dist/easymde.min.css'
 import SecurityBasic from '../basic/securityBasic.vue';
 import Extensions from '@/extensions/formView/index.vue';
 
-const easyMDE = ref();
 const descRef = ref();
 const statusKey = 'x-xc-status';
+const EasyMd = defineAsyncComponent(() => import('@/components/easyMd/index.vue'));
 interface Props {
     dataSource: {
         method: string;
@@ -57,17 +55,14 @@ onMounted(() => {
     immediate: true,
     deep: true,
   });
-  easyMDE.value = new EasyMDE({
-    element: descRef.value, 
-    autoDownloadFontAwesome: true
-  });
 });
 
 
 
 const getData = () => {
   const _security = securityRef.value.getData();
-  const { summary, operationId, description } = data.value;
+  const description = descRef.value.getValue();
+  const { summary, operationId } = data.value;
   const extensions = extensionsRef.value.getFormData();
   return {
     security: _security,
@@ -97,7 +92,7 @@ defineExpose({
       </div>
       <div>
         <span class="text-4 font-medium"><Icon icon="icon-anquan" class="text-5" /> Description</span>
-        <textarea ref="descRef">{{ data.description }}</textarea>
+        <EasyMd ref="descRef" :value="data.description" />
       </div>
     </div>
 

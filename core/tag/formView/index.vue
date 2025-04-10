@@ -1,17 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, inject, onBeforeUnmount } from 'vue';
+import { ref, onMounted, inject, onBeforeUnmount, defineAsyncComponent } from 'vue';
 import { Form, FormItem, Input } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
-import EasyMDE from 'easymde';
-import 'easymde/dist/easymde.min.css'
 
 const getAppFunc = inject('getAppFunc', ()=>{});
 const descRef = ref(); // 用于init markdown 编辑器
-const easyMDE = ref();
-const { t } = useI18n();
-
 const externalDescRef = ref();
-const externalEasyMDE = ref();
+const EasyMd = defineAsyncComponent(() => import('@/components/easyMd/index.vue'));
+const { t } = useI18n();
 
 type Tag = {
   url: string;
@@ -41,7 +37,12 @@ const formState = ref<Tag>({
 
 
 const getData = () => {
+
+  const description = descRef.value.getValue();
+  const externalDesc = externalDescRef.value.getValue();
   const data = JSON.parse(JSON.stringify(formState.value));
+  data.description = description;
+  data.externalDocs.description = externalDesc;
   return data;
 };
 
@@ -61,16 +62,15 @@ onMounted(() => {
       description: undefined
     }
   }
-  easyMDE.value = new EasyMDE({
-    element: descRef.value, 
-    autoDownloadFontAwesome: true
-  });
-  externalEasyMDE.value = new EasyMDE({
-    element: externalDescRef.value, 
-    autoDownloadFontAwesome: true
-  });
-  // easyMDE.value.value(formState.value.description);
-  // externalEasyMDE.value.value(formState.value.externalDocs?.description);
+  // easyMDE.value = new EasyMDE({
+  //   element: descRef.value, 
+  //   autoDownloadFontAwesome: true
+  // });
+  // externalEasyMDE.value = new EasyMDE({
+  //   element: externalDescRef.value, 
+  //   autoDownloadFontAwesome: true
+  // });
+  
   // getAppFunc({name: 'getDocInfoFormData', func: getData});
 });
 
@@ -95,7 +95,7 @@ defineExpose({
   </FormItem>
 
   <FormItem :label="t('desc')">
-    <textarea ref="descRef">{{ formState.description }}</textarea>
+    <EasyMd ref="descRef" :value="formState.description" />
   </FormItem>
 
   <FormItem :label="t('external_url')" required>
@@ -107,7 +107,8 @@ defineExpose({
   </FormItem>
 
   <FormItem :label="t('external_desc')" required>
-    <textarea ref="externalDescRef">{{ formState.externalDocs?.description }}</textarea>
+  
+    <EasyMd ref="externalDescRef" :value="formState.externalDocs?.description" />
   </FormItem>
 
 </Form>

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, watch, onMounted, Ref, nextTick, onBeforeUnmount, inject } from 'vue';
+import { ref, watch, onMounted, Ref, nextTick, onBeforeUnmount, inject, defineAsyncComponent } from 'vue';
 import { Button, TabPane, Tabs } from 'ant-design-vue';
 import { CONTENT_TYPE } from '../basic/utils';
 
@@ -7,12 +7,8 @@ import BodyContentTypeTab from '../basic/bodyContentTypeTab.vue';
 import parameterBasic from '../basic/parameterBasic.vue';
 import Dropdown from '@/components/Dropdown/index.vue';
 
-import EasyMDE from 'easymde';
-import 'easymde/dist/easymde.min.css';
-
-
-const easyMDE = ref();
 const descRef = ref();
+const EasyMd = defineAsyncComponent(() => import('@/components/easyMd/index.vue'));
 
 interface Props {
   name: string;
@@ -81,7 +77,7 @@ const addBody = (item: {key: string}) => {
 
 
 const saveData = (name: string) => {
-  const description  = easyMDE.value.value();
+  const description  = descRef.value.getValue();
   const content = requestBodiesDataRef.value.reduce((pre, cur) => {
     const curContent = cur.getData()
     return {
@@ -118,13 +114,6 @@ onMounted(() => {
         ...responseData.value?.headers?.[key]
       }
     })
-
-    nextTick(() => {
-      easyMDE.value = new EasyMDE({
-        element: descRef.value, 
-        autoDownloadFontAwesome: true
-      });
-    })
   }, {
     immediate: true,
   })
@@ -140,7 +129,7 @@ onBeforeUnmount(() => {
   <div class="h-full overflow-y-scroll text-center">
     <div class="inline-block w-200 text-left">
       <div class="font-semibold mt-4 text-5"></div>
-      <textarea ref="descRef">{{ responseData.description }}</textarea>
+      <EasyMd ref="descRef" :value="responseData.description" />
 
       <div class="flex justify-between items-center border-b">
         <div class="font-semibold mt-4 text-5">Headers</div>

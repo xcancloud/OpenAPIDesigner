@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted, inject, onBeforeUnmount } from 'vue';
+import { ref, onMounted, inject, onBeforeUnmount, defineAsyncComponent } from 'vue';
 import { Form, FormItem, Input } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
-import EasyMDE from 'easymde';
-import 'easymde/dist/easymde.min.css'
 
 const getAppFunc = inject('getAppFunc', ()=>{});
-const descRef = ref(); // 用于init markdown 编辑器
-const easyMDE = ref();
+const dataSource = inject('dataSource', ref());
+const descRef = ref();
+const EasyMd = defineAsyncComponent(() => import('@/components/easyMd/index.vue'));
 const { t } = useI18n();
 
 type ExternalDoc = {
@@ -40,34 +39,35 @@ const formState = ref<ExternalDoc>({
 
 const getData = () => {
   const data = JSON.parse(JSON.stringify(formState.value));
+  const description = descRef.value.getValue();
+  data.description = description;
   return data;
 };
 
-onMounted(() => {
-  
-  formState.value = props.dataSource?.externalDocs;
-  easyMDE.value = new EasyMDE({
-    element: descRef.value, 
-    autoDownloadFontAwesome: true
-  });
+const saveData = () => {
+  dataSource.value.externalDocs = getData();
+}
 
+onMounted(() => {
+  formState.value = props.dataSource?.externalDocs;
   // getAppFunc({name: 'getDocInfoFormData', func: getData});
 });
 
 onBeforeUnmount(() => {
   // getAppFunc({name: 'getDocInfoFormData', func: () => ({})});
+  saveData()
 });
 
 defineExpose({
-  getFormData: getData
+  getData: getData
 })
 
 </script>
 
 <template>
 <Form
+:model="formState"
 layout="vertical">
-
   <FormItem label="URL" name="url" required>
     <Input
       v-model:value="formState.url"
@@ -76,7 +76,8 @@ layout="vertical">
   </FormItem>
 
   <FormItem :label="t('desc')">
-    <textarea ref="descRef">{{ formState.description }}</textarea>
+    <!-- <textarea ref="descRef">{{ formState.description }}</textarea> -->
+    <EasyMd ref="descRef" :value="formState.description" />
   </FormItem>
 </Form>
 </template>

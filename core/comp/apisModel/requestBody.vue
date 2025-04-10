@@ -1,17 +1,13 @@
 <script lang="ts" setup>
-import { inject, onMounted, ref, watch } from 'vue';
-import { Button, TabPane, Tabs, Input, Select } from 'ant-design-vue';
+import { onMounted, ref, watch, defineAsyncComponent } from 'vue';
+import { Button, TabPane, Tabs } from 'ant-design-vue';
 import { NotificationOutlined } from '@ant-design/icons-vue';
 import { CONTENT_TYPE } from '../basic/utils';
 import BodyContentTypeTab from '../basic/bodyContentTypeTab.vue';
 import Dropdown from '@/components/Dropdown/index.vue';
 
-import EasyMDE from 'easymde';
-import 'easymde/dist/easymde.min.css'
-
-
-const easyMDE = ref();
 const descRef = ref();
+const EasyMd = defineAsyncComponent(() => import('@/components/easyMd/index.vue'));
 
 interface Props {
     dataSource: {
@@ -40,10 +36,10 @@ onMounted(() => {
   }, {
     immediate: true
   });
-  easyMDE.value = new EasyMDE({
-    element: descRef.value, 
-    autoDownloadFontAwesome: true
-  });
+  // easyMDE.value = new EasyMDE({
+  //   element: descRef.value, 
+  //   autoDownloadFontAwesome: true
+  // });
 });
 
 const disabledBodyModelType = (type) => {
@@ -100,9 +96,10 @@ const getData = () => {
       delete data.value.content?.[key];
     }
   });
+  const description = descRef.value.getValue();
   const comp = {
     ...data.value,
-    description: data.value.description
+    description
   };
   return comp;
 };
@@ -122,7 +119,7 @@ defineExpose({
         
       </div>
     </div>
-    <textarea ref="descRef">{{ data.description }}</textarea>
+    <EasyMd ref="descRef" :value="data.description" />
 
   </div>
   <div class="mt-4">

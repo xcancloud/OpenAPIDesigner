@@ -22,6 +22,9 @@ const Comp = defineAsyncComponent(() => import('./comp/index.vue'));
 const ApiModel = defineAsyncComponent(() => import('./comp/apisModel/index.vue'));
 
 const DocInfoPreview = defineAsyncComponent(() => import('./docInfo/preview/index.vue'));
+const ExternalDocPreview = defineAsyncComponent(() => import('./externalDoc/preView/index.vue'));
+const ServerPreview = defineAsyncComponent(() => import('./server/preView/index.vue'));
+const SecurityPreview = defineAsyncComponent(() => import('./security/preView/index.vue'));
 
 const CodeView = defineAsyncComponent(() => import('./comp/basic/code.vue'));
 
@@ -109,8 +112,8 @@ provide('dataSource', dataSource);
           <RadioButton value="preview">预览</RadioButton>
         </RadioGroup>
       </div>
-      <Tabs v-model:activeKey="viewMode" class="flex-1 view-type-tab">
-        <TabPane key="form" forceRender class="overflow-auto pr-3" >
+      <Tabs v-model:activeKey="viewMode" destroyInactiveTabPane class="flex-1 view-type-tab">
+        <TabPane key="form" class="overflow-auto pr-3" >
           <DocInfo v-if="activeMenuKey === 'info'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
           <ExternalDoc v-else-if="activeMenuKey === 'externalDocs'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
           <Server v-else-if="activeMenuKey === 'servers'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
@@ -124,8 +127,11 @@ provide('dataSource', dataSource);
           <CodeView v-if="!schemaType" class="h-full" :selectStr="selectApiObj || {[activeMenuKey]: dataSource[activeMenuKey]}" :startKey="selectApiObj ? (apiEndpoint || 'paths') : undefined" :dataSource="dataSource" />
           <CodeView v-else class="h-full" :selectStr="{[activeMenuKey]: dataSource.components?.[schemaType]?.[activeMenuKey]}" startKey="components" :dataSource="dataSource"  />
         </TabPane>
-        <TabPane key="preview">
+        <TabPane key="preview" class="overflow-auto pr-3 space-y-4">
           <DocInfoPreview />
+          <ExternalDocPreview />
+          <ServerPreview />
+          <SecurityPreview />
         </TabPane>
       </Tabs>
 

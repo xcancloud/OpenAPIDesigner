@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted, inject, onBeforeUnmount, nextTick } from 'vue';
+import { ref, onMounted, inject, onBeforeUnmount, defineAsyncComponent } from 'vue';
 import { Form, FormItem, Input, Select } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
-import EasyMDE from 'easymde';
-import 'easymde/dist/easymde.min.css';
 
-const getAppFunc = inject('getAppFunc', ()=>{});
+const getAppFunc = inject('getAppFunc', (value: {name: string, func: Function})=>{});
+const dataSource = inject('dataSource', ref());
 const descRef = ref(); // 用于init markdown 编辑器
-const easyMDE = ref();
+const EasyMd = defineAsyncComponent(() => import('@/components/easyMd/index.vue'));
 const { t } = useI18n();
 
 type DocInfo = {
@@ -72,7 +71,9 @@ const licenseTypeOpt = [
 
 const getData = () => {
   const data = JSON.parse(JSON.stringify(formState.value));
+  const description = descRef.value.getValue();
   const {contact, license} = data;
+  data.description = description;
   if (!contact.name && !contact.url && !contact.email ) {
     delete data.contact;
   }
@@ -89,25 +90,21 @@ const getData = () => {
 
 
 onMounted(() => {
-  
-  formState.value = props.dataSource?.info;
-  nextTick(() => {
-    easyMDE.value = new EasyMDE({
-      element: descRef.value, 
-      autoDownloadFontAwesome: false,
-      maxHeight: '300px'
-    });
-  })
-
   getAppFunc({name: 'getDocInfoFormData', func: getData});
+  formState.value = props.dataSource?.info;
 });
 
+const saveData = () => {
+  dataSource.value.info = getData();
+}
+
 onBeforeUnmount(() => {
-  getAppFunc({name: 'getDocInfoFormData', func: () => ({})});
+  getAppFunc({name: 'getDocInfoFormData', func: () => (false)});
+  saveData();
 });
 
 defineExpose({
-  getFormData: getData
+  getData: getData
 });
 
 </script>
@@ -134,7 +131,7 @@ layout="vertical">
       :placeholder="t('summary_placeholder')" />
   </FormItem>
   <FormItem :label="t('desc')">
-    <textarea ref="descRef">{{ formState.description }}</textarea>
+    <EasyMd ref="descRef" :value="formState.description" />
   </FormItem>
   <FormItem :label="t('terms_service')">
     <Input

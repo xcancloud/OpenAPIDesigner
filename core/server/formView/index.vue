@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, inject, onBeforeUnmount, watch } from 'vue';
+import { ref, onMounted, inject, onBeforeUnmount, watch, defineAsyncComponent } from 'vue';
 import { Form, FormItem, Input, Select, Button } from 'ant-design-vue';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import { useI18n } from 'vue-i18n';
-import EasyMDE from 'easymde';
-import 'easymde/dist/easymde.min.css'
+
 
 const getAppFunc = inject('getAppFunc', ()=>{});
 const descRef = ref(); // 用于init markdown 编辑器
-const easyMDE = ref();
+const EasyMd = defineAsyncComponent(() => import('@/components/easyMd/index.vue'));
 const { t } = useI18n();
 
 type Server = {
@@ -74,10 +73,6 @@ const getData = () => {
 };
 
 onMounted(() => {
-  easyMDE.value = new EasyMDE({
-    element: descRef.value, 
-    autoDownloadFontAwesome: true
-  });
   watch(() => props.dataSource, () => {
     formState.value = {
       ...props.dataSource,
@@ -111,7 +106,7 @@ defineExpose({
   </FormItem>
 
   <FormItem :label="t('desc')">
-    <textarea ref="descRef">{{ formState.description }}</textarea>
+    <EasyMd ref="descRef" :value="formState.description" />
   </FormItem>
   <FormItem>
     <template #label>

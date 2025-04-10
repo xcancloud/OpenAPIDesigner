@@ -1,13 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
-import { Button, TabPane, Tabs, Input } from 'ant-design-vue';
+import { ref, defineAsyncComponent } from 'vue';
 import ResponseSchema from '../basic/responseSchema.vue';
-import EasyMDE from 'easymde';
-import 'easymde/dist/easymde.min.css'
 
-
-const easyMDE = ref();
 const descRef = ref();
+const EasyMd = defineAsyncComponent(() => import('@/components/easyMd/index.vue'));
 
 interface Props {
   content: {[key: string]: any};
@@ -20,17 +16,11 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const responseSchemaRef = ref();
-onMounted(() => {
-  easyMDE.value = new EasyMDE({
-    element: descRef.value, 
-    autoDownloadFontAwesome: true
-  });
-});
 
 </script>
 <template>
 <div>
-  <textarea ref="descRef">{{ props.description }}</textarea>
+  <EasyMd ref="descRef" :value="props.description" />
   <ResponseSchema
     ref="responseSchemaRef"
     :data="props" />

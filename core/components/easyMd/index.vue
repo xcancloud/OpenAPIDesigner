@@ -15,13 +15,17 @@ const props = withDefaults(defineProps<Props>(), {
 const textareaRef = ref();
 const easyMDE = ref();
 
+const value = ref();
+
 onMounted(() => {
   watch(() => props.value, () => {
+    value.value = props.value;
     easyMDE.value = new EasyMDE({
+      initialValue: value.value,
       element: textareaRef.value, 
       autoDownloadFontAwesome: true,
-      toolbar: !props.preview,
-      status: !props.preview,
+      toolbar: props.preview ? false : undefined,
+      status: props.preview ? false : ['autosave', 'lines', 'words', 'cursor'],
     });
     if (props.preview && !easyMDE.value.isPreviewActive()) {
       easyMDE.value.togglePreview();
@@ -38,7 +42,7 @@ defineExpose({
 });
 </script>
 <template>
-  <textarea ref="textareaRef">{{ props.value }}</textarea>
+  <textarea ref="textareaRef">{{ value }}</textarea>
 </template>
 <style scoped>
 :deep(.preview-desc) > .editor-toolbar{

@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onMounted, watch } from 'vue';
-import { Tabs, TabPane } from 'ant-design-vue';
-import YAML from 'yaml';
 
 const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
-const CodeView = defineAsyncComponent(() => import('./codeView/index.vue'));
 
 interface Props {
   viewMode: 'form'|'code'|'preview';
@@ -28,17 +25,7 @@ onMounted(() => {
 
 </script>
 <template>
-  <Tabs :activeKey="props.viewMode" class="flex-1 min-h-100 overflow-auto">
-    <TabPane key="form" forceRender class="overflow-auto pr-3" >
-      <FormView ref="formViewRef" />
-    </TabPane>
-    <!-- <TabPane key="code" class="pr-2">
-      <CodeView
-        :value="codeValue" />
-    </TabPane> -->
-    <TabPane key="preview" class="overflow-auto pr-3">
-    </TabPane>
-  </Tabs>
+  <FormView ref="formViewRef" />
 </template>
 <style scoped>
 :deep(.ant-tabs) .ant-tabs-nav {
