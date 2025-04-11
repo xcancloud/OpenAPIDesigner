@@ -25,6 +25,7 @@ const DocInfoPreview = defineAsyncComponent(() => import('./docInfo/preview/inde
 const ExternalDocPreview = defineAsyncComponent(() => import('./externalDoc/preView/index.vue'));
 const ServerPreview = defineAsyncComponent(() => import('./server/preView/index.vue'));
 const SecurityPreview = defineAsyncComponent(() => import('./security/preView/index.vue'));
+const ApiPreview = defineAsyncComponent(() => import('./comp/preView/index.vue'));
 
 const CodeView = defineAsyncComponent(() => import('./comp/basic/code.vue'));
 
@@ -128,10 +129,11 @@ provide('dataSource', dataSource);
           <CodeView v-else class="h-full" :selectStr="{[activeMenuKey]: dataSource.components?.[schemaType]?.[activeMenuKey]}" startKey="components" :dataSource="dataSource"  />
         </TabPane>
         <TabPane key="preview" class="overflow-auto pr-3 space-y-4">
-          <DocInfoPreview />
+          <!-- <DocInfoPreview />
           <ExternalDocPreview />
           <ServerPreview />
-          <SecurityPreview />
+          <SecurityPreview /> -->
+          <ApiPreview  :apis="selectedApi" />
         </TabPane>
       </Tabs>
 

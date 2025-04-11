@@ -20,6 +20,7 @@ module.exports = {
       fontSize: {
         6: '24px',
         5: '20px',
+        4: '16px',
         8: '32px'
       },
       flex: {

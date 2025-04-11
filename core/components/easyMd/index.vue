@@ -26,7 +26,9 @@ onMounted(() => {
       autoDownloadFontAwesome: true,
       toolbar: props.preview ? false : undefined,
       status: props.preview ? false : ['autosave', 'lines', 'words', 'cursor'],
+      minHeight: props.preview ? 'auto' : undefined
     });
+    
     if (props.preview && !easyMDE.value.isPreviewActive()) {
       easyMDE.value.togglePreview();
     }
@@ -42,7 +44,10 @@ defineExpose({
 });
 </script>
 <template>
-  <textarea ref="textareaRef">{{ value }}</textarea>
+  <div>
+    <textarea ref="textareaRef"></textarea>
+  </div>
+  
 </template>
 <style scoped>
 :deep(.preview-desc) > .editor-toolbar{
