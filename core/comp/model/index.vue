@@ -2,10 +2,13 @@
 import { inject, ref, watch, onBeforeUnmount } from 'vue';
 import { Button, Divider, TabPane, Tabs, Dropdown, Input, notification, Select } from 'ant-design-vue';
 import { parseSchemaArrToObj, parseSchemaObjToArr, CONTENT_TYPE } from '../basic/utils';
+import { useI18n } from 'vue-i18n';
 
 import AddAttrModal from '../basic/addAttrModal.vue';
 import AttrItemList from '../basic/attrItemList.vue';
 import ExampleBasic from '../basic/exampleBasic.vue';
+
+const { t } = useI18n();
 
 interface Props {
   name: string;
@@ -23,7 +26,7 @@ const dataSource = inject('dataSource', ref());
 // const deleteTabPane = inject('deleteTabPane', (value) => value);
 // const useAuth = ref<string[]>([]);
 const addVisible = ref(false);
-const schemaName = ref();
+const schemaTitle = ref();
 const schemaType = ref('schemas');
 const modelType = ref<string|undefined>('object');
 const description = ref();
@@ -138,7 +141,7 @@ const loadSchemaContent = async () => {
 };
 
 const resetschemas = () => {
-  schemaName.value = undefined;
+  schemaTitle.value = undefined;
   schemaType.value = 'schemas';
   objectAttrList.value = [];
   onSchemaTypeChange();
@@ -156,7 +159,7 @@ const saveData = (name = props.name) => {
   };
   dataSource.value.components.schemas[name] = {
     ...schemaObj,
-    title: schemaName.value,
+    title: schemaTitle.value,
     description: description.value
   }
 };
@@ -169,7 +172,7 @@ watch(() => props.name, (newValue, oldName) => {
     if (oldName) {
       saveData(oldName)
     }
-    schemaName.value = props.data?.title;
+    schemaTitle.value = props.data?.title;
     description.value = props.data?.description;
     examples.value = props.data?.examples || []
     loadSchemaContent();
@@ -182,25 +185,25 @@ watch(() => props.name, (newValue, oldName) => {
 
 onBeforeUnmount(() => {
   saveData(props.name);
-})
+});
 
 </script>
 <template>
   <div class="flex h-full overflow-y-scroll">
     <div class="p-2 flex-1 min-w-100 space-y-2">
       <Input
-        v-model:value="schemaName"
-        :error="validate && !schemaName"
+        v-model:value="schemaTitle"
+        :error="validate && !schemaTitle"
         :maxlength="200"
         :bordered="false"
         class="font-medium"
-        placeholder="名称" />
+        :placeholder="t('name')" />
       <Input
         v-model:value="description"
         type="textarea"
         :bordered="false"
         :maxlength="1000"
-        placeholder="描述" />
+        :placeholder="t('desc')" />
         <div class="border">
           <Tabs>
             <TabPane key="scheams" tab="Schema" class="pb-3">

@@ -24,7 +24,7 @@ export default {
   add_variable: '添加变量',
   name: '名称',
   value: '值',
-  server_name_placeholder: '指向目标主机的URL，当在{大括号}中命名变量时，将进行变量替换，必须以URI的形式表示，最多400个字符',
+  server_name_placeholder: '指向目标主机的URL，当在大括号中命名变量时，将进行变量替换，必须以URI的形式表示，最多400个字符',
   variabe_desc_placeholder: '变量描述，最多400个字符',
   variabe_name_placeholder: '变量名称，最多100个字符',
   variabe_value_placeholder: '变量值，最多100个字符',

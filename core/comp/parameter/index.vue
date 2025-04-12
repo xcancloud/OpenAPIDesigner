@@ -118,7 +118,5 @@ defineExpose({
         v-model:parameterObj="parameterObj"
         @del="handleDelete" />
     </div>
-
-    
   </div>
 </template>

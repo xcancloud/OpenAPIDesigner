@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onMounted, watch, inject, onBeforeUnmount, Ref } from 'vue';
-import { Tabs, TabPane, Button } from 'ant-design-vue';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue'
+import { Button } from 'ant-design-vue';
+import { DeleteOutlined } from '@ant-design/icons-vue'
 
 const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
-const CodeView = defineAsyncComponent(() => import('./codeView/index.vue'));
 const SecurityBasic = defineAsyncComponent(() => import('../comp/basic/securityBasic.vue'));
 
 const getAppFunc = inject('getAppFunc', ()=>{});

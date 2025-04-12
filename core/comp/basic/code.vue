@@ -36,7 +36,6 @@ onMounted(() => {
       return;
     }
 
-    debugger;
     let lineNumber = 1;
     let hasKey = false;
     const targetStr = YAML.stringify(newValue);

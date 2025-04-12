@@ -40,22 +40,19 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-
   const extensionObj = formViewRef.value.getFormData();
-  debugger;
   Object.assign(dataSource.value, extensionObj);
+});
+
+defineExpose({
+  getData: () => {
+    return formViewRef.value.getFormData();
+  }
 });
 
 </script>
 <template>
-  <Tabs :activeKey="viewMode" class="flex-1 min-h-100">
-      <TabPane key="form" forceRender class="overflow-auto pr-3" >
-        <FormView ref="formViewRef" :dataSource="extensions" />
-      </TabPane>
-      <TabPane key="preview" class="overflow-auto pr-3">
-
-      </TabPane>
-    </Tabs>
+  <FormView ref="formViewRef" :dataSource="extensions" />
 </template>
 <style scoped>
 :deep(.ant-tabs) .ant-tabs-nav {

@@ -4,6 +4,7 @@ import { computed, onMounted, ref, watch, inject } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Input, Select, Dropdown, Menu, MenuItem, Modal, notification, Button } from 'ant-design-vue';
 import Arrow from '@/components/Arrow/index.vue';
+import { methodOpt } from './config';
 
 import docInfoSvg  from '../Icons/docInfo.svg';
 import outDocSvg from '../Icons/outDoc.svg';
@@ -26,8 +27,6 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const { t } = useI18n();
-
-// const emits = defineEmits<{}>();
 
 interface MenuItem {
   key: string;
@@ -66,6 +65,15 @@ const selectApi = (endpoint: string, method: string) => {
   handleSelect(selectedApi.value);
 };
 
+const selectPath = (endpoint: string) => {
+  if (selectedApi.value === `${endpoint}_`) {
+    toggleOpenValue(endpoint);
+  } else {
+    selectedApi.value = `${endpoint}_`;
+    handleSelect(selectedApi.value);
+  }
+}
+
 
 const defaultMenu = computed(() => [
   {
@@ -96,7 +104,7 @@ const defaultMenu = computed(() => [
   {
     title: t('apis'),
     key: 'apis',
-    children: [...Object.keys(apiPaths.value)]
+    children: [ ...Object.keys(apiPaths.value)]
   },
   {
     title: t('component'),
@@ -314,7 +322,15 @@ const handleDelComp = () => {
 onMounted(() => {
   emits('update:activeMenuKey', 'info');
   watch(() => props.dataSource?.paths, (newValue) => {
-    apiPaths.value = newValue || {};
+    const pathItem = JSON.parse(JSON.stringify(newValue || {}));
+    Object.keys(pathItem).forEach(key => {
+      Object.keys(pathItem[key]).forEach(method => {
+        if (!methodOpt.includes(method)) {
+          delete pathItem[key][method];
+        }
+      });
+    });
+    apiPaths.value = pathItem;
   }, {
     immediate: true
   });
@@ -452,7 +468,8 @@ const methodColorConfig:Record<string, string> = {
           :key="path">
           <div
             class="h-8 leading-8 pl-2 cursor-pointer bg hover:bg-bg-hover truncate select-none hover:bg-gray-200"
-            @click="toggleOpenValue(path)">
+            :class="{'text-blue-1': `${path}_` === props.activeMenuKey}"
+            @click="selectPath(path)">
             <Arrow
               v-model:open="compExpandMap[path]" />
             {{ path }}
@@ -461,7 +478,7 @@ const methodColorConfig:Record<string, string> = {
             v-for="api,method in apis"
             v-show="compExpandMap[path]"
             :key="method"
-            :class="{'text-blue-1': `${path}_${method}` === selectedApi}"
+            :class="{'text-blue-1': `${path}_${method}` === props.activeMenuKey}"
             class="h-7 leading-7 pl-6 pr-1 cursor-pointer hover:bg-bg-hover flex justify-between items-center hover:bg-gray-200"
             @click="selectApi(path, method, api)">
             <span class="flex-1 truncate min-w-0"> <Icon icon="icon-apimoren" class="text-4 mr-1" />{{ api.summary }}</span>

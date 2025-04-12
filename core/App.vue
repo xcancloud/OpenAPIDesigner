@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, watch, provide, nextTick, inject, onMounted } from 'vue';
+import { defineAsyncComponent, ref, watch, provide, nextTick, inject, onMounted, computed} from 'vue';
 import { RadioGroup, RadioButton, Tabs, TabPane } from 'ant-design-vue';
 import SiderMenu from './siderMenu/index.vue';
 import { data1 as data } from './data.ts';
@@ -20,6 +20,7 @@ const Extensions = defineAsyncComponent(() => import('./extensions/index.vue'));
 const Security = defineAsyncComponent(() => import('./security/index.vue'));
 const Comp = defineAsyncComponent(() => import('./comp/index.vue'));
 const ApiModel = defineAsyncComponent(() => import('./comp/apisModel/index.vue'));
+const PathInfo = defineAsyncComponent(() => import('./pathInfo/index.vue'));
 
 const DocInfoPreview = defineAsyncComponent(() => import('./docInfo/preview/index.vue'));
 const ExternalDocPreview = defineAsyncComponent(() => import('./externalDoc/preView/index.vue'));
@@ -51,27 +52,36 @@ const updateData = (comp: {name: string; value: any; type: string}) => {
 const selectedApi = ref();
 const selectApiObj = ref();
 const apiEndpoint = ref();
+const selectPath = ref();
 watch(() => activeMenuKey.value, (newValue) => {
   if (newValue) {
     const path_method = newValue.split('_');
-    const method = path_method[path_method.length - 1]
+    const method = path_method[path_method.length - 1];
     if (['get', 'post', 'options', 'patch', 'head', 'delete', 'trace', 'put'].includes(method)) {
       const path = newValue.slice(0, newValue.length - (method.length + 1) );
       if (dataSource.value?.paths?.[path]?.[method]) {
         selectedApi.value = {...dataSource.value.paths[path][method], endpoint: path, method};
         selectApiObj.value = {[method]: {...dataSource.value.paths[path][method]}};
         apiEndpoint.value = path;
+        selectPath.value = undefined;
         return;
       }
+    } else if (method === '') {
+      const path = newValue.slice(0, newValue.length - (method.length + 1) );
+      selectPath.value = dataSource.value.paths[path];
+      apiEndpoint.value = path;
+      selectedApi.value = undefined;
+      selectApiObj.value = undefined;
+      return;
     }
   }
   selectedApi.value = undefined;
   selectApiObj.value = undefined;
   apiEndpoint.value = undefined;
+  selectPath.value = undefined;
 });
 
 const handleDelComp = () => {
-  
   const schema = schemaType.value;
   const compName = activeMenuKey.value;
   activeMenuKey.value = 'info';
@@ -84,10 +94,30 @@ const saveSecurity = (data) => {
   dataSource.value.components.securitySchemes = data;
 };
 
+const showPreview = computed(() => {
+  return !schemaType.value && !selectPath.value && activeMenuKey.value !== 'extensions';
+});
+
+const extentionsObj = computed(() => {
+  const result: Record<string, string> = {};
+  Object.keys(dataSource.value).forEach(key => {
+    if (key.startsWith('x-')) {
+      result[key] = dataSource.value[key]
+    }
+  });
+  return result;
+});
+
 onMounted(() => {
   getAppFunc({name: 'getDocApi', func: () => {
     return dataSource.value;
   }});
+
+  watch(() => showPreview.value, (newValue) => {
+    if (!newValue) {
+      viewMode.value = 'form';
+    }
+  })
 });
 
 provide('dataSource', dataSource);
@@ -110,7 +140,7 @@ provide('dataSource', dataSource);
         <RadioGroup v-model:value="viewMode">
           <RadioButton value="form">表单</RadioButton>
           <RadioButton value="code">代码</RadioButton>
-          <RadioButton value="preview">预览</RadioButton>
+          <RadioButton v-if="showPreview" value="preview">预览</RadioButton>
         </RadioGroup>
       </div>
       <Tabs v-model:activeKey="viewMode" destroyInactiveTabPane class="flex-1 view-type-tab">
@@ -122,21 +152,24 @@ provide('dataSource', dataSource);
           <Extensions v-else-if="activeMenuKey === 'extensions'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
           <Security v-else-if="activeMenuKey === 'security'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" @save="saveSecurity" />
           <ApiModel v-else-if="selectedApi" :dataSource="selectedApi" :openapiDoc="dataSource"/>
+          <PathInfo v-else-if="selectPath" :dataSource="selectPath" :path="apiEndpoint"  />
           <Comp v-else  class="mt-4" :dataSource="dataSource" :schemaType="schemaType" :schemaName="activeMenuKey" @del="handleDelComp" />
         </TabPane>
         <TabPane key="code">
-          <CodeView v-if="!schemaType" class="h-full" :selectStr="selectApiObj || {[activeMenuKey]: dataSource[activeMenuKey]}" :startKey="selectApiObj ? (apiEndpoint || 'paths') : undefined" :dataSource="dataSource" />
+          <CodeView v-if="!schemaType && selectApiObj" class="h-full" :selectStr="selectApiObj" :startKey="selectApiObj ? (apiEndpoint || 'paths') : undefined" :dataSource="dataSource" />
+          <CodeView v-else-if="!schemaType && selectPath" class="h-full" :selectStr="{ [apiEndpoint]: selectPath}" :startKey="selectPath ? 'paths' : undefined" :dataSource="dataSource" />
+          <CodeView v-else-if="activeMenuKey === 'extensions'" class="h-full" :selectStr="extentionsObj" :startKey="undefined" :dataSource="dataSource" />
+          <CodeView v-else-if="!schemaType" class="h-full" :selectStr="{[activeMenuKey]: dataSource[activeMenuKey]}" :startKey="undefined" :dataSource="dataSource" />
           <CodeView v-else class="h-full" :selectStr="{[activeMenuKey]: dataSource.components?.[schemaType]?.[activeMenuKey]}" startKey="components" :dataSource="dataSource"  />
         </TabPane>
-        <TabPane key="preview" class="overflow-auto pr-3 space-y-4">
-          <!-- <DocInfoPreview />
-          <ExternalDocPreview />
-          <ServerPreview />
-          <SecurityPreview /> -->
-          <ApiPreview  :apis="selectedApi" />
+        <TabPane v-if="showPreview" key="preview" class="overflow-auto pr-3 space-y-4">
+          <DocInfoPreview v-if="activeMenuKey === 'info'" />
+          <ExternalDocPreview  v-else-if="activeMenuKey === 'externalDocs'" />
+          <ServerPreview  v-else-if="activeMenuKey === 'servers'" />
+          <SecurityPreview  v-else-if="activeMenuKey === 'security'" />
+          <ApiPreview  v-if="selectedApi" :apis="selectedApi" />
         </TabPane>
       </Tabs>
-
     </div>
   </div>
 </template>

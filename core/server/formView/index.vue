@@ -38,7 +38,10 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  dataSource: () => []
+  dataSource: () => ({
+    url: '',
+    variables: {}
+  })
 });
 
 
@@ -47,7 +50,34 @@ const formState = ref<Server>({
     url: '',
     description: undefined,
     variables: [{name: '', value: {enum: [''], default: ''}}]
-})
+});
+
+const handleUrlChange = () => {
+  const pathNames: string[] = formState.value.url.match(/{[^{}]+}/gi)?.map(i => i.replace(/{(\S*)}/gi, '$1')) || [];
+  pathNames.forEach((name) => {
+    if (!formState.value?.variables) {
+      formState.value.variables = [
+        {
+          name,
+          value: {
+            enum: [''],
+            default: ''
+          }
+        }
+      ]
+    } else {
+      if (!formState.value.variables.find(item => item.name === name)) {
+        formState.value.variables.push({
+          name,
+          value: {
+            enum: [''],
+            default: ''
+          }
+        })
+      }
+    }
+  });
+};
 
 const deleteEnum = (varIdx: number, idx: number) => {
   formState.value.variables && formState.value.variables[varIdx].value.enum.splice(idx, 1);
@@ -68,7 +98,16 @@ const deleteVariable = (varIdx: number) => {
 };
 
 const getData = () => {
-  const data = JSON.parse(JSON.stringify(formState.value));
+  const variables:Props['dataSource']['variables'] = {};
+  formState.value.variables?.forEach(item => {
+    if (item.name) {
+      variables[item.name] = item.value;
+    }
+  });
+  const data = {
+    ...formState.value,
+    variables
+  };
   return data;
 };
 
@@ -97,12 +136,14 @@ defineExpose({
 
 <template>
 <Form
-  layout="vertical">
+  layout="vertical"
+  :model="formState">
   <FormItem label="URL" name="url" required>
     <Input
       v-model:value="formState.url"
       :maxlength="400"
-      :placeholder="t('server_name_placeholder')" />
+      :placeholder="t('server_name_placeholder')"
+      @change="handleUrlChange" />
   </FormItem>
 
   <FormItem :label="t('desc')">
@@ -112,12 +153,12 @@ defineExpose({
     <template #label>
       <div class="flex space-x-4">
         <label>{{ t('variable') }}</label>
-        <Button size="small" type="primary" @click="addVariable">{{ t('add_variable') }}</Button>
+        <Button size="small" class="text-3" type="primary" @click="addVariable">{{ t('add_variable') }}</Button>
       </div>
     </template>
     <div v-for="(variable, varIdx) in formState.variables" class="border p-2 mb-2">
       <div class="flex space-x-2 items-center">
-        <FormItem label="名称" class="w-1/3" required>
+        <FormItem :label="t('name')" class="w-1/3" required>
           <Input
             v-model:value="variable.name"
             :maxlength="100"
