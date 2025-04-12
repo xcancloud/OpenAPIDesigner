@@ -74,7 +74,7 @@ const getData = () => {
   const description = descRef.value.getValue();
   const {contact, license} = data;
   data.description = description;
-  if (!contact.name && !contact.url && !contact.email ) {
+  if (contact && !contact.name && !contact.url && !contact.email ) {
     delete data.contact;
   }
 
@@ -88,10 +88,23 @@ const getData = () => {
   return data;
 };
 
-
 onMounted(() => {
   getAppFunc({name: 'getDocInfoFormData', func: getData});
-  formState.value = props.dataSource?.info;
+  formState.value = props.dataSource?.info || {};
+  if (!formState.value.contact) {
+    formState.value.contact = {
+      name: undefined,
+      url: undefined,
+      email: undefined
+    }
+  }
+  if (!formState.value.license) {
+    formState.value.license = {
+      name: '',
+      identifier: '',
+      url: ''
+    }
+  }
 });
 
 const saveData = () => {

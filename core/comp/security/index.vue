@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { onMounted, watch, ref, inject, onBeforeUnmount } from 'vue';
-
 import SecuritySchema from '@/security/formView/index.vue';
+
+const getAppFunc = inject('getAppFunc', (param: {name: string, func: Function})=>{});
 
 interface AuthItem {
   name?: string;
@@ -18,7 +19,7 @@ interface Props {
   name: string;
 }
 
-const dataSource = inject('dataSource', ref({}));
+const dataSource = inject('dataSource', ref());
 const securityRef = ref();
 
 const props = withDefaults(defineProps<Props>(), {
@@ -26,21 +27,30 @@ const props = withDefaults(defineProps<Props>(), {
   name: ''
 });
 
+const saveData = (name: string) => {
+  const security = securityRef.value.getData()[name];
+  if (!dataSource.value?.components) {
+    dataSource.value.components = {};
+  }
+  if (!dataSource.value.components?.securitySchemes) {
+    dataSource.value.components.securitySchemes = {};
+  }
+  dataSource.value.components.securitySchemes[name] = security;
+}
+
 onMounted(() => {
   watch(() => props.name, (_newValue, oldValue) => {
     if (oldValue) {
-      const security = securityRef.value.getData()[oldValue];
-      dataSource.value.components.securitySchemes[oldValue] = security;
+      saveData(oldValue)
     }
   }, {
     immediate: true
   });
+  getAppFunc({name: 'updateData', func: saveData});
 });
-
 onBeforeUnmount(() => {
-  const security = securityRef.value.getData()[props.name];
-  dataSource.value.components.securitySchemes[props.name] = security;
-})
+  saveData(props.name);
+});
 
 </script>
 <template>

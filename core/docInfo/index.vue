@@ -27,7 +27,7 @@ onMounted(() => {
 <template>
   <FormView ref="formViewRef" />
 </template>
-<style scoped>
+<style>
 :deep(.ant-tabs) .ant-tabs-nav {
   display: none;
 }

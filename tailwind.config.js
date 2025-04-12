@@ -299,7 +299,7 @@ module.exports = {
 
         }
       }
-    },
+    }
   },
   plugins: [],
 }

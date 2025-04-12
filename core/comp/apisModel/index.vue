@@ -24,6 +24,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const dataSource = inject('dataSource', ref());
+const getAppFunc = inject('getAppFunc', (param: {name: string, func: Function})=>{});
 
 const emits = defineEmits<{(e: 'cancel'):void, (e: 'ok', value: Props['dataSource']):void}>();
 const activeKey = ref('general');
@@ -69,6 +70,7 @@ onMounted(() => {
     immediate: true
   });
   docs.value = JSON.parse(JSON.stringify(props.openapiDoc));
+  getAppFunc({name: 'updateData', func: saveData});
 });
 
 const delTags = () => {

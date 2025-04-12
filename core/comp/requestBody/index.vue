@@ -8,6 +8,7 @@ import BodyContentTypeTab from '../basic/bodyContentTypeTab.vue';
 
 const descRef = ref();
 const EasyMd = defineAsyncComponent(() => import('@/components/easyMd/index.vue'));
+const getAppFunc = inject('getAppFunc', (param: {name: string, func: Function})=>{});
 
 interface Props {
   name: string;
@@ -85,6 +86,7 @@ onMounted(() => {
   }, {
     immediate: true,
   })
+  getAppFunc({name: 'updateData', func: saveData});
 });
 onBeforeUnmount(() => {
   saveData(props.name);

@@ -13,6 +13,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emits = defineEmits<{(e: 'del'):void}>();
 const dataSource = inject('dataSource', ref());
+const getAppFunc = inject('getAppFunc', (param: {name: string, func: Function})=>{});
 
 const parameterObj = ref<Record<string, any>>({
   description: '',
@@ -100,7 +101,7 @@ watch(() => props.name, (newValue, oldValue) => {
     saveData(oldValue)
   }
   resetData();
-  
+  getAppFunc({name: 'updateData', func: saveData});
 }, {
   immediate: true
 });

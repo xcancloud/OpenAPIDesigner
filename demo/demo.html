@@ -19,16 +19,29 @@
 </head>
 <body>
   <div class="my-api">
+    <div slot="docTitle" id="title">title</div>
     <button slot="docInfoButton" id="btn">getDocInfoData</button>
   </div>
 </body>
 <script type="module">
   import OpenApiDesign from '../dist/index.mjs';
-  debugger;
-  const myapi = new OpenApiDesign('.my-api', {});
-  const btn = document.querySelector('#btn');
-  btn.onclick = () => {
-    console.log(myapi.getDocApi());
-  }
+  const myapi = new OpenApiDesign('.my-api', {
+    openApiDoc: {
+      "openapi": "3.0.0",
+      "info": {
+          "title": "PayPal APIs",
+          "description": "",
+          "version": "1.0.0"
+      },
+    },
+    onMountedCallback: () => {
+      const btn = document.querySelector('#btn');
+      window.btn = btn;
+      btn.onclick =  () => {
+        console.log(myapi.getDocApi());
+      }
+    }
+  });
+  
 </script>
 </html>

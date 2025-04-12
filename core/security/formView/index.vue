@@ -6,7 +6,6 @@ import { flowAuthKeys, authLabels, encryptionTypeOpt, API_EXTENSION_KEY } from '
 import { useI18n } from 'vue-i18n';
 
 const { valueKey, securityApiKeyPerfix, oAuth2Key, oAuth2Token, newTokenKey, basicAuthKey } = API_EXTENSION_KEY;
-const getAppFunc = inject('getAppFunc', ()=>{});
 
 type Authentication = {
   type: 'basic'|'bearer'|'apiKey'|'oauth2';
@@ -282,11 +281,6 @@ onMounted(() => {
     immediate: true
   })
 
-  // getAppFunc({name: 'getDocInfoFormData', func: getData});
-});
-
-onBeforeUnmount(() => {
-  // getAppFunc({name: 'getDocInfoFormData', func: () => ({})});
 });
 
 defineExpose({
@@ -425,7 +419,5 @@ defineExpose({
       </FormItem>
     </template>
   </template>
-
-
 </Form>
-</template>./data.js
+</template>

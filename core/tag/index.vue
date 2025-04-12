@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n';
 const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
 const CodeView = defineAsyncComponent(() => import('./codeView/index.vue'));
 
-const getAppFunc = inject('getAppFunc', ()=>{});
+const getAppFunc = inject('getAppFunc', (param: {name: string, func: Function})=>{});
 const dataSource = inject('dataSource', ref());
 
 interface Props {
@@ -48,18 +48,15 @@ const deleteTag = (idx: number) => {
 
 const saveData = () => {
   const tags = formViewRef.value.map(form => {
-    return form.getData();
-  });
+    return form ? form.getData() : null;
+  }).filter(Boolean);
   dataSource.value.tags = tags;
 };
 
 onMounted(() => {
-  // watch(() => props.viewMode, () => {
-  //   // tags.value = props.dataSource?.tags || [];
-  // }, {
-  //   immediate: true
-  // });
+
   tags.value = props.dataSource?.tags || [];
+  getAppFunc({name: 'updateData', func: saveData});
 });
 
 onBeforeUnmount(() => {

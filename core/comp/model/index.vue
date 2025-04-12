@@ -22,6 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emits = defineEmits<{(e: 'cancel'):void;(e: 'ok'):void}>();
 const dataSource = inject('dataSource', ref());
+const getAppFunc = inject('getAppFunc', (param: {name: string, func: Function})=>{});
 
 // const deleteTabPane = inject('deleteTabPane', (value) => value);
 // const useAuth = ref<string[]>([]);
@@ -179,6 +180,7 @@ watch(() => props.name, (newValue, oldName) => {
   } else {
     resetschemas();
   }
+  getAppFunc({name: 'updateData', func: saveData});
 }, {
   immediate: true
 });

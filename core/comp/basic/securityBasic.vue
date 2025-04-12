@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch, computed, inject } from 'vue';
-import { Button, Input, Select, Tag, InputGroup } from 'ant-design-vue';
+import { Button, Select, InputGroup, notification } from 'ant-design-vue';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue';
+import NoData from '@/Icons/noData.svg';
 
 interface Props {
   dataSource: {[key:string]: string[]}[];
@@ -61,6 +62,10 @@ const addSecurity = () => {
     security.value = [];
   }
   if (!allSecurityOpt.value.length) {
+    notification.warning({
+      message: '提示',
+      description: '暂无可用安全方案'
+    });
     return;
   }
   security.value.push([{name:allSecurityOpt.value[0].value , scopes: []}])
@@ -108,7 +113,7 @@ defineExpose({
     });
     return _security;
   }
-})
+});
 </script>
 <template>
 <div>
@@ -148,5 +153,6 @@ defineExpose({
       </div>
     </div>
   </div>
+  <img v-if="!security.length" :src="NoData" class="mx-auto" />
 </div>
 </template>

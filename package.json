@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "description": "open api design",
   "main": "index.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs"
+    },
+    "./style.css": "./dist/open-api-designer.css"
+  },
   "dependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/web-component-wrapper": "^1.3.0",

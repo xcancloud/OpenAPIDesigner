@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onMounted, watch, onBeforeUnmount, inject } from 'vue';
-import { Tabs, TabPane } from 'ant-design-vue';
 
 const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
+
+const getAppFunc = inject('getAppFunc', (param: {name: string, func: Function})=>{});
 
 interface Props {
   viewMode: 'form'|'code'|'preview';
@@ -36,12 +37,17 @@ onMounted(() => {
     }
   }, {
     immediate: true
-  })
+  });
+  getAppFunc({name: 'updateData', func: saveData});
 });
 
-onBeforeUnmount(() => {
+const saveData = () => {
   const extensionObj = formViewRef.value.getFormData();
   Object.assign(dataSource.value, extensionObj);
+}
+
+onBeforeUnmount(() => {
+  saveData();
 });
 
 defineExpose({

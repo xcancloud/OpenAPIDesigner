@@ -3,14 +3,19 @@
 import { defineAsyncComponent, ref, watch, provide, nextTick, inject, onMounted, computed} from 'vue';
 import { RadioGroup, RadioButton, Tabs, TabPane } from 'ant-design-vue';
 import SiderMenu from './siderMenu/index.vue';
-import { data1 as data } from './data.ts';
+// import { data1 as data } from './data.ts';
 
 export type Props = {
   api: string
 }
 
+const props = withDefaults(defineProps<Props>(), {
+  api: '{}'
+});
+
 const getAppFunc = inject('getAppFunc', (arg: {name: string, func: Function}):void => {});
-const dataSource = ref<{[key: string]: any}>(data);
+const openApiDoc = inject('openApiDoc', {});
+const dataSource = ref<{[key: string]: any}>(JSON.parse(props.api));
 
 const DocInfo = defineAsyncComponent(() => import('./docInfo/formView/index.vue'));
 const ExternalDoc = defineAsyncComponent(() => import('./externalDoc/formView/index.vue'));
@@ -30,9 +35,7 @@ const ApiPreview = defineAsyncComponent(() => import('./comp/preView/index.vue')
 
 const CodeView = defineAsyncComponent(() => import('./comp/basic/code.vue'));
 
-const props = withDefaults(defineProps<Props>(), {
-  api: ''
-});
+
 
 const activeMenuKey = ref();
 const schemaType = ref();
@@ -91,7 +94,14 @@ const handleDelComp = () => {
 };
 
 const saveSecurity = (data) => {
-  dataSource.value.components.securitySchemes = data;
+  if (dataSource.value?.components) {
+    dataSource.value.components.securitySchemes = data;
+  } else {
+    dataSource.value.components = {
+      securitySchemes: data
+    };
+  }
+  
 };
 
 const showPreview = computed(() => {
@@ -118,6 +128,12 @@ onMounted(() => {
       viewMode.value = 'form';
     }
   })
+
+  watch(() => openApiDoc, (newValue) => {
+    dataSource.value = newValue;
+  }, {
+    immediate: true
+  })
 });
 
 provide('dataSource', dataSource);
@@ -134,7 +150,7 @@ provide('dataSource', dataSource);
         @delComp="handleDelComp" />
     </div>
     <div class="flex flex-col flex-1 min-w-200 py-2 pl-2 h-full overflow-auto">
-      <div></div>
+      <div> <slot name="docTitle"></slot></div>
       <div class="flex justify-end">
         <slot name="docInfoButton"></slot>
         <RadioGroup v-model:value="viewMode">

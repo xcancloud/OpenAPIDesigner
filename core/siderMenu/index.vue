@@ -336,7 +336,7 @@ onMounted(() => {
   });
 
   watch(() => props.dataSource?.components, (newValue) => {
-    modelChildren.value = Object.keys(newValue.schemas || {}).map(path => {
+    modelChildren.value = Object.keys(newValue?.schemas || {}).map(path => {
       // const title = path.split('/').reverse()[0];
       return {
         title: path,
@@ -345,7 +345,7 @@ onMounted(() => {
       }
     });
 
-    securityChildren.value = Object.keys(newValue.securitySchemes || {}).map(path => {
+    securityChildren.value = Object.keys(newValue?.securitySchemes || {}).map(path => {
       // const title = path.split('/').reverse()[0];
       return {
         title: path,
@@ -354,7 +354,7 @@ onMounted(() => {
       }
     });
 
-    parameterChildren.value = Object.keys(newValue.parameters || {}).map(path => {
+    parameterChildren.value = Object.keys(newValue?.parameters || {}).map(path => {
       // const title = path.split('/').reverse()[0];
       return {
         title: path,
@@ -363,7 +363,7 @@ onMounted(() => {
       }
     });
 
-    responseChildren.value = Object.keys(newValue.responses || {}).map(path => {
+    responseChildren.value = Object.keys(newValue?.responses || {}).map(path => {
       // const title = path.split('/').reverse()[0];
       return {
         title: path,
@@ -372,7 +372,7 @@ onMounted(() => {
       }
     });
 
-    bodyChildren.value = Object.keys(newValue.requestBodies || {}).map(path => {
+    bodyChildren.value = Object.keys(newValue?.requestBodies || {}).map(path => {
       return {
         title: path,
         key: path,

@@ -2,17 +2,22 @@
 import { ref, defineAsyncComponent, onMounted, watch, inject, onBeforeUnmount, Ref } from 'vue';
 import { Button } from 'ant-design-vue';
 import { DeleteOutlined } from '@ant-design/icons-vue'
+import { useI18n } from 'vue-i18n';
+import NoData from '@/Icons/noData.svg';
 
 const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
 const SecurityBasic = defineAsyncComponent(() => import('../comp/basic/securityBasic.vue'));
 
-const getAppFunc = inject('getAppFunc', ()=>{});
+const getAppFunc = inject('getAppFunc', (param: {name: string, func: Function})=>{});
+const dataSource = inject('dataSource', ref());
 
 interface Props {
   viewMode: 'form'|'code'|'preview';
   dataSource: Record<string, any>;
 }
 
+const { t } = useI18n();
+const securityRef = ref();
 const props = withDefaults(defineProps<Props>(), {
   viewMode: 'form'
 });
@@ -31,53 +36,65 @@ const addTag = () => {
 };
 
 const deleteTag = (idx: number) => {
+  const name = securityList.value[idx].securityName;
   securityList.value.splice(idx, 1);
+  if (props.dataSource?.security) {
+    props.dataSource?.security.forEach(item => {
+      delete item[name];
+    });
+  }
 };
 
 const securitySource = ref();
 
-onMounted(() => {
-  watch(() => props.dataSource, () => {
-    securitySource.value = props.dataSource.components?.securitySchemes;
-    securityList.value = Object.keys(props.dataSource.components?.securitySchemes || {}).map(key => {
-      return {
-        securityName: key,
-        ...props.dataSource.components?.securitySchemes?.[key]
-      }
-    })
-  }, {
-    immediate: true
-  })
-});
-
-onBeforeUnmount(() => {
-  const security = formViewRef.value.map(formView => formView.getData()).reduce((pre, cur) => {
+const saveData = () => {
+  const securitySchemas = formViewRef.value.map(formView => formView ? formView.getData() : null).filter(Boolean).reduce((pre, cur) => {
     return {
       ...pre,
       ...cur
     }
   }, {});
-  emits('save', security);
+  emits('save', securitySchemas);
+  const security = securityRef.value.getData();
+  dataSource.value.security = security;
+}
+
+onMounted(() => {
+  securitySource.value = props.dataSource.components?.securitySchemes;
+  securityList.value = Object.keys(props.dataSource.components?.securitySchemes || {}).map(key => {
+    return {
+      securityName: key,
+      ...props.dataSource.components?.securitySchemes?.[key]
+    }
+  })
+  getAppFunc({name: 'updateData', func: saveData});
+});
+
+
+
+onBeforeUnmount(() => {
+  saveData();
 });
 
 </script>
 <template>
   <div class="min-h-100">
     <div class="flex justify-between pr-8">
-      <span class="font-semibold">安全方案</span>
+      <span class="font-semibold">{{t('security_schema')}}</span>
       <Button size="small" type="primary" @click="addTag">
-        + 添加
+        + {{ t('add') }}
       </Button>
     </div>
     <div
       v-for="(security, idx) in securityList" :key="idx"
       class="flex w-full mb-5 border-t mt-3 pt-2">
-      <FormView :ref="dom => formViewRef[idx] = dom" class="flex-1" :data="security" />
+      <FormView :ref="(dom:Ref) => formViewRef[idx] = dom" class="flex-1" :data="security" />
       <Button size="small" type="link" class="mt-8 w-8" @click="deleteTag(idx)">
         <DeleteOutlined class="text-5" />
       </Button>
     </div>
-    <SecurityBasic :dataSource="props.dataSource?.security" />
+    <img v-if="!securityList.length" :src="NoData" class="mx-auto" />
+    <SecurityBasic ref="securityRef" :dataSource="props.dataSource?.security" />
   </div>
 </template>
 <style scoped>

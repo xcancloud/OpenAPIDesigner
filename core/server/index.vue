@@ -3,10 +3,11 @@ import { ref, defineAsyncComponent, onMounted, watch, inject, Ref, onBeforeUnmou
 import { Tabs, TabPane, Button } from 'ant-design-vue';
 import { DeleteOutlined } from '@ant-design/icons-vue';
 import { useI18n } from 'vue-i18n';
+import NoData from '@/Icons/noData.svg';
 
 const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
 
-const getAppFunc = inject('getAppFunc', ()=>{});
+const getAppFunc = inject('getAppFunc', (param: {name: string, func: Function})=>{});
 
 interface Props {
   viewMode: 'form'|'code'|'preview',
@@ -61,6 +62,7 @@ onMounted(() => {
   }, {
     immediate: true
   })
+  getAppFunc({name: 'updateData', func: saveData});
 });
 
 
@@ -86,6 +88,7 @@ onBeforeUnmount(() => {
             <DeleteOutlined class="text-5" />
           </Button>
         </div>
+        <img :src="NoData" class="mx-auto" />
       </TabPane>
       <TabPane key="preview" class="overflow-auto pr-3">
 

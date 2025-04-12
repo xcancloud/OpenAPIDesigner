@@ -4,7 +4,7 @@ import { Input, Button, Textarea } from 'ant-design-vue';
 import { DeleteOutlined } from '@ant-design/icons-vue';
 import { useI18n } from 'vue-i18n';
 
-const getAppFunc = inject('getAppFunc', ()=>{});
+const getAppFunc = inject('getAppFunc', (param: {name: string, func: Function})=>{});
 
 type Extension = {
   name: string;

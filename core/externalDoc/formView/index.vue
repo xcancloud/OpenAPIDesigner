@@ -49,7 +49,10 @@ const saveData = () => {
 }
 
 onMounted(() => {
-  formState.value = props.dataSource?.externalDocs;
+  formState.value = props.dataSource?.externalDocs || {
+    url: '',
+    description: undefined
+  };
   // getAppFunc({name: 'getDocInfoFormData', func: getData});
 });
 

@@ -1,7 +1,7 @@
 
 import { defineCustomElement } from 'vue';
 import { createI18n } from 'vue-i18n';
-import MyComponent from './core/index';
+import MyComponent from './core/index.ts';
 import styleList from './assets/style';
 
 function resolveSelector(selector: string | HTMLElement | null | undefined) {
@@ -17,7 +17,9 @@ const defaultOption = {
 class OpenApiDesign {
   container: HTMLElement|null| undefined;
   option: {
-    language:'en'|'zh_CN'
+    language:'en'|'zh_CN',
+    openApiDoc: Record<string, any>;
+    onMountedCallback?: Function; // 渲染完成 callback
   }
   constructor (container: HTMLElement | string, option: {language:'en'|'zh_CN'}) {
     this.container = resolveSelector(container);
@@ -42,39 +44,45 @@ class OpenApiDesign {
       }
     });
     const MyCustomElement = defineCustomElement(MyComponent, {
-      styles: [`.api-root{width: ${wrapWidth}px; height: ${wrapHeight}px;}`],
+      styles: [`.api-root{width: ${wrapWidth}px; height: ${wrapHeight}px;}`, ...styleList],
       nonce: 'my-custome',
       configureApp: (app) => {
-        console.log(app);
         app.use(i18n);
         app.provide('getAppFunc', (appFunc: {name: string; func: Function})=> {
           this[appFunc.name] = appFunc.func;
         });
+        app.provide('openApiDoc', this.option.openApiDoc);
       },
-      shadowRoot: true
+      shadowRoot: false
     });
 
     customElements.define('open-api-design', MyCustomElement);
-    const innerSlot = this.container.innerHTML;
+    const innerSlot = this.container?.innerHTML;
   
-    this.container.innerHTML = `<open-api-design>${innerSlot}</open-api-design>`;
-
-    const sheetList: CSSStyleSheet[] = [];
-    styleList.forEach(styleText => {
-      const sheet = new CSSStyleSheet();
-      sheet.replaceSync(styleText);
-      sheetList.push(sheet);
-    });
-    const shadowHost = document.querySelector('open-api-design');
-    const shadowRoot = shadowHost?.shadowRoot;
-    if (shadowRoot) {
-      shadowRoot.adoptedStyleSheets = [...shadowRoot.adoptedStyleSheets, ...sheetList];
+    this.container && (this.container.innerHTML = `<open-api-design>${innerSlot}</open-api-design>`);
+    if (typeof this.option.onMountedCallback === 'function') {
+      this.option.onMountedCallback()
     }
+    // const sheetList: CSSStyleSheet[] = [];
+    // styleList.forEach(styleText => {
+    //   const sheet = new CSSStyleSheet();
+    //   sheet.replaceSync(styleText);
+    //   sheetList.push(sheet);
+    // });
+    // const shadowHost = document.querySelector('open-api-design');
+    // const shadowRoot = shadowHost?.shadowRoot;
+    // if (shadowRoot) {
+    //   shadowRoot.adoptedStyleSheets = [...sheetList];
+    // }
   }
 
+  // get openapidoc JSON Object
   getDocApi: Function
-  // 获取文档信息表单信息
-  getDocInfoFormData: Function;
+
+
+  // Update the form information to the openapidoc object
+  // When you leave this page, the form will be updated automatically
+  updateData: Function;
 
 }
 

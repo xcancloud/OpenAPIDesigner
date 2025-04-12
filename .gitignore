@@ -1,6 +1,7 @@
 node_modules
 .DS_Store
 dist
+coredist
 dist-ssr
 yarn-error.log
 nginx/logs/*
