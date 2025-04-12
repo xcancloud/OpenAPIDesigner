@@ -54,8 +54,8 @@ const handleDel = (idx: number) => {
 
 const saveData = () => {
   const servers = serverRefs.value.map(dom => {
-    return dom.getData();
-  });
+    return dom ? dom.getData() : null;
+  }).filter(Boolean);
   const description = descRef.value.getValue() || undefined;
   const summary = summaryRef.value.getValue() || undefined;
 
