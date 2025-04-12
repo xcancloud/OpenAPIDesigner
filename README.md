@@ -15,7 +15,7 @@ OpenAPIDesigner is an open-source OpenAPI specification design Tool that allows 
 
 ```js
 import OpenApiDesign from 'open-api-designer';
-import 'open-api-designer/dist/open-api-designer.css'
+import 'open-api-designer/style.css'
 const apidoc = {
     "openapi": "3.0.0",
     "info": {
