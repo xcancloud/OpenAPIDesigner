@@ -91,7 +91,6 @@ onBeforeUnmount(() => {
       <div class="text-6 font-semibold">Description</div>
       <EasyMd ref="descRef" :value="props.dataSource?.description" />
     </div>
-
     <div class="space-y-3">
       <div class="flex justify-between">
         <span class="text-6 font-semibold">Servers</span> 

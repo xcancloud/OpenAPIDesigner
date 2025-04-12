@@ -152,7 +152,7 @@ provide('dataSource', dataSource);
           <Extensions v-else-if="activeMenuKey === 'extensions'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
           <Security v-else-if="activeMenuKey === 'security'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" @save="saveSecurity" />
           <ApiModel v-else-if="selectedApi" :dataSource="selectedApi" :openapiDoc="dataSource"/>
-          <PathInfo v-else-if="selectPath" :dataSource="selectPath" :path="apiEndpoint"  />
+          <PathInfo :key="apiEndpoint" v-else-if="selectPath" :dataSource="selectPath" :path="apiEndpoint"  />
           <Comp v-else  class="mt-4" :dataSource="dataSource" :schemaType="schemaType" :schemaName="activeMenuKey" @del="handleDelComp" />
         </TabPane>
         <TabPane key="code">
