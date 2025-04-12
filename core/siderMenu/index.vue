@@ -27,6 +27,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const { t } = useI18n();
+const dataSource = inject('dataSource', ref());
 
 interface MenuItem {
   key: string;
@@ -57,7 +58,7 @@ const headerChildren = ref<MenuItem[]>([]); // 请求头组件
 const securityChildren = ref<MenuItem[]>([]); // 安全方案组件
 const extensionChildren = ref<MenuItem[]>([]); // 扩展组件
 
-const apiPaths = ref({});
+const apiPaths = ref<{[key: string]: any}>({});
 const selectedApi = ref();
 
 const selectApi = (endpoint: string, method: string) => {
@@ -162,6 +163,7 @@ const handleAddModel = (key: string) => {
   createNameModalVisible.value = true;
   createName.value = undefined;
 };
+
 
 const addModel = () => {
   if (!createName.value) {
@@ -303,6 +305,55 @@ const addModel = () => {
     });
     return;
   }
+
+  if (addType.value === 'path') {
+    if (apiPaths.value[createName.value]) {
+      notification.warning({
+        message: '提示',
+        description: '路径重复，请修改后重新输入'
+      });
+    }
+    createNameModalVisible.value = false;
+    apiPaths.value[createName.value] = {};
+    if (!dataSource.value.paths) {
+      dataSource.value.paths = {};
+    }
+    dataSource.value.paths[createName.value] = {};
+  }
+};
+
+const addApiMethod = ref();
+const creatMethodVisible = ref(false);
+const methodOptions = ref<{value: string; label: string}[]>([]);
+const addMethdPath = ref();
+const handleAddApisMethod = (path: string) => {
+  addMethdPath.value = path || '';
+  const api = apiPaths.value[path] || {};
+  const hasMethods = Object.keys(api);
+  methodOptions.value = methodOpt.filter(m => !hasMethods.includes(m)).map(i => ({value: i, label: i}));
+  if (!methodOptions.value.length) {
+    notification.warning({
+      message: '提示',
+      description: 'Method 已存在，无需添加'
+    });
+    return;
+  }
+  addApiMethod.value = methodOptions.value[0].value;
+  creatMethodVisible.value = true;
+  createName.value = undefined;
+}
+
+const addMethod = () => {
+  if (!createName.value) {
+    return;
+  }
+  apiPaths.value[addMethdPath.value][addApiMethod.value] = {
+    summary: createName.value
+  };
+  dataSource.value.paths[addMethdPath.value][addApiMethod.value] = {
+    summary: createName.value
+  };
+  creatMethodVisible.value = false;
 };
 
 const handleSelect = (selectedKeys: string) => {
@@ -399,21 +450,43 @@ const methodColorConfig:Record<string, string> = {
 </script>
 <template>
   <div>
-    <Input placeholder="搜索" />
+    <Input :placeholder="t('搜索')" />
     <div v-for="menu in defaultMenu" :key="menu.key">
-      <div
-        class="h-8 leading-8 px-2 cursor-pointer flex items-center justify-between font-medium bg-bg-content hover:bg-gray-200"
-        @click="menu.children ? toggleOpenValue(menu.key) : handleSelect(menu.key)">
+      <Dropdown v-if="menu.key === 'apis'" trigger="contextmenu">
+        <div
+          class="h-8 leading-8 px-2 cursor-pointer flex items-center justify-between font-medium bg-bg-content hover:bg-gray-200"
+          @click="menu.children ? toggleOpenValue(menu.key) : handleSelect(menu.key)">
 
-        <div class="flex items-center" :class="{'text-blue-1': menu.key === props.activeMenuKey}">
-          <img v-if="menu.icon" class="w-4 h-4 mr-1" :src="menu.icon" />
-          <Arrow
-            v-if="menu.children"
-            v-model:open="compExpandMap[menu.key]" />
-          <span class="truncate">{{ menu.title }}</span>
-          <template v-if="['apis'].includes(menu.key)">{{ `(${menu.children?.length})` }}</template>
+          <div class="flex items-center" :class="{'text-blue-1': menu.key === props.activeMenuKey}">
+            <img v-if="menu.icon" class="w-4 h-4 mr-1" :src="menu.icon" />
+            <Arrow
+              v-if="menu.children"
+              v-model:open="compExpandMap[menu.key]" />
+            <span class="truncate">{{ menu.title }}</span>
+            <template v-if="['apis'].includes(menu.key)">{{ `(${menu.children?.length})` }}</template>
+          </div>
         </div>
-      </div>
+        <template #overlay>
+          <Menu @click="handleAddModel('path')">
+            <MenuItem key="add">{{ `${t('add')} Path` }}</MenuItem>
+          </Menu>
+        </template>
+      </Dropdown>
+
+      <div v-else
+          class="h-8 leading-8 px-2 cursor-pointer flex items-center justify-between font-medium bg-bg-content hover:bg-gray-200"
+          @click="menu.children ? toggleOpenValue(menu.key) : handleSelect(menu.key)">
+
+          <div class="flex items-center" :class="{'text-blue-1': menu.key === props.activeMenuKey}">
+            <img v-if="menu.icon" class="w-4 h-4 mr-1" :src="menu.icon" />
+            <Arrow
+              v-if="menu.children"
+              v-model:open="compExpandMap[menu.key]" />
+            <span class="truncate">{{ menu.title }}</span>
+            <template v-if="['apis'].includes(menu.key)">{{ `(${menu.children?.length})` }}</template>
+          </div>
+        </div>
+      
 
       <template v-if="menu.key === 'components' && compExpandMap[menu.key]">
         <div
@@ -432,7 +505,7 @@ const methodColorConfig:Record<string, string> = {
             </div>
             <template #overlay>
               <Menu @click="handleAddModel(subMenu.key)">
-                <MenuItem key="add">{{ `添加${subMenu.title}` }}</MenuItem>
+                <MenuItem key="add">{{ `${t('add')}${subMenu.title}` }}</MenuItem>
               </Menu>
             </template>
           </Dropdown>
@@ -466,14 +539,21 @@ const methodColorConfig:Record<string, string> = {
           v-show="compExpandMap[menu.key]"
           class="pl-4"
           :key="path">
-          <div
-            class="h-8 leading-8 pl-2 cursor-pointer bg hover:bg-bg-hover truncate select-none hover:bg-gray-200"
-            :class="{'text-blue-1': `${path}_` === props.activeMenuKey}"
-            @click="selectPath(path)">
-            <Arrow
-              v-model:open="compExpandMap[path]" />
-            {{ path }}
-          </div>
+          <Dropdown trigger="contextmenu">
+            <div
+              class="h-8 leading-8 pl-2 cursor-pointer bg hover:bg-bg-hover truncate select-none hover:bg-gray-200"
+              :class="{'text-blue-1': `${path}_` === props.activeMenuKey}"
+              @click="selectPath(path)">
+              <Arrow
+                v-model:open="compExpandMap[path]" />
+              {{ path }}
+            </div>
+            <template #overlay>
+              <Menu @click="handleAddApisMethod(path)">
+                <MenuItem key="add">{{ `${t('add')} Method` }}</MenuItem>
+              </Menu>
+            </template>
+          </Dropdown>
           <div
             v-for="api,method in apis"
             v-show="compExpandMap[path]"
@@ -492,7 +572,7 @@ const methodColorConfig:Record<string, string> = {
     <Modal
       v-model:visible="createNameModalVisible"
       :width="400"
-      title="名称"
+      :title="t('name')"
       @ok="addModel">
       <Select
         v-show="addType === 'parameters'"
@@ -503,6 +583,21 @@ const methodColorConfig:Record<string, string> = {
         v-model:value="createName"
         :maxlength="80"
         placeholder="输入名称"  />
+    </Modal>
+
+    <Modal
+      v-model:visible="creatMethodVisible"
+      :width="400"
+      title="方法"
+      @ok="addMethod">
+      <Select
+        v-model:value="addApiMethod"
+        class="w-30 mb-2"
+        :options="methodOptions" />
+      <Input
+        v-model:value="createName"
+        :maxlength="80"
+        placeholder="输入摘要"  />
     </Modal>
   </div>
 </template>
