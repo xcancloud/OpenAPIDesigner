@@ -81,4 +81,7 @@ export default {
   tag_name_placeholder: '标签名称，最多200个字符',
   tag_external_url_placeholder: '标签外部接口文档链接地址，必须以URI的形式表示，最多400个字符',
   add_tag: '添加标签',
+  form: '表单',
+  code: '代码',
+  preview: '预览',
 };

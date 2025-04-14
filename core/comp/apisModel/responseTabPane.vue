@@ -48,7 +48,6 @@ const getData = () => {
       $ref: refComp.value
     }
   }
-
   const description = descRef.value.getValue();
   return {
     description,

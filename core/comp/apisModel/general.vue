@@ -78,7 +78,7 @@ defineExpose({
 });
 </script>
 <template>
-  <div class="px-2">
+  <div class="px-2 space-y-3">
     <div class="space-y-3">
       <div class="flex items-center space-x-2">
         <Tag :color="methodColor[data.method]" class="h-8 leading-7 text-5">{{ data.method }}</Tag>
@@ -107,7 +107,12 @@ defineExpose({
     </div> -->
     <SecurityBasic ref="securityRef" :dataSource="props.dataSource?.security"/>
 
-    <Extensions ref="extensionsRef" :dataSource="extensionData" />
+    
+    <Extensions ref="extensionsRef" :dataSource="extensionData" >
+      <template #title>
+        <span class="font-medium">Extensions</span> 
+      </template>
+    </Extensions>
 
   </div>
 </template>

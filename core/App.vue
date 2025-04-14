@@ -3,9 +3,11 @@
 import { defineAsyncComponent, ref, watch, provide, nextTick, inject, onMounted, computed} from 'vue';
 import { RadioGroup, RadioButton, Tabs, TabPane } from 'ant-design-vue';
 import SiderMenu from './siderMenu/index.vue';
+import { useI18n } from 'vue-i18n';
 import { data1 as data } from './data.ts';
 
 
+const { t } = useI18n();
 const getAppFunc = inject('getAppFunc', (arg: {name: string, func: Function}):void => {});
 const openApiDoc = inject('openApiDoc', undefined);
 const dataSource = ref<{[key: string]: any}>(data);
@@ -150,9 +152,9 @@ provide('dataSource', dataSource);
       <div class="flex justify-end">
         <slot name="docInfoButton"></slot>
         <RadioGroup v-model:value="viewMode">
-          <RadioButton value="form">表单</RadioButton>
-          <RadioButton value="code">代码</RadioButton>
-          <RadioButton v-if="showPreview" value="preview">预览</RadioButton>
+          <RadioButton value="form">{{t('form')}}</RadioButton>
+          <RadioButton value="code">{{t('code')}}</RadioButton>
+          <RadioButton v-if="showPreview" value="preview">{{t('preview')}}</RadioButton>
         </RadioGroup>
       </div>
       <Tabs v-model:activeKey="viewMode" destroyInactiveTabPane class="flex-1 view-type-tab">

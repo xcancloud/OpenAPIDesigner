@@ -132,7 +132,8 @@ defineExpose({
 
 <template>
   <div>
-    <div class="flex justify-end mb-2">
+    <div class="flex justify-between mb-2 items-center">
+      <slot name="title"><span></span></slot>
       <Button size="small" type="primary" @click="addExtension">+ {{ t('add') }}</Button>
     </div>
 

@@ -22,6 +22,7 @@
     "eslint-plugin-promise": "^5.2.0",
     "eslint-plugin-vue": "^7.20.0",
     "estree-walker": "^2.0.2",
+    "http-server": "^14.1.1",
     "lit": "^3.2.1",
     "magic-string": "^0.30.17",
     "monaco-editor": "^0.52.2",
@@ -46,9 +47,9 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "node ./script/build.js",
+    "build:main": "node ./script/build.js",
     "dev": "vite dev",
-    "build:main": "vite build",
+    "build": "vite build",
     "demo": "http-server -p 8080 & open http://127.0.0.1:8080/demo/index.html"
   },
   "author": "",

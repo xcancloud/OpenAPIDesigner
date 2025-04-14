@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch } from 'vue';
 import { Button, TabPane, Tabs } from 'ant-design-vue';
-import { parseSchemaArrToObj, parseSchemaObjToArr } from './utils';
 import { CONTENT_TYPE } from './utils';
 import NoDataSvg from '@/icons/noData.svg';
 

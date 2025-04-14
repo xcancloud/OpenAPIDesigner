@@ -547,5 +547,7 @@ const myapi = new OpenApiDesign('.open-api', {
 
 #### view demo
 ```
+  npm run build:main
+  
   npm run demo
 ```

@@ -23,7 +23,6 @@ type DocInfo = {
 };
 
 
-
 const docInfo = computed<DocInfo>(() => {
   return dataSource.value?.info || {};
 });
