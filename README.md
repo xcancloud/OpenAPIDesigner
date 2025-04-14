@@ -543,3 +543,9 @@ const myapi = new OpenApiDesign('.open-api', {
 });
 
 ```
+
+
+#### view demo
+```
+  npm run demo
+```

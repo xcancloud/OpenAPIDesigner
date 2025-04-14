@@ -48,7 +48,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "node ./script/build.js",
     "dev": "vite dev",
-    "build:main": "vite build"
+    "build:main": "vite build",
+    "demo": "http-server -p 8080 & open http://127.0.0.1:8080/demo/index.html"
   },
   "author": "",
   "license": "ISC",
