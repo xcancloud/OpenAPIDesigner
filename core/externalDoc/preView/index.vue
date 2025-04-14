@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { inject, ref, computed, defineAsyncComponent } from 'vue';
 
-const EasyMd = defineAsyncComponent(() => import('@/components/easyMd/index.vue'));
+const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
 const dataSource = inject('dataSource', ref());
 type ExternalDoc = {
   url: string;

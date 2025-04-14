@@ -1,17 +1,14 @@
 <script lang="ts" setup>
 import { ref, inject, computed, defineAsyncComponent, onMounted, watch } from 'vue';
-import { Tag, Select, RadioGroup, RadioButton } from 'ant-design-vue';
 
-const AyyrItemListView = defineAsyncComponent(() => import('@/comp/basic/attrItemListView.vue'));
+const AyyrItemListView = defineAsyncComponent(() => import('@/component/basic/attrItemListView.vue'));
 
 interface Props {
-  body: {
-    description?: string,
-    content?: {[key: string]: any}
-  }
+  params: {in: string; name: string; schema: {type?: string; $ref?: string; properties?: any}}[];
 }
+
 const props = withDefaults(defineProps<Props>(), {
-  body: () => ({})
+  params: () => []
 });
 
 const dataSource = inject('dataSource', ref());
@@ -103,50 +100,35 @@ const parseSchemaObjToArr = (obj, requiredKeys: string[] = []): any[] => {
   return result;
 }
 
-const bodyTypes = computed<string[]>(() => {
-  return Object.keys(props.body.content || {});
-});
-const currentBodyType = ref<string>();
-const bodyContentSchemaList = ref<any[]>([]);
+const parameModelList = ref<{name: string; schemaList: {[key: string]: any}[]}[]>([]);
 
 onMounted(() => {
-  watch(() => props.body, () => {
-    bodyContentSchemaList.value = [];
-    currentBodyType.value = bodyTypes.value[0] || '';
-  }, {
-    immediate: true,
-    deep: true
-  })
-  watch(() => currentBodyType.value, (newValue) => {
-    if (newValue) {
-      const schemaObj = props.body.content?.[newValue]?.schema;
-      const {properties, ...others} = schemaObj;
-      if (schemaObj.type === 'object') {
-        bodyContentSchemaList.value = [{...others, children: parseSchemaObjToArr(schemaObj, schemaObj.required)}]
+  watch(() => props.params, () => {
+    parameModelList.value = props.params.map(item => {
+      item.schema = item.schema || {};
+      const {properties, ...others} = item.schema || {};
+      let schemaList: {[key: string]: any}[] = [];
+      if (item.schema?.type === 'object') {
+        schemaList = [{...others, children: parseSchemaObjToArr(item.schema, item.schema.required)}]
       } else {
-        bodyContentSchemaList.value = parseSchemaObjToArr(schemaObj, schemaObj.required);
+        schemaList = parseSchemaObjToArr(item.schema, item.schema.required);
       }
-    } else {
-      bodyContentSchemaList.value = [];
-    }
+      return {
+        name: item.name,
+        schemaList
+      }
+    })
   }, {
     immediate: true
   })
-})
+});
 
 </script>
 <template>
-
-  <div>
-    <div v-if="bodyTypes.length" class="flex justify-between">
-      <span class="text-5 font-medium">Body</span>
-      <Select
-        v-model:value="currentBodyType"
-        :bordered="false"
-        :options="bodyTypes.map(i => ({value: i, label: i}))" />
-    </div>
-
-    <AyyrItemListView :dataSource="bodyContentSchemaList" :isRoot="true" />
+<div>
+  <div v-for="(param, idx) in parameModelList" :key="param.name" class="flex">
+    <div class="font-medium leading-7">{{ param.name }}</div>
+    <AyyrItemListView :dataSource="param.schemaList" :isRoot="true"  />
   </div>
-
+</div>
 </template>

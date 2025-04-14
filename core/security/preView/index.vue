@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed, inject } from 'vue';
 import { Tag } from 'ant-design-vue';
-import Arrow from '@/components/Arrow/index.vue';
+import Arrow from '@/common/arrow/index.vue';
 
 const dataSource = inject('dataSource', ref());
 

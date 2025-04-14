@@ -4,7 +4,7 @@ import { Select } from 'ant-design-vue';
 import ResponseSchema from '../basic/responseSchema.vue';
 
 const descRef = ref();
-const EasyMd = defineAsyncComponent(() => import('@/components/easyMd/index.vue'));
+const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
 const dataSource = inject('dataSource', ref());
 
 interface Props {

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch, inject, onBeforeUnmount, defineAsyncComponent, Ref } from 'vue';
-import EasyMd from '@/components/easyMd/index.vue';
+import EasyMd from '@/common/easyMd/index.vue';
 import { Button } from 'ant-design-vue';
 import { DeleteOutlined } from '@ant-design/icons-vue';
 import NoData from '@/Icons/noData.svg';

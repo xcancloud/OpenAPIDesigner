@@ -4,10 +4,10 @@ import { Button, TabPane, Tabs, Select } from 'ant-design-vue';
 import { NotificationOutlined } from '@ant-design/icons-vue';
 import { CONTENT_TYPE } from '../basic/utils';
 import BodyContentTypeTab from '../basic/bodyContentTypeTab.vue';
-import Dropdown from '@/components/Dropdown/index.vue';
+import Dropdown from '@/common/dropdown/index.vue';
 
 const descRef = ref();
-const EasyMd = defineAsyncComponent(() => import('@/components/easyMd/index.vue'));
+const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
 
 const dataSource = inject('dataSource', ref());
 

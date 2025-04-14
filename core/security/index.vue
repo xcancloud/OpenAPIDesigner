@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n';
 import NoData from '@/Icons/noData.svg';
 
 const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
-const SecurityBasic = defineAsyncComponent(() => import('../comp/basic/securityBasic.vue'));
+const SecurityBasic = defineAsyncComponent(() => import('../component/basic/securityBasic.vue'));
 
 const getAppFunc = inject('getAppFunc', (param: {name: string, func: Function})=>{});
 const dataSource = inject('dataSource', ref());
@@ -106,3 +106,4 @@ onBeforeUnmount(() => {
   height: 100%;
 }
 </style>
+../component/basic/securityBasic.vue

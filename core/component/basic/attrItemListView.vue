@@ -33,15 +33,14 @@
 </template>
 <script>
 import { defineComponent, ref, inject, computed } from 'vue';
-import IconRequired from '@/components/Icons/IconRequired/index.vue';
-import Grid from '@/components/Grid/index.vue';
-import Arrow from '@/components/Arrow/index.vue';
+import IconRequired from '@/common/icons/IconRequired/index.vue';
+import Arrow from '@/common/arrow/index.vue';
 import { Button, Popover } from 'ant-design-vue';
 import { EditOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons-vue';
 
 export default defineComponent({
   name: 'AttrItemListView',
-  components: { Arrow, Popover, Grid, Button, IconRequired, EditOutlined, PlusOutlined, DeleteOutlined },
+  components: { Arrow, Popover, Button, IconRequired, EditOutlined, PlusOutlined, DeleteOutlined },
   props: {
     dataSource: {
       type: Array,

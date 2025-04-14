@@ -5,7 +5,7 @@ import { CONTENT_TYPE } from './utils';
 import NoDataSvg from '@/icons/noData.svg';
 
 import BodyContentTypeTab from './bodyContentTypeTab.vue';
-import Dropdown from '@/components/Dropdown/index.vue';
+import Dropdown from '@/common/dropdown/index.vue';
 import ParameterBasic from './parameterBasic.vue';
 
 interface Props {

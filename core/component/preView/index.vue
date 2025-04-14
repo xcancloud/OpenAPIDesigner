@@ -5,7 +5,7 @@ import { ref, inject, computed, defineAsyncComponent, onMounted, watch } from 'v
 import { Tag, Select, RadioGroup, RadioButton } from 'ant-design-vue';
 import { methodColor } from '../apisModel/PropTypes';
 
-const EasyMd = defineAsyncComponent(() => import('@/components/easyMd/index.vue'));
+const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
 
 const BodyModelView = defineAsyncComponent(() => import('./bodyModelView.vue'));
 const ParamModelView = defineAsyncComponent(() => import('./parameterModelView.vue'));

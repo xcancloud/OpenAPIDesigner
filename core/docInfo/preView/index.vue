@@ -2,7 +2,7 @@
 import { inject, ref, computed, onMounted, watch, defineAsyncComponent } from 'vue';
 import { Tag } from 'ant-design-vue';
 
-const EasyMd = defineAsyncComponent(() => import('@/components/easyMd/index.vue'));
+const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
 const dataSource = inject('dataSource', ref());
 type DocInfo = {
   title?: string;

@@ -3,7 +3,7 @@ import { onMounted, ref, watch, Ref } from 'vue';
 import { Button, TabPane, Tabs, Input } from 'ant-design-vue';
 // import ResponseSchema from '../basic/responseSchema.vue';
 import {httpStatus} from './PropTypes';
-import Dropdown from '@/components/Dropdown/index.vue';
+import Dropdown from '@/common/dropdown/index.vue';
 import responseTabPane from './responseTabPane.vue';
 
 interface Props {

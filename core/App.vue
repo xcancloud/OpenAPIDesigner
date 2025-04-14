@@ -18,17 +18,17 @@ const Server = defineAsyncComponent(() => import('./server/index.vue'));
 const Tag = defineAsyncComponent(() => import('./tag/index.vue'));
 const Extensions = defineAsyncComponent(() => import('./extensions/index.vue'));
 const Security = defineAsyncComponent(() => import('./security/index.vue'));
-const Comp = defineAsyncComponent(() => import('./comp/index.vue'));
-const ApiModel = defineAsyncComponent(() => import('./comp/apisModel/index.vue'));
+const Comp = defineAsyncComponent(() => import('./component/index.vue'));
+const ApiModel = defineAsyncComponent(() => import('./component/apisModel/index.vue'));
 const PathInfo = defineAsyncComponent(() => import('./pathInfo/index.vue'));
 
 const DocInfoPreview = defineAsyncComponent(() => import('./docInfo/preview/index.vue'));
 const ExternalDocPreview = defineAsyncComponent(() => import('./externalDoc/preView/index.vue'));
 const ServerPreview = defineAsyncComponent(() => import('./server/preView/index.vue'));
 const SecurityPreview = defineAsyncComponent(() => import('./security/preView/index.vue'));
-const ApiPreview = defineAsyncComponent(() => import('./comp/preView/index.vue'));
+const ApiPreview = defineAsyncComponent(() => import('./component/preView/index.vue'));
 
-const CodeView = defineAsyncComponent(() => import('./comp/basic/code.vue'));
+const CodeView = defineAsyncComponent(() => import('./component/basic/code.vue'));
 
 
 
@@ -227,3 +227,4 @@ provide('dataSource', dataSource);
  @apply bg-gray-200;
 }
 </style>
+./component/index.vue./component/apisModel/index.vue./component/preView/index.vue./component/basic/code.vue

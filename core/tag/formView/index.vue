@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n';
 const getAppFunc = inject('getAppFunc', ()=>{});
 const descRef = ref(); // 用于init markdown 编辑器
 const externalDescRef = ref();
-const EasyMd = defineAsyncComponent(() => import('@/components/easyMd/index.vue'));
+const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
 const { t } = useI18n();
 
 type Tag = {

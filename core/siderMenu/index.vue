@@ -3,7 +3,7 @@
 import { computed, onMounted, ref, watch, inject } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Input, Select, Dropdown, Menu, MenuItem, Modal, notification, Button } from 'ant-design-vue';
-import Arrow from '@/components/Arrow/index.vue';
+import Arrow from '@/common/arrow/index.vue';
 import { methodOpt } from './config';
 
 import docInfoSvg  from '../Icons/docInfo.svg';
@@ -11,7 +11,7 @@ import outDocSvg from '../Icons/outDoc.svg';
 import serverSvg from '../Icons/server.svg';
 import anquanSvg from '../Icons/anquan.svg';
 import tagSvg from '../Icons/tag.svg';
-import MenuDropdown from '@/components/Dropdown/index.vue';
+import MenuDropdown from '@/common/dropdown/index.vue';
 
 
 interface Props {

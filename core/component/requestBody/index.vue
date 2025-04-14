@@ -2,12 +2,12 @@
 import { ref, watch, onMounted, nextTick, Ref, inject, onBeforeUnmount, defineAsyncComponent } from 'vue';
 import { Button, TabPane, Tabs  } from 'ant-design-vue';
 import { CONTENT_TYPE } from '../basic/utils';
-import Dropdown from '@/components/Dropdown/index.vue';
+import Dropdown from '@/common/dropdown/index.vue';
 
 import BodyContentTypeTab from '../basic/bodyContentTypeTab.vue';
 
 const descRef = ref();
-const EasyMd = defineAsyncComponent(() => import('@/components/easyMd/index.vue'));
+const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
 const getAppFunc = inject('getAppFunc', (param: {name: string, func: Function})=>{});
 
 interface Props {
@@ -97,13 +97,12 @@ onBeforeUnmount(() => {
   saveData(props.name);
 });
 
-
 </script>
 <template>
   <div class="flex h-full overflow-y-scroll">
     <div class="p-2 flex-1 min-w-100">
       <div class="text-5 font-semibold">{{props.name}}</div>
-      <EasyMd ref="descRef" :preview="props.disabled" :value="requestBodyData.description" />
+      <EasyMd ref="descRef" :key="props.name" :preview="props.disabled" :value="requestBodyData.description" />
       <Tabs
         type="editable-card"
         hideAdd

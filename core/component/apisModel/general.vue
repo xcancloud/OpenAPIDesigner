@@ -7,7 +7,7 @@ import Extensions from '@/extensions/formView/index.vue';
 
 const descRef = ref();
 const statusKey = 'x-xc-status';
-const EasyMd = defineAsyncComponent(() => import('@/components/easyMd/index.vue'));
+const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
 interface Props {
     dataSource: {
         method: string;
