@@ -221,10 +221,10 @@ provide('dataSource', dataSource);
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: #525A65;
 }
 
 .ant-input.ant-input-borderless:hover {
  @apply bg-gray-200;
 }
 </style>
-./component/index.vue./component/apisModel/index.vue./component/preView/index.vue./component/basic/code.vue
