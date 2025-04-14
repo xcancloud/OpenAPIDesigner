@@ -19,6 +19,7 @@
           <span v-if="attr.$ref" class="text-status-warn hover:underline cursor-pointer" @click="editSelf(attr, )">$ref</span>
           <Button
             v-show=" !attr.$ref && attr.type === 'object'"
+            :disabled="$props.disabled"
             type="link"
             size="small"
             class="py-0"
@@ -31,7 +32,7 @@
             type="link"
             size="small"
             class="py-0"
-            :disabled="$props.isRoot"
+            :disabled="$props.isRoot || $props.disabled"
             @click="delSelf(dataSource, idx)">
             <DeleteOutlined />
           </Button>
@@ -42,6 +43,7 @@
         v-show="attr.open"
         :dataSource="attr.children"
         :parentType="attr.type"
+        :disabled="this.$props.disabled"
         @add="addChild"
         @del="delSelf"
         @edit="editSelf" />
@@ -60,6 +62,10 @@ export default defineComponent({
   name: 'AttrItemList',
   components: { Arrow, Popover, Grid, Button, IconRequired, EditOutlined, PlusOutlined, DeleteOutlined },
   props: {
+    disabled: {
+      type: Boolean,
+      default: false
+    },
     dataSource: {
       type: Array,
       default: () => ([])
@@ -132,6 +138,9 @@ export default defineComponent({
       this.$emit('del', parent, idx);
     },
     editSelf (attr, type = this.$props.parentType, excludesAttr = (this.$props.parentType === 'object' ? this.$props.dataSource.map(i => i.name).filter(name => name !== attr.name) : [])) {
+      if (this.$props.disabled) {
+        return
+      }
       this.$emit('edit', attr, type, excludesAttr);
     }
   }

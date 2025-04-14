@@ -14,6 +14,7 @@ interface Props {
   requiredProps: {
     disabled: boolean;
   }
+  disabled: boolean;
 };
 
 const props = withDefaults(defineProps<Props>(), {
@@ -25,7 +26,8 @@ const props = withDefaults(defineProps<Props>(), {
   }),
   requiredProps: () => ({
     disabled: false
-  })
+  }),
+  disabled: false
 });
 
 const emits = defineEmits<{
@@ -196,16 +198,17 @@ onMounted(() => {
     <Input
       v-model:value="parameterObj.name"
       :maxlength="80"
+      :disabled="props.disabled"
       class="flex-1" />
     <Select
       v-model:value="parameterPriorities.type"
-      :disabled="!!parameterPriorities.$ref"
+      :disabled="!!parameterPriorities.$ref || props.disabled"
       :options="typeOpt"
       class="w-30"
       @change="handleChangeType" />
     <Input
       v-model:value="parameterObj.description"
-      :disabled="!!parameterPriorities.$ref"
+      :disabled="!!parameterPriorities.$ref || props.disabled"
       :maxlength="200"
       class="flex-1"
       placeholder="描述..." />
@@ -215,7 +218,7 @@ onMounted(() => {
         v-show="props.refrenceBtnProps.show"
         :type="parameterPriorities.$ref ? 'primary' : 'default'"
         class="px-1"
-        :disabled="props.refrenceBtnProps.disabled">
+        :disabled="props.refrenceBtnProps.disabled || props.disabled">
         <DisconnectOutlined /> 
       </Button>
       <template #content>
@@ -223,6 +226,7 @@ onMounted(() => {
           <Select
             v-model:value="parameterPriorities.$ref"
             allowClear
+            :disabled="props.disabled"
             class="flex-1 min-w-40"
             :options="refsOpt" />
           <Button @click="delRef">Clear</Button>
@@ -232,7 +236,7 @@ onMounted(() => {
     <Button
       :type="parameterObj.required ? 'primary' : 'default'"
       class="px-1"
-      :disabled="props.requiredProps.disabled || parameterPriorities.$ref"
+      :disabled="props.requiredProps.disabled || parameterPriorities.$ref || props.disabled"
       @click="handleRequired">
       <ExclamationCircleOutlined />
     </Button>
@@ -250,7 +254,6 @@ onMounted(() => {
       </Button>
       <template #content>
         <div class="space-y-4">
-
           <div class="space-y-2">
             <div class="font-medium">parameter properties</div>
             <div class="flex items-start space-x-2">
@@ -259,19 +262,20 @@ onMounted(() => {
                 <Select 
                   v-model:value="parameterObj.style"
                   class="w-25"
+                  :disabled="props.disabled"
                   :options="parameterStyleOpt[parameterObj.type]" />
               </div>
               <div class="space-y-1 text-center">
                 <div>deprecated</div>
-                <Switch v-model:checked="parameterObj.deprecated" size="small" />
+                <Switch v-model:checked="parameterObj.deprecated" size="small"  :disabled="props.disabled" />
               </div>
               <div class="space-y-1 text-center">
                 <div>allowEmptyValue</div>
-                <Switch v-model:checked="parameterObj.allowEmptyValue" size="small" />
+                <Switch v-model:checked="parameterObj.allowEmptyValue" size="small"  :disabled="props.disabled" />
               </div>
               <div class="space-y-1 text-center">
                 <div>allowReserved</div>
-                <Switch v-model:checked="parameterObj.allowReserved" size="small" />
+                <Switch v-model:checked="parameterObj.allowReserved" size="small"  :disabled="props.disabled" />
               </div>
             </div>
           </div>
@@ -286,12 +290,14 @@ onMounted(() => {
                 <Select
                   v-model:value="parameterPriorities.format"
                   class="w-full"
-                  :options="parameterFormateOpt[parameterObj.type]" />
+                  :options="parameterFormateOpt[parameterObj.type]"
+                  :disabled="props.disabled" />
               </div>
               <div class="flex-1 space-y-1">
                 <div>default</div>
                 <Input
                   v-model:value="parameterPriorities.default"
+                  :disabled="props.disabled"
                   placeholder="default" />
               </div>
             </div>
@@ -301,12 +307,14 @@ onMounted(() => {
                 v-model:value="parameterPriorities.enum"
                 class="w-full"
                 mode="tags"
+                :disabled="props.disabled"
                 placeholder="type an option and press enter" />
             </div>
             <div class="space-y-1">
               <div>example</div>
               <Input
                 v-model:value="parameterPriorities.example"
+                :disabled="props.disabled"
                 placeholder="example" />
             </div>
           </div>
@@ -318,6 +326,7 @@ onMounted(() => {
               <div>pattern</div>
               <Input
                 v-model:value="parameterPriorities.pattern"
+                :disabled="props.disabled"
                 placeholder="^[A-Za-z0-9-_]+"/>
             </div>
             <div class="flex space-x-2">
@@ -328,6 +337,7 @@ onMounted(() => {
                   :min="0"
                   :step="1"
                   :precision="0"
+                  :disabled="props.disabled"
                   placeholder=">=0"
                   class="w-full"/>
               </div>
@@ -338,6 +348,7 @@ onMounted(() => {
                   :min="0"
                   :step="1"
                   :precision="0"
+                  :disabled="props.disabled"
                   placeholder=">=0"
                   class="w-full"/>
               </div>
@@ -354,6 +365,7 @@ onMounted(() => {
                   :min="0"
                   :step="1"
                   :precision="0"
+                  :disabled="props.disabled"
                   placeholder=">=0"
                   class="w-full" />
               </div>
@@ -361,6 +373,7 @@ onMounted(() => {
                 <div>exclusiveMin</div>
                 <Switch
                   v-model:checked="parameterPriorities.exclusiveMin"
+                  :disabled="props.disabled"
                   size="small" />
               </div>
             </div>
@@ -373,6 +386,7 @@ onMounted(() => {
                   :min="0"
                   :step="1"
                   :precision="0"
+                  :disabled="props.disabled"
                   placeholder=">=0"
                   class="w-full" />
               </div>
@@ -380,6 +394,7 @@ onMounted(() => {
                 <div>exclusiveMax</div>
                 <Switch
                   v-model:checked="parameterPriorities.exclusiveMax"
+                  :disabled="props.disabled"
                   size="small" />
               </div>
             </div>
@@ -391,6 +406,7 @@ onMounted(() => {
                 :min="0"
                 :step="1"
                 :precision="0"
+                :disabled="props.disabled"
                 placeholder=">=0"
                 class="w-full" />
             </div>
@@ -404,12 +420,14 @@ onMounted(() => {
                 <span>uniqueItems</span>
                 <Switch
                   v-model:checked="parameterPriorities.uniqueItems"
+                  :disabled="props.disabled"
                   size="small" />
               </div>
               <div class="inline-flex space-x-1 items-center">
                 <span>deprecated</span>
                 <Switch
                   v-model:checked="parameterPriorities.deprecated"
+                  :disabled="props.disabled"
                   size="small" />
               </div>
             </div>
@@ -421,6 +439,7 @@ onMounted(() => {
                   :min="0"
                   :step="1"
                   :precision="0"
+                  :disabled="props.disabled"
                   placeholder=">=0"
                   class="w-full"  />
               </div>
@@ -431,6 +450,7 @@ onMounted(() => {
                   :min="0"
                   :step="1"
                   :precision="0"
+                  :disabled="props.disabled"
                   placeholder=">=0"
                   class="w-full"  />
               </div>
@@ -440,6 +460,7 @@ onMounted(() => {
       </template>
     </Popover>
     <Button
+      :disabled="props.disabled"
       class="px-1">
       <DeleteOutlined
       @click="handleDelete" />

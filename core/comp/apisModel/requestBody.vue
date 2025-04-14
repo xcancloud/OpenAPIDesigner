@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { onMounted, ref, watch, defineAsyncComponent } from 'vue';
-import { Button, TabPane, Tabs } from 'ant-design-vue';
+import { onMounted, ref, watch, defineAsyncComponent, inject, computed } from 'vue';
+import { Button, TabPane, Tabs, Select } from 'ant-design-vue';
 import { NotificationOutlined } from '@ant-design/icons-vue';
 import { CONTENT_TYPE } from '../basic/utils';
 import BodyContentTypeTab from '../basic/bodyContentTypeTab.vue';
@@ -9,66 +9,84 @@ import Dropdown from '@/components/Dropdown/index.vue';
 const descRef = ref();
 const EasyMd = defineAsyncComponent(() => import('@/components/easyMd/index.vue'));
 
+const dataSource = inject('dataSource', ref());
+
 interface Props {
-    dataSource: {
-        content?: {[key: string]: any},
-        description?: string;
-        $ref?: string;
-    }
+  dataSource: {
+    content?: {[key: string]: any},
+    description?: string;
+    $ref?: string;
+  }
 }
 
 const props = withDefaults(defineProps<Props>(), {
   dataSource: () => ({})
 });
 
-const requestBodiesDataRef = ref([]);
+const requestBodySchemaOpt = computed<{label: string; value: string; data: Record<string, any>}[]>(() => {
+  const requestBodies = dataSource.value?.components?.requestBodies || {};
+  return Object.keys(requestBodies).map(key => {
+    return {
+      label: key,
+      value: `#/components/requestBodies/${key}`,
+      data: requestBodies[key]
+    }
+  })
+});
 
+const requestBodiesDataRefs = ref([]);
 const contentTypes = ref<string[]>([]);
-
-const data = ref({});
+const data = ref<Props['dataSource']>({});
 const refComp = ref();
 
+const resolveRequestBodyRef = (ref: string): Props['dataSource'] => {
+  const bodyData = requestBodySchemaOpt.value.find(item => item.value === ref);
+  if (bodyData) {
+    return bodyData.data || {}
+  }
+  return {};
+};
+
 onMounted(() => {
-  
   watch(() => props.dataSource, () => {
     data.value = props.dataSource;
-    contentTypes.value = Object.keys(data.value.content || {});
+    if (data.value?.$ref) {
+      refComp.value = data.value.$ref;
+      data.value = resolveRequestBodyRef(data.value.$ref);
+    }
+    contentTypes.value = Object.keys(data.value?.content || {});
+
   }, {
     immediate: true
   });
-  // easyMDE.value = new EasyMDE({
-  //   element: descRef.value, 
-  //   autoDownloadFontAwesome: true
-  // });
+
+  watch(() => refComp.value, () => {
+    if (refComp.value) {
+      data.value = resolveRequestBodyRef(refComp.value);
+      contentTypes.value = Object.keys(data.value?.content || {});
+    }
+  });
 });
 
-const disabledBodyModelType = (type) => {
+const disabledBodyModelType = (type: string) => {
   return ['application/x-www-form-urlencoded',
     'multipart/form-data',
     'application/json',
     'application/xml'].includes(type);
 };
 
-const addContentType = (item) => {
+const addContentType = (item: {key: string, name:string}) => {
   contentTypes.value.push(item.key);
-  if (data.value?.content) {
-    if (!data.value.content[item.key]) {
-      data.value.content[item.key] = {
-        schema: {
-          type: disabledBodyModelType(item.key) ? 'object' : 'string'
-        }
-      };
-    }
-  } else {
-    data.value.content = {
-      [item.key]: {
-        schema: {
+  if (!data.value?.content) {
+    data.value.content = {};
+  }
+  if (!data.value.content[item.key]) {
+    data.value.content[item.key] = {
+      schema: {
           type: disabledBodyModelType(item.key) ? 'object' : 'string'
         }
       }
-    };
-  }
-  // selectRequestContentType.value = undefined;
+    }
 };
 
 const editTab = (key:string) => {
@@ -81,7 +99,7 @@ const getData = () => {
       $ref: refComp.value
     };
   }
-  const resps = requestBodiesDataRef.value.map((i) => {
+  const resps = requestBodiesDataRefs.value.map((i) => {
     const data = i?.getData();
     if (data) {
       Object.assign(data.value?.content || {}, data);
@@ -109,29 +127,33 @@ defineExpose({
 });
 </script>
 <template>
-  <div>
-    <div class="font-medium text-4 border-b pb-1 mb-2 flex items-center">
-      <div class="flex items-center space-x-1">
+   <div>
+    <div class="font-medium text-4 border-b pb-1 mb-2 flex justify-between items-center">
+      <div class="inline-flex items-center space-x-1">
         <NotificationOutlined />
         <span class="text-5 font-medium">RequestBody Description</span>
       </div>
-      <div class="flex-1 text-right">
-        
+      <div class="">
+        <Select
+          v-model:value="refComp"
+          class="w-50"
+          allowClear
+          :options="requestBodySchemaOpt" />
       </div>
     </div>
-    <EasyMd ref="descRef" :value="data.description" />
-
+    <EasyMd :key="refComp" :preview="refComp" ref="descRef" :value="data.description" />
   </div>
   <div class="mt-4">
     <div class="font-medium text-4 border-b pb-1 mb-2 flex justify-between items-center">
       <span  class="text-5 font-medium">
-         Body
+          Body
       </span>
       <Dropdown
         :disabledKeys="contentTypes"
         :menuItems="CONTENT_TYPE.map(i => ({key: i, name: i, disabled: contentTypes.includes(i)}))"
         @click="addContentType">
         <Button
+          :disabled="!!refComp"
           size="small"
           type="primary">
           + Add
@@ -148,13 +170,14 @@ defineExpose({
         v-for="(contentType, idx) in contentTypes"
         :key="contentType"
         :tab="contentType"
-        :closable="true">
+        :closable="!refComp">
         <BodyContentTypeTab
-          :ref="dom => requestBodiesDataRef[idx] = dom"
+          :ref="dom => requestBodiesDataRefs[idx] = dom"
           :contentType="contentType"
-          :viewType="!!refComp"
+          :disabled="!!refComp"
           :data="data?.content?.[contentType] || {}" />
       </TabPane>
     </Tabs>
   </div>
+
 </template>

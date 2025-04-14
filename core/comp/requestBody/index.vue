@@ -12,11 +12,13 @@ const getAppFunc = inject('getAppFunc', (param: {name: string, func: Function})=
 
 interface Props {
   name: string;
-  data?: Record<string, any>
+  data?: Record<string, any>;
+  disabled: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  name: ''
+  name: '',
+  disabled: false
 });
 
 const emits = defineEmits<{(e: 'cancel'):void;(e: 'ok'):void}>();
@@ -78,17 +80,20 @@ const saveData = (name: string) => {
 
 onMounted(() => {
   watch(() => props.name, (newValue, oldName) => {
-    if (oldName) {
+    if (oldName && !props.disabled) {
       saveData(oldName);
     }
     requestBodyData.value = props.data || {};
     contentTypes.value = Object.keys(requestBodyData.value?.content || {});
   }, {
     immediate: true,
-  })
+  });
   getAppFunc({name: 'updateData', func: saveData});
 });
 onBeforeUnmount(() => {
+  if (props.disabled) {
+    return;
+  }
   saveData(props.name);
 });
 
@@ -98,7 +103,7 @@ onBeforeUnmount(() => {
   <div class="flex h-full overflow-y-scroll">
     <div class="p-2 flex-1 min-w-100">
       <div class="text-5 font-semibold">{{props.name}}</div>
-      <EasyMd ref="descRef" :value="requestBodyData.description" />
+      <EasyMd ref="descRef" :preview="props.disabled" :value="requestBodyData.description" />
       <Tabs
         type="editable-card"
         hideAdd
@@ -110,6 +115,7 @@ onBeforeUnmount(() => {
             <Dropdown
               :disabledKeys="contentTypes"
               :menuItems="CONTENT_TYPE.map(i => ({key: i, name: i, disabled: contentTypes.includes(i)}))"
+              :disabled="props.disabled"
               @click="addContentType">
               <Button
                 size="small"

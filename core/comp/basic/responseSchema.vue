@@ -15,12 +15,12 @@ interface Props {
     content?: Record<string, any>;
     headers?: Record<string, any>;
   };
-  viewType: boolean;
+  disabled: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   data: () => ({}),
-  viewType: false
+  disabled: false
 });
 const responseBodyData = ref<{
     description?: string;
@@ -155,13 +155,13 @@ defineExpose({
         <span class="text-4 font-medium">
           Headers
         </span>
-        <Button type="primary" size="small" @click="addHeader">
+        <Button :disabled="props.disabled" type="primary" size="small" @click="addHeader">
           Add +
         </Button>
       </div>
 
       <div>
-        <ParameterBasic v-for="(header, idx) in headers" :key="idx" v-bind="header"  />
+        <ParameterBasic v-for="(header, idx) in headers" :key="idx" v-bind="header" :disabled="props.disabled"  />
         <img v-if="!headers.length" :src="NoDataSvg" class="w-30 mx-auto" />
       </div>
 
@@ -175,8 +175,10 @@ defineExpose({
           :menuItems="CONTENT_TYPE.filter(i => !['application/octet-stream'].includes(i)).map(i => ({key: i, name: i, disabled: contentTypes.includes(i)}))"
           @click="addContentType">
           <Button
+            v-show="!props.disabled"
             type="primary"
-            size="small">
+            size="small"
+            :disabled="props.disabled">
             Add +
           </Button>
         </Dropdown>
@@ -190,13 +192,13 @@ defineExpose({
           v-for="(contentType, idx) in contentTypes"
           :key="contentType"
           :tab="contentType"
-          :closable="true"
-          :disabled="props.viewType">
+          :closable="!props.disabled"
+          :disabled="props.disabled">
           <BodyContentTypeTab
             :ref="dom => requestBodiesDataRef[idx] = dom"
             :contentType="contentType"
             :data="responseBodyData?.content?.[contentType] || {}"
-            :viewType="props.viewType" />
+            :disabled="props.disabled" />
         </TabPane>
       </Tabs>
     </div>

@@ -3,19 +3,12 @@
 import { defineAsyncComponent, ref, watch, provide, nextTick, inject, onMounted, computed} from 'vue';
 import { RadioGroup, RadioButton, Tabs, TabPane } from 'ant-design-vue';
 import SiderMenu from './siderMenu/index.vue';
-// import { data1 as data } from './data.ts';
+import { data1 as data } from './data.ts';
 
-export type Props = {
-  api: string
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  api: '{}'
-});
 
 const getAppFunc = inject('getAppFunc', (arg: {name: string, func: Function}):void => {});
-const openApiDoc = inject('openApiDoc', {});
-const dataSource = ref<{[key: string]: any}>(JSON.parse(props.api));
+const openApiDoc = inject('openApiDoc', undefined);
+const dataSource = ref<{[key: string]: any}>(data);
 
 const DocInfo = defineAsyncComponent(() => import('./docInfo/formView/index.vue'));
 const ExternalDoc = defineAsyncComponent(() => import('./externalDoc/formView/index.vue'));
@@ -130,7 +123,10 @@ onMounted(() => {
   })
 
   watch(() => openApiDoc, (newValue) => {
-    dataSource.value = newValue;
+    if (newValue) {
+      dataSource.value = newValue;
+    }
+    
   }, {
     immediate: true
   })

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { inject, onMounted, ref, watch } from 'vue';
-import { Button, TabPane, Tabs, Input, Select } from 'ant-design-vue';
+import { onMounted, ref, watch } from 'vue';
+import { TabPane, Tabs } from 'ant-design-vue';
 
 import { parseSchemaArrToObj, parseSchemaObjToArr } from './utils';
 import AddAttrModal from './addAttrModal.vue';
@@ -12,13 +12,15 @@ interface Props {
   modelType?: string;
   disabledType?: boolean;
   viewType: boolean;
+  disabled: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   data: () => ({}),
   parentType: 'object',
   disabledType: false,
-  viewType: false
+  viewType: false,
+  disabled: false
 });
 
 const addVisible = ref(false);
@@ -134,7 +136,7 @@ defineExpose({
   <TabPane tab="schemas" key="schemas">
     <AttrItemList
       :dataSource="objectAttrList"
-      :viewType="props.viewType"
+      :disabled="props.disabled"
       :isRoot="true"
       @add="addAttr"
       @del="delAttr"

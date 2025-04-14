@@ -35,6 +35,16 @@ onMounted(() => {
   }, {
     immediate: true
   });
+
+  watch(() => props.preview, (newValue) => {
+    if (props.preview && !easyMDE.value.isPreviewActive()) {
+      easyMDE.value.togglePreview();
+    }
+
+    if (!props.preview && easyMDE.value.isPreviewActive()) {
+      easyMDE.value.togglePreview();
+    }
+  });
 });
 
 defineExpose({
@@ -44,13 +54,12 @@ defineExpose({
 });
 </script>
 <template>
-  <div>
+  <div :class="{'preview-wrapper': !!props.preview }">
     <textarea ref="textareaRef"></textarea>
   </div>
-  
 </template>
-<style scoped>
-:deep(.preview-desc) > .editor-toolbar{
-  @apply hidden;
-}
+<style>
+.preview-wrapper > .EasyMDEContainer > .editor-toolbar[role="toolbar"]{
+  display: none;;
+};
 </style>

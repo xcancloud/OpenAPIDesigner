@@ -70,7 +70,6 @@ export default defineComponent({
         array: 'text-status-purple',
         boolean: 'text-status-error1'
       },
-
     };
   }
 });

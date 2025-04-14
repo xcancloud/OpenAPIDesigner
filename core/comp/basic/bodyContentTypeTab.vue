@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 
 // import { parseSchemaObjToArr } from './utils';
 import AddSchemeModel from './addSchemaModel.vue';
@@ -7,13 +7,13 @@ import AddSchemeModel from './addSchemaModel.vue';
 interface Props {
   contentType: string;
   data: Record<string, any>;
-  viewType: boolean
+  disabled: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   contentType: '',
   data: () => ({}),
-  viewType: false
+  disabled: false
 });
 const addSchemaModelRef = ref();
 
@@ -37,6 +37,7 @@ const getData = () => {
   };
 };
 
+
 defineExpose({
   getData
 });
@@ -46,5 +47,5 @@ defineExpose({
     ref="addSchemaModelRef"
     :data="props.data.schema"
     :disabledType="disabledBodyModelType"
-    :viewType="props.viewType" />
+    :disabled="props.disabled" />
 </template>

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, Ref } from 'vue';
 import { Button, TabPane, Tabs, Input } from 'ant-design-vue';
 // import ResponseSchema from '../basic/responseSchema.vue';
 import {httpStatus} from './PropTypes';
@@ -14,7 +14,7 @@ const props = withDefaults(defineProps<Props>(), {
   dataSource: () => ({})
 });
 
-const responseSchemaRef = ref([]);
+const responseSchemaRef = ref<Ref[]>([]);
 
 
 
@@ -98,7 +98,7 @@ defineExpose({
         :key="status"
         :tab="status"
         :closable="true">
-        <responseTabPane v-bind="data[status]" />
+        <responseTabPane v-bind="data[status]" :ref="(dom:Ref) => responseSchemaRef[idx] = dom" />
         <!-- <Input
           v-model:value="data[status].description"
           type="textarea" /> -->
