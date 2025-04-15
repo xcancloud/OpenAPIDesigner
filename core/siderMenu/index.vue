@@ -172,8 +172,8 @@ const addModel = () => {
   if (addType.value === 'schemas') {
     if (modelChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
-        message: '提示',
-        description: '名称重复，请修改后重新输入'
+        message: t('tip'),
+        description: t('name_repeat_placeholder')
       });
       return;
     }
@@ -192,8 +192,8 @@ const addModel = () => {
   if (addType.value === 'parameters') {
     if (parameterChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
-        message: '提示',
-        description: '名称重复，请修改后重新输入'
+        message: t('tip'),
+        description: t('name_repeat_placeholder')
       });
       return;
     }
@@ -213,8 +213,8 @@ const addModel = () => {
   if (addType.value === 'requestBodies') {
     if (bodyChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
-        message: '提示',
-        description: '名称重复，请修改后重新输入'
+        message: t('tip'),
+        description: t('name_repeat_placeholder')
       });
       return;
     }
@@ -232,8 +232,8 @@ const addModel = () => {
   if (addType.value === 'responses') {
     if (responseChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
-        message: '提示',
-        description: '名称重复，请修改后重新输入'
+        message: t('tip'),
+        description: t('name_repeat_placeholder')
       });
       return;
     }
@@ -252,8 +252,8 @@ const addModel = () => {
   if (addType.value === 'headers') {
     if (headerChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
-        message: '提示',
-        description: '名称重复，请修改后重新输入'
+        message: t('tip'),
+        description: t('name_repeat_placeholder')
       });
       return;
     }
@@ -272,8 +272,8 @@ const addModel = () => {
   if (addType.value === 'securitySchemes') {
     if (securityChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
-        message: '提示',
-        description: '名称重复，请修改后重新输入'
+        message: t('tip'),
+        description: t('name_repeat_placeholder')
       });
       return;
     }
@@ -292,8 +292,8 @@ const addModel = () => {
   if (addType.value === 'extension') {
     if (extensionChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
-        message: '提示',
-        description: '名称重复，请修改后重新输入'
+        message: t('tip'),
+        description: t('name_repeat_placeholder')
       });
       return;
     }
@@ -309,8 +309,8 @@ const addModel = () => {
   if (addType.value === 'path') {
     if (apiPaths.value[createName.value]) {
       notification.warning({
-        message: '提示',
-        description: '路径重复，请修改后重新输入'
+        message: t('tip'),
+        description: t('path_repeat_placeholder')
       });
     }
     createNameModalVisible.value = false;
@@ -333,8 +333,8 @@ const handleAddApisMethod = (path: string) => {
   methodOptions.value = methodOpt.filter(m => !hasMethods.includes(m)).map(i => ({value: i, label: i}));
   if (!methodOptions.value.length) {
     notification.warning({
-      message: '提示',
-      description: 'Method 已存在，无需添加'
+      message: t('tip'),
+      description: t('method_repeat_placeholder')
     });
     return;
   }
@@ -450,7 +450,7 @@ const methodColorConfig:Record<string, string> = {
 </script>
 <template>
   <div>
-    <Input :placeholder="t('搜索')" />
+    <Input :placeholder="t('search')" />
     <div v-for="menu in defaultMenu" :key="menu.key">
       <Dropdown v-if="menu.key === 'apis'" trigger="contextmenu">
         <div
@@ -522,7 +522,7 @@ const methodColorConfig:Record<string, string> = {
               </div>
               <MenuDropdown
                 trigger="click"
-                :menuItems="[{key: 'del', name: '删除'}]"
+                :menuItems="[{key: 'del', name: t('delete')}]"
                 @click="handleDelComp(subMenu.key, subsubMenu.key)">
                 <Button type="text" size="small">
                   ...
@@ -582,13 +582,13 @@ const methodColorConfig:Record<string, string> = {
       <Input
         v-model:value="createName"
         :maxlength="80"
-        placeholder="输入名称"  />
+        :placeholder="t('name_placeholder')"  />
     </Modal>
 
     <Modal
       v-model:visible="creatMethodVisible"
       :width="400"
-      title="方法"
+      title="Method"
       @ok="addMethod">
       <Select
         v-model:value="addApiMethod"
@@ -597,7 +597,7 @@ const methodColorConfig:Record<string, string> = {
       <Input
         v-model:value="createName"
         :maxlength="80"
-        placeholder="输入摘要"  />
+        :placeholder="t('summary_placeholder')"  />
     </Modal>
   </div>
 </template>

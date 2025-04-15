@@ -9,8 +9,19 @@ OpenAPIDesigner is an open-source OpenAPI specification design Tool that allows 
 
 ## Use
 
+### Usage in html
 ```html
-  <div class="open-api"></div>
+<!doctype html> <!-- Important: must specify -->
+<html>
+  <head>
+    <meta charset="utf-8"> <!-- Important: rapi-doc uses utf8 characters -->
+    <script type="module" src=""></script>
+  </head>
+  <body>
+   <div class="open-api"></div>
+  </body>
+</html>
+  
 ```
 
 ```js
@@ -51,16 +62,6 @@ const apidoc = {
                 "type": "array"
               }
             },
-            {
-              "name": "as",
-              "in": "query",
-              "schema": {}
-            },
-            {
-              "name": "qw",
-              "in": "cookie",
-              "schema": {}
-            }
           ],
           "requestBody": {
             "$ref": "#/components/requestBodies/UserArray"
@@ -69,33 +70,7 @@ const apidoc = {
             "200": {
               "description": "Successful operation",
               "content": {
-                "application/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "description": "标签的id",
-                          "format": "int64",
-                          "x-xc-value": 1001
-                        },
-                        "name": {
-                          "type": "string",
-                          "description": "标签的名称",
-                          "x-xc-value": "张安"
-                        }
-                      },
-                      "xml": {
-                        "name": "tag"
-                      }
-                    },
-                    "xml": {
-                      "wrapped": true
-                    }
-                  }
-                },
+
                 "application/json": {
                   "schema": {
                     "type": "object",
@@ -294,17 +269,6 @@ const apidoc = {
                 "scope_1"
               ]
             },
-            {
-              "petstore_auth": [],
-              "OAuth2": [],
-              "BasicAuth": [],
-              "api_key": [],
-              "ApiKeyAuth": [],
-              "BearerAuth": [],
-              "apiKey_1": [],
-              "apiKey_2": [],
-              "apiKey_3": []
-            }
           ],
           "servers": [
             {
@@ -474,32 +438,6 @@ const apidoc = {
                     }
                   }
                 },
-                {
-                  "type": "object",
-                  "properties": {
-                    "1": {
-                      "type": "string"
-                    }
-                  }
-                },
-                {
-                  "type": "object"
-                },
-                {
-                  "type": "object"
-                },
-                {
-                  "type": "object"
-                },
-                {
-                  "type": "object"
-                },
-                {
-                  "type": "object"
-                },
-                {
-                  "type": "object"
-                }
               ]
             }
           },
@@ -545,9 +483,72 @@ const myapi = new OpenApiDesign('.open-api', {
 ```
 
 
+### In JavaScript Apps (integration with other frameworks)
+```
+  npm install open-api-designer
+```
+
+
+#### Usage in React
+
+```js
+import React, { Component } from 'react';
+import OpenApiDesigner from 'open-api-designer';
+import 'open-api-designer/style.css';
+
+export class MyApiDoc extends Component {
+
+  componentDidMount() {
+    const myOpenApiDesigner = new OpenApiDesigner('.my-api-doc', {
+      language: 'en' // default zh_CN,
+      openApiDoc: {} // your doc json
+    })
+  }
+
+  render() {
+    return <div class="my-api-doc"></div>
+  }
+}
+```
+#### Usage in Vue
+
+```vue
+<script setup lang="ts">
+import {ref, onMounted} from 'vue';
+import OpenApiDesigner from 'open-api-designer';
+import 'open-api-designer/style.css';
+
+onMounted(() => {
+  const myOpenApiDesigner = new OpenApiDesigner('.my-api-doc', {
+    language: 'en' // default zh_CN,
+    openApiDoc: {} // your doc json
+  })
+})
+</script>
+
+<template>
+<div class="my-api-doc"></div>
+</template>
+```
+
+
+
 #### view demo
 ```
-  npm run build:main
-  
+  npm run build
+
   npm run demo
 ```
+
+## Option
+- ### element or element class or element id;
+- ### option
+  - #### langauge：en | zh_CN (default en)
+  - #### openApiDoc: your apidoc OBject
+  - #### onMountedCallback: Function, Cycle after loading
+
+## Function
+- ### getDocApi : return apidoc (JSON);
+- ### updateData: update apidoc (JSON) after edit (apidoc (JSON) will auto update after you leave form page);
+
+
