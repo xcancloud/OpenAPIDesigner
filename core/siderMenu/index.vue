@@ -39,7 +39,7 @@ const emits = defineEmits<{
   (e: 'update:activeMenuKey', value: string): void;
   (e: 'update:schemaType', value?: string):void;
   (e:'addComp', value: {name: string, value: any; type: string;}):void;
-  (e: 'delComp'):void}>();
+  (e: 'delComp', selectKey: string, schemaType?: string|undefined):void}>();
 const createNameModalVisible = ref(false);
 const createName = ref();
 const parameterIn = ref('query');
@@ -105,7 +105,7 @@ const defaultMenu = computed(() => [
   {
     title: t('apis'),
     key: 'apis',
-    children: [ ...Object.keys(apiPaths.value)]
+    children: []
   },
   {
     title: t('component'),
@@ -314,6 +314,9 @@ const addModel = () => {
       });
     }
     createNameModalVisible.value = false;
+    if (createName.value && !createName.value.startsWith('/')) {
+      createName.value = '/' + createName.value;
+    }
     apiPaths.value[createName.value] = {};
     if (!dataSource.value.paths) {
       dataSource.value.paths = {};
@@ -321,6 +324,21 @@ const addModel = () => {
     dataSource.value.paths[createName.value] = {};
   }
 };
+
+const handleApis = (path: string, action: {key: string}) => {
+  if (action.key === 'add') {
+    handleAddApisMethod(path)
+  }
+  if (action.key === 'delete') {
+    handleDeleteApis(path, '');
+  }
+}
+
+const handleApisMethod = (path: string, method: string, action: {key: string}) => {
+  if (action.key === 'delete') {
+    handleDeleteApis(path, method);
+  }
+}
 
 const addApiMethod = ref();
 const creatMethodVisible = ref(false);
@@ -341,6 +359,10 @@ const handleAddApisMethod = (path: string) => {
   addApiMethod.value = methodOptions.value[0].value;
   creatMethodVisible.value = true;
   createName.value = undefined;
+}
+
+const handleDeleteApis = (path: string, method: string) => {
+  emits('delComp', `${path}_${method}`, 'paths');
 }
 
 const addMethod = () => {
@@ -366,8 +388,8 @@ const handleSelectComp = (selectedKeys: string, schemaType: string) => {
   emits('update:schemaType', schemaType);
 };
 
-const handleDelComp = () => {
-  emits('delComp');
+const handleDelComp = (selectedKeys: string, schemaType: string) => {
+  emits('delComp', selectedKeys, schemaType);
 };
 
 onMounted(() => {
@@ -383,7 +405,8 @@ onMounted(() => {
     });
     apiPaths.value = pathItem;
   }, {
-    immediate: true
+    immediate: true,
+    deep: true
   });
 
   watch(() => props.dataSource?.components, (newValue) => {
@@ -463,7 +486,7 @@ const methodColorConfig:Record<string, string> = {
               v-if="menu.children"
               v-model:open="compExpandMap[menu.key]" />
             <span class="truncate">{{ menu.title }}</span>
-            <template v-if="['apis'].includes(menu.key)">{{ `(${menu.children?.length})` }}</template>
+            <template v-if="['apis'].includes(menu.key)">{{ `(${Object.keys(apiPaths || {})?.length})` }}</template>
           </div>
         </div>
         <template #overlay>
@@ -523,7 +546,7 @@ const methodColorConfig:Record<string, string> = {
               <MenuDropdown
                 trigger="click"
                 :menuItems="[{key: 'del', name: t('delete')}]"
-                @click="handleDelComp(subMenu.key, subsubMenu.key)">
+                @click="handleDelComp(subsubMenu.key, subMenu.key)">
                 <Button type="text" size="small">
                   ...
                 </Button>
@@ -535,7 +558,7 @@ const methodColorConfig:Record<string, string> = {
 
       <template v-if="menu.key === 'apis'">
         <div
-          v-for="apis, path in apiPaths"
+          v-for="(apis, path) in apiPaths"
           v-show="compExpandMap[menu.key]"
           class="pl-4"
           :key="path">
@@ -543,14 +566,15 @@ const methodColorConfig:Record<string, string> = {
             <div
               class="h-8 leading-8 pl-2 cursor-pointer bg hover:bg-bg-hover truncate select-none hover:bg-gray-200"
               :class="{'text-blue-1': `${path}_` === props.activeMenuKey}"
-              @click="selectPath(path)">
+              @click="selectPath(path as string)">
               <Arrow
                 v-model:open="compExpandMap[path]" />
               {{ path }}
             </div>
             <template #overlay>
-              <Menu @click="handleAddApisMethod(path)">
+              <Menu @click="handleApis(path as string, $event)">
                 <MenuItem key="add">{{ `${t('add')} Method` }}</MenuItem>
+                <MenuItem key="delete">{{ `${t('delete')} ` }}</MenuItem>
               </Menu>
             </template>
           </Dropdown>
@@ -559,10 +583,19 @@ const methodColorConfig:Record<string, string> = {
             v-show="compExpandMap[path]"
             :key="method"
             :class="{'text-blue-1': `${path}_${method}` === props.activeMenuKey}"
-            class="h-7 leading-7 pl-6 pr-1 cursor-pointer hover:bg-bg-hover flex justify-between items-center hover:bg-gray-200"
-            @click="selectApi(path, method, api)">
-            <span class="flex-1 truncate min-w-0"> <Icon icon="icon-apimoren" class="text-4 mr-1" />{{ api.summary }}</span>
-            <span :class="methodColorConfig[method]">{{ method.toUpperCase() }}</span>
+            class="h-7 leading-7 pl-6 pr-1 cursor-pointer hover:bg-bg-hover  hover:bg-gray-200"
+            @click="selectApi(path as string, method as string)">
+            <Dropdown trigger="contextmenu">
+              <div class="flex justify-between items-center">
+                <span class="flex-1 truncate min-w-0">{{ api.summary }}</span>
+                <span :class="methodColorConfig[method]">{{ method.toUpperCase() }}</span>
+              </div>
+              <template #overlay>
+              <Menu @click="handleApisMethod(path as string, method,  $event)">
+                <MenuItem key="delete">{{ `${t('delete')} ` }}</MenuItem>
+              </Menu>
+            </template>
+            </Dropdown>
           </div>
         </div>
       </template>

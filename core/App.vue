@@ -4,6 +4,7 @@ import { defineAsyncComponent, ref, watch, provide, nextTick, inject, onMounted,
 import { RadioGroup, RadioButton, Tabs, TabPane } from 'ant-design-vue';
 import SiderMenu from './siderMenu/index.vue';
 import { useI18n } from 'vue-i18n';
+import { methodOpt } from './siderMenu/config';
 import { data1 as data } from './data.ts';
 
 
@@ -55,7 +56,7 @@ watch(() => activeMenuKey.value, (newValue) => {
   if (newValue) {
     const path_method = newValue.split('_');
     const method = path_method[path_method.length - 1];
-    if (['get', 'post', 'options', 'patch', 'head', 'delete', 'trace', 'put'].includes(method)) {
+    if (methodOpt.includes(method)) {
       const path = newValue.slice(0, newValue.length - (method.length + 1) );
       if (dataSource.value?.paths?.[path]?.[method]) {
         selectedApi.value = {...dataSource.value.paths[path][method], endpoint: path, method};
@@ -79,16 +80,32 @@ watch(() => activeMenuKey.value, (newValue) => {
   selectPath.value = undefined;
 });
 
-const handleDelComp = () => {
-  const schema = schemaType.value;
-  const compName = activeMenuKey.value;
-  activeMenuKey.value = 'info';
+const handleDelComp = (selectKey: string, schemaType: string) => {
+  let compName = selectKey || activeMenuKey.value;
+  let method: string;
+  if (schemaType === 'paths') {
+    const path = compName.split('_');
+    compName = path[0];
+    method = path[1];
+  }
+  if (selectKey === activeMenuKey.value) {
+    activeMenuKey.value = 'info';
+  }
   nextTick(() => {
-    delete dataSource.value.components[schema][compName];
+    if (schemaType === 'paths') {
+      if (method) {
+        delete dataSource.value[schemaType][compName][method];
+        return;
+      }
+      delete dataSource.value[schemaType][compName];
+      return;
+    }
+    delete dataSource.value.components[schemaType][compName];
+    
   });
 };
 
-const saveSecurity = (data) => {
+const saveSecurity = (data: {[key: string]: any}) => {
   if (dataSource.value?.components) {
     dataSource.value.components.securitySchemes = data;
   } else {
