@@ -80,12 +80,12 @@ const addBody = (item: {key: string}) => {
 const saveData = (name: string) => {
   const description  = descRef.value.getValue();
   const content = requestBodiesDataRef.value.reduce((pre, cur) => {
-    const curContent = cur.getData()
+    const curContent = cur ? cur.getData() : {};
     return {
       ...pre,
       ...curContent
     }
-  }, {});
+  }, responseData.value?.content || {});
   const headers = respHeader.value.reduce((pre, cur) => {
     const name = cur.key;
     delete cur.key;

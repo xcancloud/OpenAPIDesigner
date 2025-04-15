@@ -45,7 +45,7 @@ const resetValues = () => {
   refComp.value = props.data.$ref;
 
   if (type.value === 'object') {
-    objectAttrList.value = [{name: '', type: 'object', children: parseSchemaObjToArr(props.data, props.data.required)}];
+    objectAttrList.value = parseSchemaObjToArr(props.data, props.data.required);
   } else if (type.value === 'array') {
     objectAttrList.value = parseSchemaObjToArr(props.data, props.data.required);
   }

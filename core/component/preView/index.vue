@@ -2,7 +2,7 @@
 import { Script } from 'vm';
 <script setup lang="ts">
 import { ref, inject, computed, defineAsyncComponent, onMounted, watch } from 'vue';
-import { Tag, Select, RadioGroup, RadioButton } from 'ant-design-vue';
+import { Tag, RadioGroup, RadioButton } from 'ant-design-vue';
 import { methodColor } from '../apisModel/PropTypes';
 
 const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
@@ -25,93 +25,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const dataSource = inject('dataSource', ref());
-const parseSchemaObjToArr = (obj, requiredKeys: string[] = []): any[] => {
-  const result: any[] = [];
-  if (obj.type === 'object') {
-    Object.keys(obj.properties || {}).forEach(key => {
-      let attrValue = obj.properties[key];
-      let children: any[] = [];
-      if (attrValue.type === 'array' && (attrValue.items?.type || attrValue.items?.$ref)) {
-        attrValue = parseSchemaObjToArr(attrValue, attrValue.required)[0];
-        result.push({
-          name: key,
-          children: children.length ? children : undefined,
-          required: requiredKeys.includes(key),
-          properties: undefined,
-          items: undefined,
-          ...attrValue,
-        });
-        return;
-      }
-      if (attrValue.type === 'object' && attrValue.properties) {
-        children = parseSchemaObjToArr(attrValue, attrValue.required);
-      }
-      result.push({
-        name: key,
-        ...attrValue,
-        children: children.length ? children : undefined,
-        required: requiredKeys.includes(key),
-        properties: undefined,
-        items: undefined
-      });
-    });
-  } else if (obj.type === 'array') {
-    let children: any[] = [];
-    const showTypeArr: string[] = [];
-    const arrayItems: any[] = [];
-    function handleArrType (item) {
-      showTypeArr.unshift('array');
-      arrayItems.push(item);
-      if (item.items?.type === 'array') {
-        handleArrType(item.items);
-      } else if (obj.items?.type === 'object') {
-        showTypeArr.unshift('object');
-        children = parseSchemaObjToArr(obj.items, obj.items?.required);
-        arrayItems.push(obj.items);
-      } else {
-        showTypeArr.unshift(item.items?.type);
-        arrayItems.push(obj.items);
-      }
-    };
-    handleArrType(obj);
-    const showType = showTypeArr.reduce((pre, cur) => {
-      if (pre) {
-        return `${cur}<${pre}>`;
-      } else {
-        return cur;
-      }
-    }, '');
-    result.push({
-      ...obj,
-      ...(obj.items || {}),
-      type: showTypeArr[0],
-      showType: showType,
-      typeList: showTypeArr,
-      arrayItems: arrayItems,
-      children: children.length ? children : undefined,
-      properties: undefined,
-      items: undefined
-    });
-  } else if (!!obj.$ref) {
-    const modelTypeNameStrs = obj.$ref.replace('#/components/', '').split('/');
-    const modelType = modelTypeNameStrs[0];
-    const modelName = modelTypeNameStrs.splice(1, modelTypeNameStrs.length - 1).join('/');
-    const modelObj = dataSource.value.components[modelType][modelName];
-    if (modelObj.type === 'object') {
-      const {properties, ...other} = modelObj;
-      return [{...other, children: parseSchemaObjToArr(modelObj, modelObj.required)}];
-    }
-    return parseSchemaObjToArr(modelObj);
-  } else {
-    return [{
-      ...obj,
-      required: requiredKeys.includes(obj),
-      properties: undefined,
-      items: undefined
-    }];
-  }
-  return result;
-}
+
 
 const apiInfo = computed(() => {
   const {endpoint,  method } = props.apis;

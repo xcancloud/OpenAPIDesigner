@@ -10,11 +10,11 @@
         :class="{'attr-item-last': !$props.isRoot && idx + 1 === dataSource.length && !$props.withoutBorder, 'attr-item': !$props.isRoot && !$props.withoutBorder}">
         <div class="pl-1">
           <Arrow
-            v-if="attr.children?.length"
+            v-if="attr?.children?.length"
             v-model:open="attr.open" />
           <span>{{ attr.name }}<IconRequired v-if="attr.required" /></span>
           <span class="ml-2 hover:underline cursor-pointer" :class="[typeColor[attr.type]]" @click="editSelf(attr, )">{{ attr.showType || attr.type }}</span>
-          <span v-if="attr.type === 'object'"> {{ ` {${attr.children?.length || 0}\}` }} </span>
+          <span v-if="attr.type === 'object'"> {{ ` {${attr?.children?.length || 0}\}` }} </span>
           <span v-if="attr.format">{{ `<${attr.format}>` }}</span>
           <span v-if="attr.$ref" class="text-status-warn hover:underline cursor-pointer" @click="editSelf(attr, )">$ref</span>
           <Button

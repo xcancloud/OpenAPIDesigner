@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch } from 'vue';
-import MonacoEditor from '@/components/monacoEditor/index.vue';
+import MonacoEditor from '@/common/monacoEditor/index.vue';
 import YAML from 'yaml';
 
 interface Props {

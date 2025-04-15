@@ -130,12 +130,7 @@ const schemaData = ref({});
 const loadSchemaContent = async () => {
   const schemaObj = props.data || {};
   description.value = schemaObj.description;
-  if (schemaObj.type === 'object') {
-    const {properties, ...other} = schemaObj;
-    objectAttrList.value = [{...other, children: parseSchemaObjToArr(schemaObj, schemaObj.required)}] ;
-  } else {
-    objectAttrList.value = parseSchemaObjToArr(schemaObj, schemaObj.required);
-  }
+  objectAttrList.value = parseSchemaObjToArr(schemaObj, schemaObj.required);
   schemaType.value = schemaObj.type;
   modelType.value = schemaObj.type;
   schemaData.value = schemaObj;

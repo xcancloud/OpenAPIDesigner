@@ -64,12 +64,12 @@ const editTab = (key:string) => {
 const saveData = (name: string) => {
   const description = descRef.value.getValue();
   const content = requestBodiesDataRef.value.reduce((pre, cur) => {
-    const curContent = cur.getData()
+    const curContent = cur ? cur.getData() : {};
     return {
       ...pre,
       ...curContent
     }
-  }, {});
+  }, requestBodyData.value?.content || {});
   dataSource.value.components.requestBodies[name] = {
     ...requestBodyData.value,
     description,

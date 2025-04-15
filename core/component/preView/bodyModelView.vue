@@ -15,28 +15,37 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const dataSource = inject('dataSource', ref());
+const combineTypeOpt = ['oneOf', 'allOf', 'anyOf'];
 const parseSchemaObjToArr = (obj, requiredKeys: string[] = []): any[] => {
   const result: any[] = [];
   if (obj.type === 'object') {
+    
+    const child: any[] = [];;
     Object.keys(obj.properties || {}).forEach(key => {
       let attrValue = obj.properties[key];
       let children: any[] = [];
       if (attrValue.type === 'array' && (attrValue.items?.type || attrValue.items?.$ref)) {
         attrValue = parseSchemaObjToArr(attrValue, attrValue.required)[0];
-        result.push({
+        child.push({
           name: key,
-          children: children.length ? children : undefined,
           required: requiredKeys.includes(key),
           properties: undefined,
           items: undefined,
           ...attrValue,
         });
         return;
+      } else if ((attrValue.type === 'object' && attrValue.properties)) {
+        child.push(parseSchemaObjToArr(attrValue, attrValue.required)[0])
+        return;
+      } else if (combineTypeOpt.some((combine) => !!attrValue[combine])) {
+        child.push({
+          name: key,
+          ...attrValue,
+          ...parseSchemaObjToArr(attrValue, attrValue.required)[0]
+        })
+        return;
       }
-      if (attrValue.type === 'object' && attrValue.properties) {
-        children = parseSchemaObjToArr(attrValue, attrValue.required);
-      }
-      result.push({
+      child.push({
         name: key,
         ...attrValue,
         children: children.length ? children : undefined,
@@ -44,6 +53,10 @@ const parseSchemaObjToArr = (obj, requiredKeys: string[] = []): any[] => {
         properties: undefined,
         items: undefined
       });
+    });
+    result.push({
+      ...obj,
+      children: child
     });
   } else if (obj.type === 'array') {
     let children: any[] = [];
@@ -56,7 +69,7 @@ const parseSchemaObjToArr = (obj, requiredKeys: string[] = []): any[] => {
         handleArrType(item.items);
       } else if (obj.items?.type === 'object') {
         showTypeArr.unshift('object');
-        children = parseSchemaObjToArr(obj.items, obj.items?.required);
+        children = parseSchemaObjToArr(obj.items, obj.items?.required)[0].children;
         arrayItems.push(obj.items);
       } else {
         showTypeArr.unshift(item.items?.type);
@@ -82,16 +95,22 @@ const parseSchemaObjToArr = (obj, requiredKeys: string[] = []): any[] => {
       properties: undefined,
       items: undefined
     });
+  } else if (combineTypeOpt.some((combine) => !!obj[combine])) {
+    const combineType = combineTypeOpt.find(i => !!obj[i]) as string;
+    let children = (obj[combineType] || []).map(childObj => {
+      return parseSchemaObjToArr(childObj)[0];
+    });
+    result.push({
+      ...obj,
+      type: combineType,
+      children: children.length ? children : undefined
+    });
   } else if (!!obj.$ref) {
     const modelTypeNameStrs = obj.$ref.replace('#/components/', '').split('/');
     const modelType = modelTypeNameStrs[0];
     const modelName = modelTypeNameStrs.splice(1, modelTypeNameStrs.length - 1).join('/');
     const modelObj = dataSource.value.components[modelType][modelName];
-    if (modelObj.type === 'object') {
-      const {properties, ...other} = modelObj;
-      return [{...other, children: parseSchemaObjToArr(modelObj, modelObj.required)}];
-    }
-    return parseSchemaObjToArr(modelObj);
+    return parseSchemaObjToArr(modelObj, modelObj.required);
   } else {
     return [{
       ...obj,
@@ -120,12 +139,7 @@ onMounted(() => {
   watch(() => currentBodyType.value, (newValue) => {
     if (newValue) {
       const schemaObj = props.body.content?.[newValue]?.schema;
-      const {properties, ...others} = schemaObj;
-      if (schemaObj.type === 'object') {
-        bodyContentSchemaList.value = [{...others, children: parseSchemaObjToArr(schemaObj, schemaObj.required)}]
-      } else {
-        bodyContentSchemaList.value = parseSchemaObjToArr(schemaObj, schemaObj.required);
-      }
+      bodyContentSchemaList.value = parseSchemaObjToArr(schemaObj, schemaObj.required);
     } else {
       bodyContentSchemaList.value = [];
     }
