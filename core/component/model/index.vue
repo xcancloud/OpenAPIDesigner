@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { inject, ref, watch, onBeforeUnmount } from 'vue';
-import { Button, Divider, TabPane, Tabs, Dropdown, Input, notification, Select } from 'ant-design-vue';
-import { parseSchemaArrToObj, parseSchemaObjToArr, CONTENT_TYPE } from '../basic/utils';
+import { inject, ref, watch, onBeforeUnmount, onMounted } from 'vue';
+import { TabPane, Tabs,  Input } from 'ant-design-vue';
+import { parseSchemaArrToObj, parseSchemaObjToArr } from '../basic/utils';
 import { useI18n } from 'vue-i18n';
 
 import AddAttrModal from '../basic/addAttrModal.vue';
@@ -16,8 +16,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  id: undefined,
-  pid: undefined
+  name: '',
 });
 
 const emits = defineEmits<{(e: 'cancel'):void;(e: 'ok'):void}>();
@@ -61,10 +60,10 @@ const objectAttrList = ref<{name: string, [key: string]: any}[]>([
 ]);
 
 const addFromType = ref<'object'|null>(null);
-let currentAddNode;
+let currentAddNode: {[key: string]: any} | undefined;
 const addAttr = (node = undefined) => {
   currentAddNode = node;
-  addFromType.value = 'object';
+  addFromType.value = node?.type === 'object' ? 'object' : null;
   addVisible.value = true;
   if (addFromType.value === 'object' && node) {
     excludesAttr.value = (node?.children || []).map(i => i.name);
@@ -87,9 +86,9 @@ const editAttr = (node, type, excludes = []) => {
 
 const changeAttrList = (data) => {
   addVisible.value = false;
-  if (editAttrData.value) {
+  if (editAttrData.value && !!currentAddNode) {
     Object.keys(currentAddNode).forEach(key => {
-      delete currentAddNode[key];
+      delete currentAddNode?.[key];
     });
     Object.keys(data).forEach(key => {
       currentAddNode[key] = data[key];
@@ -130,7 +129,9 @@ const schemaData = ref({});
 const loadSchemaContent = async () => {
   const schemaObj = props.data || {};
   description.value = schemaObj.description;
+  debugger;
   objectAttrList.value = parseSchemaObjToArr(schemaObj, schemaObj.required);
+  debugger;
   schemaType.value = schemaObj.type;
   modelType.value = schemaObj.type;
   schemaData.value = schemaObj;
@@ -148,7 +149,9 @@ const onSchemaTypeChange = () => {
 };
 
 const saveData = (name = props.name) => {
+  debugger;
   const schemaObj = parseSchemaArrToObj(objectAttrList.value);
+  debugger;
   if (exampleRef.value) {
     const examples = exampleRef.value.getData();
     schemaObj.examples = examples;
@@ -163,22 +166,25 @@ const saveData = (name = props.name) => {
 const examples = ref();
 const exampleRef = ref();
 
-watch(() => props.name, (newValue, oldName) => {
-  if (newValue) {
-    if (oldName) {
-      saveData(oldName)
+onMounted(() => {
+  watch(() => props.name, (newValue, oldName) => {
+    if (newValue) {
+      if (oldName) {
+        saveData(oldName)
+      }
+      schemaTitle.value = props.data?.title;
+      description.value = props.data?.description;
+      examples.value = props.data?.examples || []
+      loadSchemaContent();
+    } else {
+      resetschemas();
     }
-    schemaTitle.value = props.data?.title;
-    description.value = props.data?.description;
-    examples.value = props.data?.examples || []
-    loadSchemaContent();
-  } else {
-    resetschemas();
-  }
-  getAppFunc({name: 'updateData', func: saveData});
-}, {
-  immediate: true
-});
+    getAppFunc({name: 'updateData', func: saveData});
+  }, {
+    immediate: true
+  });
+})
+
 
 onBeforeUnmount(() => {
   saveData(props.name);
@@ -206,6 +212,7 @@ onBeforeUnmount(() => {
             <TabPane key="scheams" tab="Schema" class="pb-3">
               <AttrItemList
                 :dataSource="objectAttrList"
+                :key="props.name"
                 class="px-5"
                 :isRoot="true"
                 @add="addAttr"

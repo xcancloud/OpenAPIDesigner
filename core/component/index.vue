@@ -3,7 +3,7 @@ import { defineAsyncComponent } from 'vue';
 
 interface Props {
   dataSource: Record<string, any>;
-    schemaName: string;
+  schemaName: string;
   schemaType: string;
 }
 

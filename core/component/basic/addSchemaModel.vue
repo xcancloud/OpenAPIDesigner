@@ -57,7 +57,7 @@ const addFromType = ref<'object'|'array'>('object');
 let currentAddNode;
 const addAttr = (node = undefined) => {
   currentAddNode = node;
-  addFromType.value = node ? node.type : type.value;
+  addFromType.value = node?.type === 'object' ? 'object' : null;
   addVisible.value = true;
   if (addFromType.value === 'object' && node) {
     excludesAttr.value = (node?.children || []).map(i => i.name);

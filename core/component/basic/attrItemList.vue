@@ -18,7 +18,7 @@
           <span v-if="attr.format">{{ `<${attr.format}>` }}</span>
           <span v-if="attr.$ref" class="text-status-warn hover:underline cursor-pointer" @click="editSelf(attr, )">$ref</span>
           <Button
-            v-show=" !attr.$ref && attr.type === 'object'"
+            v-show=" !attr.$ref && (attr.type === 'object' || combineType.includes(attr.type))"
             :disabled="$props.disabled"
             type="link"
             size="small"
@@ -126,7 +126,8 @@ export default defineComponent({
         object: 'text-status-orange',
         array: 'text-status-purple',
         boolean: 'text-status-error1'
-      }
+      },
+      combineType: ['oneOf', 'anyOf', 'allOf']
     };
   },
   methods: {
@@ -138,7 +139,10 @@ export default defineComponent({
     },
     editSelf (attr, type = this.$props.parentType, excludesAttr = (this.$props.parentType === 'object' ? this.$props.dataSource.map(i => i.name).filter(name => name !== attr.name) : [])) {
       if (this.$props.disabled) {
-        return
+        return;
+      }
+      if (this.combineType.includes(type)) {
+        type = null;
       }
       this.$emit('edit', attr, type, excludesAttr);
     }

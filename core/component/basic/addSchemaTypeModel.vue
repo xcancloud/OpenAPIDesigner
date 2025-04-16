@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { inject, onMounted, ref, computed } from 'vue';
+import { inject, onMounted, ref, computed, watch } from 'vue';
 import { Button, Switch, TabPane, Tabs, Input, Select } from 'ant-design-vue';
 
 
@@ -33,11 +33,13 @@ const refsOpt = computed(() => {
 });
 
 
-const enums = ref<string[]>([]); // 枚举list
+const enums = ref<string[]>([]); 
+const combineTypeOpf = [{value: 'oneOf', label: 'one of'}, {value: 'anyOf', label: 'any of'}, {value: 'allOf', label: 'all of'},]
 
 const validate = ref(false);
 const validateData = () => {
   validate.value = true;
+  debugger;
   return typeItems.value.every((i, idx) => {
     if (props.parentType && idx === 0) {
       if (!i.name) {
@@ -51,12 +53,14 @@ const validateData = () => {
     if (i.tab === 'refs') {
       return !!i.$ref;
     }
-  })
 
-  
+    if (i.tab === 'combine') {
+      return !!i.combineType;
+    }
+  })
 };
 
-const formatItemData = (item: {[key: string]: any}): {[key: string]: any} | undefined=> {
+const formatItemData = (item: {[key: string]: any}): {[key: string]: any}=> {
   if (item.tab === 'type') {
       let examples: string[] = [];
       if (!item.type) {
@@ -143,6 +147,13 @@ const formatItemData = (item: {[key: string]: any}): {[key: string]: any} | unde
       $ref: item.$ref,
     };
     return data;
+  } else if (item.tab === 'combine') {
+    const data = {
+      name: item.name,
+      [item.combineType]: [],
+      type: item.combineType,
+    }
+    return data;
   }
 };
 
@@ -158,6 +169,10 @@ const getData = () => {
         result.children = props.data?.children;
         result.open = props.data.open;
       }
+      if (combineTypeOpf.some(i => i.value === props.data?.type) && combineTypeOpf.some(i => i.value === result?.type)) {
+        result.children = props.data?.children;
+        result.open = props.data.open;
+      }
     } else {
       const arrItems = typeItems.value.map(formatItemData).filter(Boolean);
       if (!props.parentType && arrItems[0] && !arrItems[0].$ref) {
@@ -165,22 +180,28 @@ const getData = () => {
       }
       const showTypeArr = arrItems.map(i => i?.type || i?.$ref).reverse();
       const showType = showTypeArr.reduce((pre, cur) => {
-      if (pre) {
-        return `${cur}<${pre}>`;
-      } else {
-        return cur;
-      }
-    }, '');
+        if (pre) {
+          return `${cur}<${pre}>`;
+        } else {
+          return cur;
+        }
+      }, '');
       result = {
-        ...arrItems[arrItems.length - 1],
+        ...arrItems[0],
         arrayItems: arrItems,
+        name: arrItems[0]?.name || undefined,
         showType,
         typeList: showTypeArr,
         children: undefined,
-        open: undefined
+        open: undefined,
+        type: arrItems[arrItems.length - 1]?.type
       }
       if (arrItems.length === props.data?.arrayItems?.length) {
         if (props.data.type === 'object' && arrItems[arrItems.length - 1]?.type === 'object') {
+          result.children = props.data.children;
+          result.open = props.data.open;
+        }
+        if (combineTypeOpf.some(i => i.value === props.data.type) && props.data.type === arrItems[arrItems.length - 1]?.type) {
           result.children = props.data.children;
           result.open = props.data.open;
         }
@@ -195,7 +216,9 @@ const resetValues = () => {
   validate.value = false;
   const data = JSON.parse(JSON.stringify(props.data));
   if (data?.arrayItems) {
-    typeItems.value = data.arrayItems;
+    const {arrayItems, ...otherData} = data;
+    const [first, ...others] = arrayItems;
+    typeItems.value = [{name: otherData.name, ...first}, ...others];
   } else {
     typeItems.value = [data || {}];
   }
@@ -205,38 +228,14 @@ const resetValues = () => {
   typeItems.value.forEach((item) => {
     if (item.$ref) {
       item.tab = 'refs';
+    } else if (combineTypeOpf.some(i => i.value === item.type)) {
+      item.tab = 'combine';
+      item.combineType = item.type;
+      item.type = 'string';
     } else {
-      item.tab = 'type'
+      item.tab = 'type';
     }
   });
-  // activeTab.value = 'attr';
-  // name.value = props.parentType === 'object' ? props.data.name : 'items';
-  // required.value = props.data.required || false;
-  // nullable.value = props.data.nullable || false;
-  // deprecated.value = props.data.deprecated || false;
-  // type.value = props.modelType || props.data.type;
-  // if (type.value) {
-  //   const targetTypeOpt = dataTypeOpt.find(i => i.value === type.value);
-  //   changeType(type.value, targetTypeOpt);
-  // }
-  // format.value = props.data.format;
-  // defaultValue.value = props.data.defaultValue;
-  // example.value = props.data.example;
-  // if (!example.value && props.data?.example?.length) {
-  //   example.value = props.data?.example[0];
-  // }
-  // minLength.value = props.data.minLength;
-  // maxLength.value = props.data.maxLength;
-  // minimum.value = props.data.minimum;
-  // maximum.value = props.data.maximum;
-  // minItems.value = props.data.minItems;
-  // maxItems.value = props.data.maxItems;
-  // enums.value = props.data.enum || [];
-  // description.value = props.data.description;
-  // refComp.value = props.data.$ref;
-  // if (refComp.value) {
-  //   activeTab.value = 'refs';
-  // }
 };
 
 type DataType = {label: string; value: string; format?: string[]};
@@ -290,10 +289,6 @@ const changeType = (type: string, opt: DataType, index: number) => {
   } else {
     typeItems.value.splice(index+1);
   }
-  // format.value = undefined;
-  // defaultValue.value = undefined;
-  // example.value = undefined;
-  // formatOpt.value = (opt.format || []).map(i => ({ value: i, label: i }));
 };
 
 const addEnums = (index: number) => {
@@ -331,7 +326,7 @@ defineExpose({
             placeholder="参数名称"
             :class="{'border-status-error': validate && !item.name}"
             :maxLength="200" />
-          <div class="flex items-center mt-2 space-x-1">
+          <div v-if="index === 0 && !!props.parentType" class="flex items-center mt-2 space-x-1">
             <span>必填</span>
             <Switch
               v-model:checked="item.required"
@@ -460,6 +455,20 @@ defineExpose({
           :class="{'error-ant-select': index > 0 && validate && item.tab === 'refs' && !item.$ref}"
           class="w-full"
           @change="(...arg) => changeRef(...arg, index)" />
+      </TabPane>
+      <TabPane key="combine", tab="Combine Type">
+        <Input
+          v-if="!!props.parentType && index === 0"
+          v-model:value="item.name"
+          placeholder="参数名称"
+          class="mb-2"
+          :class="{'border-status-error': validate && !item.name}"
+          :maxLength="200" />
+        <Select
+          v-model:value="item.combineType"
+          allowClear
+          class="w-full"
+          :options="combineTypeOpf"/>
       </TabPane>
     </Tabs>
   </div>
