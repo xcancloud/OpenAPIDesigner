@@ -6,6 +6,7 @@ import { CONTENT_TYPE } from '../basic/utils';
 import BodyContentTypeTab from '../basic/bodyContentTypeTab.vue';
 import parameterBasic from '../basic/parameterBasic.vue';
 import Dropdown from '@/common/dropdown/index.vue';
+import NoData from '@/icons/noData.svg'
 
 const descRef = ref();
 const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
@@ -45,6 +46,9 @@ const getDefaultExtensionName = () => {
 const addHeader = () => {
   const name = getDefaultExtensionName()
   respHeader.value.push({name: name, schema: {type: 'string'}});
+};
+const delHeader = (idx: number) => {
+  respHeader.value.splice(idx, 1);
 };
 
 const disabledBodyModelType = (type) => {
@@ -144,7 +148,9 @@ onBeforeUnmount(() => {
           :key="idx"
           v-model:parameter-obj="respHeader[idx]"
           v-model:parameter-priorities="header.schema"
-          :refrenceBtnProps="{show: true, disabled: false}" />
+          :refrenceBtnProps="{show: true, disabled: false}"
+          @del="delHeader(idx)" />
+        <img :src="NoData" class="mx-auto w-30" />
       </div>
 
       <div class="flex justify-between items-center border-b mt-4">

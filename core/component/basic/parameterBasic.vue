@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, computed, inject } from 'vue';
-import { Input, Select, Button, Popover, Switch, InputNumber } from 'ant-design-vue';
+import { Input, Select, Button, Popover, Switch, InputNumber, Divider } from 'ant-design-vue';
 import { DeleteOutlined, ExclamationCircleOutlined, UnorderedListOutlined, DisconnectOutlined } from '@ant-design/icons-vue';
 import { stringFormatOpt } from './utils';
 
@@ -194,25 +194,28 @@ onMounted(() => {
 </script>
 
 <template>
-   <div class="flex items-center mt-2">
+   <div class="flex items-center mt-2 param-basic-wrapper border">
     <Input
       v-model:value="parameterObj.name"
       :maxlength="80"
       :disabled="props.disabled"
       class="flex-1" />
+    <span class="h-8.5"><Divider type="vertical" class="h-full mx-0" /></span>
     <Select
       v-model:value="parameterPriorities.type"
       :disabled="!!parameterPriorities.$ref || props.disabled"
       :options="typeOpt"
+      :bordered="false"
       class="w-30"
       @change="handleChangeType" />
+    <span class="h-8.5"><Divider type="vertical"class="h-full mx-0" /></span>
     <Input
       v-model:value="parameterObj.description"
       :disabled="!!parameterPriorities.$ref || props.disabled"
       :maxlength="200"
       class="flex-1"
       placeholder="描述..." />
-    
+    <span class="h-8.5"><Divider type="vertical"class="h-full mx-0" /></span>
     <Popover trigger="click">
       <Button
         v-show="props.refrenceBtnProps.show"
@@ -233,6 +236,7 @@ onMounted(() => {
         </div>
       </template>
     </Popover>
+    <span class="h-8.5"><Divider type="vertical"class="h-full mx-0" /></span>
     <Button
       :type="parameterObj.required ? 'primary' : 'default'"
       class="px-1"
@@ -240,12 +244,14 @@ onMounted(() => {
       @click="handleRequired">
       <ExclamationCircleOutlined />
     </Button>
+    <span class="h-8.5"><Divider type="vertical"class="h-full mx-0" /></span>
     <Button
       v-if="!!parameterPriorities.$ref"
       disabled
       class="px-1">
       <UnorderedListOutlined />
-      </Button>
+    </Button>
+    <span class="h-8.5"><Divider type="vertical"class="h-full mx-0" /></span>
     <Popover trigger="click">
       <Button
         v-if="!parameterPriorities.$ref"
@@ -459,6 +465,7 @@ onMounted(() => {
         </div>
       </template>
     </Popover>
+    <span class="h-8.5"><Divider type="vertical"class="h-full mx-0" /></span>
     <Button
       :disabled="props.disabled"
       class="px-1">
@@ -467,3 +474,8 @@ onMounted(() => {
     </Button>
   </div>
 </template>
+<style>
+.param-basic-wrapper > * {
+  border: none;
+}
+</style>

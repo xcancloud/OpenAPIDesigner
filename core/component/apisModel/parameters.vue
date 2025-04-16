@@ -12,11 +12,11 @@ const props = withDefaults(defineProps<Props>(), {
   dataSource: () => ([])
 });
 
-const parameters = ref<{parameterObj: any; parameterPriorities: any}[]>([]);
+const parameters = ref<{parameterObj: any; parameterPriorities: any;}[]>([]);
 
-const header = ref<{parameterObj: any; parameterPriorities: any}[]>([]);
+const header = ref<{parameterObj: any; parameterPriorities: any;}[]>([]);
 
-const cookie = ref<{parameterObj: any; parameterPriorities: any}[]>([]);
+const cookie = ref<{parameterObj: any; parameterPriorities: any;}[]>([]);
 
 
 onMounted(() => {
@@ -62,9 +62,11 @@ onMounted(() => {
 
 const addQuery = () => {
   parameters.value.push({
-    in: 'query',
-    name: '',
-    schema: {
+    parameterObj: {
+      name: '',
+      in: 'query'
+    },
+    parameterPriorities: {
       type: 'string'
     }
   });
@@ -72,9 +74,11 @@ const addQuery = () => {
 
 const addHeader = () => {
   header.value.push({
-    in: 'header',
-    name: '',
-    schema: {
+    parameterObj: {
+      name: '',
+      in: 'header'
+    },
+    parameterPriorities: {
       type: 'string'
     }
   });
@@ -82,12 +86,26 @@ const addHeader = () => {
 
 const addCookie = () => {
   cookie.value.push({
-    in: 'cookie',
-    name: '',
-    schema: {
+    parameterObj: {
+      name: '',
+      in: 'cookie'
+    },
+    parameterPriorities: {
       type: 'string'
     }
   });
+};
+
+const delQuery = (idx: number) => {
+  parameters.value.splice(idx, 1);
+};
+
+const delHeader = (idx: number) => {
+  header.value.splice(idx, 1);
+};
+
+const delCookie = (idx: number) => {
+  cookie.value.splice(idx, 1);
 };
 
 const getData = () => {
@@ -115,7 +133,7 @@ defineExpose({
         <Button type="primary" size="small" @click="addQuery">Add + </Button>
       </div>
       <div class="space-y-2">
-        <ParameterBasic v-for="(query, idx) in parameters" :key="idx" v-bind="query" />
+        <ParameterBasic v-for="(query, idx) in parameters" :key="idx" v-bind="query" @del="delQuery(idx)"  />
         <img v-if="!parameters.length" :src="NoDataSvg" class="mx-auto w-40" />
       </div>
       
@@ -128,7 +146,7 @@ defineExpose({
       </div>
 
       <div class="space-y-2">
-        <ParameterBasic v-for="(query, idx) in header" :key="idx" v-bind="query" />
+        <ParameterBasic v-for="(query, idx) in header" :key="idx" v-bind="query" @del="delHeader(idx)"  />
         <img v-if="!header.length" :src="NoDataSvg" class="mx-auto w-40"  />
       </div>
       
@@ -141,7 +159,7 @@ defineExpose({
       </div>
 
       <div class="space-y-2">
-        <ParameterBasic v-for="(query, idx) in cookie" :key="idx" v-bind="query" />
+        <ParameterBasic v-for="(query, idx) in cookie" :key="idx" v-bind="query" @del="delCookie(idx)" />
         <img v-if="!cookie.length" :src="NoDataSvg" class="mx-auto w-40" />
       </div>
       

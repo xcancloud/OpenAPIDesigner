@@ -50,6 +50,10 @@ const addHeader = () => {
   })
 }
 
+const delHeader = (idx: number) => {
+  headers.value.splice(idx, 1);
+};
+
 const handleData = () => {
   content.value = props.data.content ? props.data.content : {};
   headers.value = Object.keys(props.data?.headers || {}).map(key => {
@@ -160,7 +164,7 @@ defineExpose({
       </div>
 
       <div>
-        <ParameterBasic v-for="(header, idx) in headers" :key="idx" v-bind="header" :disabled="props.disabled"  />
+        <ParameterBasic v-for="(header, idx) in headers" :key="idx" v-bind="header" :disabled="props.disabled" @del="delHeader(idx)" />
         <img v-if="!headers.length" :src="NoDataSvg" class="w-30 mx-auto" />
       </div>
 
