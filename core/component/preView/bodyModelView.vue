@@ -16,47 +16,49 @@ const props = withDefaults(defineProps<Props>(), {
 
 const dataSource = inject('dataSource', ref());
 const combineTypeOpt = ['oneOf', 'allOf', 'anyOf'];
-const parseSchemaObjToArr = (obj, requiredKeys: string[] = []): any[] => {
+const parseSchemaObjToArr = (obj: Record<string, any>, requiredKeys: string[] = []): any[] => {
   const result: any[] = [];
-  if (obj.type === 'object') {
-    
+  if (obj.type === 'object') {  
     const child: any[] = [];;
     Object.keys(obj.properties || {}).forEach(key => {
       let attrValue = obj.properties[key];
       let children: any[] = [];
       if (attrValue.type === 'array' && (attrValue.items?.type || attrValue.items?.$ref)) {
-        attrValue = parseSchemaObjToArr(attrValue, attrValue.required)[0];
+        attrValue = parseSchemaObjToArr(attrValue)[0];
         child.push({
-          name: key,
-          required: requiredKeys.includes(key),
           properties: undefined,
           items: undefined,
           ...attrValue,
+          name: key,
+          required: (requiredKeys || []).includes(key),
         });
         return;
       } else if ((attrValue.type === 'object' && attrValue.properties)) {
-        child.push(parseSchemaObjToArr(attrValue, attrValue.required)[0])
+        child.push({...parseSchemaObjToArr(attrValue, attrValue.required)[0], name: key, required: (requiredKeys || []).includes(key)})
         return;
       } else if (combineTypeOpt.some((combine) => !!attrValue[combine])) {
         child.push({
-          name: key,
           ...attrValue,
-          ...parseSchemaObjToArr(attrValue, attrValue.required)[0]
+          ...parseSchemaObjToArr(attrValue)[0],
+          name: key,
+          required: false
         })
         return;
       }
       child.push({
-        name: key,
+        
         ...attrValue,
+        name: key,
         children: children.length ? children : undefined,
-        required: requiredKeys.includes(key),
+        required: (requiredKeys || []).includes(key),
         properties: undefined,
         items: undefined
       });
     });
     result.push({
       ...obj,
-      children: child
+      required: false,
+      children: child,
     });
   } else if (obj.type === 'array') {
     let children: any[] = [];
@@ -64,16 +66,21 @@ const parseSchemaObjToArr = (obj, requiredKeys: string[] = []): any[] => {
     const arrayItems: any[] = [];
     function handleArrType (item) {
       showTypeArr.unshift('array');
-      arrayItems.push(item);
+      arrayItems.push({...item});
       if (item.items?.type === 'array') {
         handleArrType(item.items);
-      } else if (obj.items?.type === 'object') {
+      } else if (item.items?.type === 'object') {
         showTypeArr.unshift('object');
-        children = parseSchemaObjToArr(obj.items, obj.items?.required)[0].children;
-        arrayItems.push(obj.items);
+        children = parseSchemaObjToArr(item.items, item.items.required)[0].children;
+        arrayItems.push(item.items);
+      } else if (!item.type && combineTypeOpt.some(i => !!item[i])) {
+        const type = combineTypeOpt.find(i => !!item[i]) as string;
+        showTypeArr.unshift(type);
+        children = (item[type] || []).map(i => parseSchemaObjToArr(i)[0]);
+        arrayItems.push(item.items);
       } else {
         showTypeArr.unshift(item.items?.type);
-        arrayItems.push(obj.items);
+        arrayItems.push(item.items);
       }
     };
     handleArrType(obj);
@@ -103,6 +110,7 @@ const parseSchemaObjToArr = (obj, requiredKeys: string[] = []): any[] => {
     result.push({
       ...obj,
       type: combineType,
+      required: false,
       children: children.length ? children : undefined
     });
   } else if (!!obj.$ref) {
