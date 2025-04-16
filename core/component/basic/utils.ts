@@ -138,7 +138,6 @@ export const parseSchemaArrToObj = (arr) => {
     }, null)
     return result;
   } else if (arr[0].type === 'object') {
-    debugger;
     result = {
       ...arr[0],
       properties: {}

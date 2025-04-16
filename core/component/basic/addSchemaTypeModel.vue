@@ -39,7 +39,6 @@ const combineTypeOpf = [{value: 'oneOf', label: 'one of'}, {value: 'anyOf', labe
 const validate = ref(false);
 const validateData = () => {
   validate.value = true;
-  debugger;
   return typeItems.value.every((i, idx) => {
     if (props.parentType && idx === 0) {
       if (!i.name) {

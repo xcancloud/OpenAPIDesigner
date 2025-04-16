@@ -129,9 +129,7 @@ const schemaData = ref({});
 const loadSchemaContent = async () => {
   const schemaObj = props.data || {};
   description.value = schemaObj.description;
-  debugger;
   objectAttrList.value = parseSchemaObjToArr(schemaObj, schemaObj.required);
-  debugger;
   schemaType.value = schemaObj.type;
   modelType.value = schemaObj.type;
   schemaData.value = schemaObj;
@@ -149,9 +147,7 @@ const onSchemaTypeChange = () => {
 };
 
 const saveData = (name = props.name) => {
-  debugger;
   const schemaObj = parseSchemaArrToObj(objectAttrList.value);
-  debugger;
   if (exampleRef.value) {
     const examples = exampleRef.value.getData();
     schemaObj.examples = examples;
