@@ -32,7 +32,7 @@ const editTab = (key:string) => {
 };
 
 
-const respHeader = ref<Record<string, any>>([]);
+const respHeader = ref<Record<string, any>[]>([]);
 const getDefaultExtensionName = () => {
   const allDefaultNames = respHeader.value.map(i => i.name).filter(name => name.startsWith('header-'));
   const nameIdxs = allDefaultNames.map(name => {
@@ -117,7 +117,8 @@ onMounted(() => {
       return {
         name: key,
         ...responseData.value?.headers?.[key]
-      }
+      };
+    
     })
   }, {
     immediate: true,
