@@ -219,6 +219,7 @@ onBeforeUnmount(() => {
                 :parentType="addFromType"
                 :excludesAttr="excludesAttr"
                 :data="editAttrData"
+                :disabledSchema="[props.name]"
                 @ok="changeAttrList"
                 @cancel="closeModal" />
             </TabPane>

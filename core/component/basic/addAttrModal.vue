@@ -7,14 +7,16 @@ interface Props {
   visible: boolean;
   data: {[key: string]: any},
   parentType: 'object'|null;
-  excludesAttr: string[]
+  excludesAttr: string[];
+  disabledSchema?: string[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
   visible: false,
   data: () => ({}),
   parentType: null,
-  excludesAttr: () => ([])
+  excludesAttr: () => ([]),
+  disabledSchema: () => []
 });
 
 const emits = defineEmits<{(e: 'update:visible', value: boolean): void, (e: 'ok', value: {name: string, [key: string]: any}): void, (e: 'cancel'):void}>();
@@ -68,6 +70,7 @@ watch([() => type.value, activeTab.value], () => {
       <AddSchemaTypeModel
         ref="addSchemaModelRef"
         :data="props.data"
+        :disabledSchema="props.disabledSchema"
         :parentType="props.parentType" />
     </div>
   </Modal>

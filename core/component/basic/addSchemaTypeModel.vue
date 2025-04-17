@@ -8,12 +8,14 @@ interface Props {
   parentType: 'object'|null,
   addType?: 'attr'|'schema',
   modelType?: string;
+  disabledSchema?: string[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
   data: () => ({}),
   parentType: null,
   addType: 'attr',
+  disabledSchema: () => []
 });
 
 const dataSource = inject('dataSource', ref<{[key: string]: any}>({}));
@@ -27,7 +29,8 @@ const refsOpt = computed(() => {
       valueItem: {
         name: key,
         ...schemas[key]
-      }
+      },
+      disabled: props.disabledSchema.includes(key)
     }
   })
 });
