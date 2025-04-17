@@ -3,7 +3,7 @@ import { ref, defineAsyncComponent, onMounted, watch, inject, Ref, onBeforeUnmou
 import { Tabs, TabPane, Button } from 'ant-design-vue';
 import { DeleteOutlined } from '@ant-design/icons-vue';
 import { useI18n } from 'vue-i18n';
-import NoData from '@/Icons/noData.svg';
+import NoData from '@/icons/noData.svg';
 
 const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
 

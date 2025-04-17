@@ -2,7 +2,7 @@
 import { onMounted, ref, watch, computed, inject } from 'vue';
 import { Button, Select, InputGroup, notification } from 'ant-design-vue';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue';
-import NoData from '@/Icons/noData.svg';
+import NoData from '@/icons/noData.svg';
 
 interface Props {
   dataSource: {[key:string]: string[]}[];

@@ -3,7 +3,7 @@ import { onMounted, ref, watch, inject, onBeforeUnmount, defineAsyncComponent, R
 import EasyMd from '@/common/easyMd/index.vue';
 import { Button } from 'ant-design-vue';
 import { DeleteOutlined } from '@ant-design/icons-vue';
-import NoData from '@/Icons/noData.svg';
+import NoData from '@/icons/noData.svg';
 
 const ServerForm = defineAsyncComponent(() => import('@/server/formView/index.vue'));
 
