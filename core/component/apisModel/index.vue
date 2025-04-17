@@ -18,7 +18,9 @@ const props = withDefaults(defineProps<Props>(), {
     tags: [],
     responses: {},
     deprecated: false,
-    operationId: ''
+    operationId: '',
+    method: '',
+    path: ''
   }),
   openapiDoc: () => ({})
 });
@@ -39,15 +41,15 @@ const addTagRef = ref();
 const docs = ref<{[key: string]: any}>({});
 const sourceApi = ref<Props['dataSource']>();
 
-const saveData = (method: string, endpoint: string):Props['dataSource'] => {
+const saveData = (method: string = '', endpoint: string = ''):Props['dataSource'] => {
 
-  const apiData = {
+  let apiData = {
     ...sourceApi.value,
   }
   delete apiData.endpoint;
   delete apiData.method;
   if (generalRef.value) {
-    Object.assign(apiData, generalRef.value.getData());
+    apiData = Object.assign(apiData, generalRef.value.getData());
   }
   if (parametersRef.value) {
     const parameters = parametersRef.value.getData();
@@ -65,7 +67,7 @@ const saveData = (method: string, endpoint: string):Props['dataSource'] => {
 
 onMounted(() => {
   watch([() => props.dataSource.method, () => props.dataSource.endpoint], ([newValue1, newValue2], [oldNewValue1, oldNewValue2]) => {
-    if (oldNewValue1 && oldNewValue2) {
+    if (oldNewValue1) {
       saveData(oldNewValue1, oldNewValue2);
     }
     sourceApi.value = props.dataSource;
