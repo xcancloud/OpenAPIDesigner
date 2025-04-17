@@ -148,6 +148,10 @@ const delRef = () => {
   parameterPriorities.value.$ref = undefined;
 };
 
+const handleParamNameChange = () => {
+  parameterObj.value.name = parameterObj.value.name.replace(new RegExp('[^\\da-zA-Z\\s' + '\\_' + ']', 'gi'), '')
+};
+
 onMounted(() => {
   watch([() => props.parameterObj, () => props.parameterPriorities], () => {
     if (props.parameterObj) {
@@ -201,7 +205,8 @@ onMounted(() => {
       v-model:value="parameterObj.name"
       :maxlength="80"
       :disabled="props.disabled || props.disabledDelete"
-      class="flex-1" />
+      class="flex-1"
+      @change="handleParamNameChange" />
     <span class="h-8.5"><Divider type="vertical" class="h-full mx-0" /></span>
     <Select
       v-model:value="parameterPriorities.type"
