@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted, inject, onBeforeUnmount, defineAsyncComponent } from 'vue';
 import { Form, FormItem, Input, Select } from 'ant-design-vue';
-import { useI18n } from 'vue-i18n';
+// import { useI18n } from 'vue-i18n';
 
 const getAppFunc = inject('getAppFunc', (value: {name: string, func: Function})=>{});
 const dataSource = inject('dataSource', ref());
 const descRef = ref(); // 用于init markdown 编辑器
 const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
-const { t } = useI18n();
+// const { t } = useI18n();
 
+const i18n = inject('i18n');
+const { t } = i18n?.global;
 type DocInfo = {
   title?: string;
   summary?: string;
@@ -64,7 +66,7 @@ const licenseTypeOpt = [
     value: 'url',
   },
   {
-    label: '标识符',
+    label: t('identifier'),
     value: 'identifier',
   }
 ];

@@ -87,11 +87,12 @@ export default {
   preview: '预览',
 
   name_placeholder: '输入名称',
-  summary_placeholder: '输入摘要',
+  summary_input_placeholder: '输入摘要',
   tip: '提示',
   tip_repeat_content:'名称重复，请修改后重新输入',
   path_repeat_content: '路径重复，请修改后重新输入',
   method_repeat_content: 'Method 已存在，无需添加',
   search: '搜索',
   delete: '删除',
+  identifier: '标识符'
 };

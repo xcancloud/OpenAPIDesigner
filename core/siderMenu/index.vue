@@ -1,7 +1,7 @@
 /* stylelint-disable at-rule-no-deprecated */
 <script lang="ts" setup>
 import { computed, onMounted, ref, watch, inject } from 'vue';
-import { useI18n } from 'vue-i18n';
+// import { useI18n } from 'vue-i18n';
 import { Input, Select, Dropdown, Menu, MenuItem, Modal, notification, Button } from 'ant-design-vue';
 import Arrow from '@/common/arrow/index.vue';
 import { methodOpt, getPathParameterByPath } from './config';
@@ -26,7 +26,9 @@ const props = withDefaults(defineProps<Props>(), {
   schemaType: undefined
 });
 
-const { t } = useI18n();
+// const { t } = useI18n();
+const i18n = inject('i18n');
+const { t } = i18n?.global;
 const dataSource = inject('dataSource', ref());
 
 interface MenuItem {

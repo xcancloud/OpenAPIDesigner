@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { inject, onMounted, ref, computed, watch } from 'vue';
+import { inject, onMounted, ref, computed } from 'vue';
 import { Button, Switch, TabPane, Tabs, Input, Select } from 'ant-design-vue';
+import { DeleteOutlined } from '@ant-design/icons-vue';
 
 
 interface Props {
@@ -402,9 +403,7 @@ defineExpose({
                     :maxlength="200"
                     size="small"
                     class="mt-1" />
-                  <Icon
-                    icon="icon-qingchu"
-                    @click="deleteEnum(index, idx)" />
+                  <DeleteOutlined @click="deleteEnum(index, idx)"  />
                 </div>
               </div>
             </template>

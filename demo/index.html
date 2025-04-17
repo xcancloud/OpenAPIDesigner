@@ -13,7 +13,7 @@
     #btn {
       border: 1px solid #dddddd;
       height: 32px;
-    }
+    };
   </style>
 
 </head>
@@ -34,13 +34,14 @@
           "version": "1.0.0"
       },
     },
-    onMountedCallback: () => {
-      const btn = document.querySelector('#btn');
-      window.btn = btn;
-      btn.onclick =  () => {
-        console.log(myapi.getDocApi());
-      }
-    }
+    language: 'en'
+    // onMountedCallback: () => {
+    //   const btn = document.querySelector('#btn');
+    //   window.btn = btn;
+    //   btn.onclick =  () => {
+    //     console.log(myapi.getDocApi());
+    //   }
+    // }
   });
   
 </script>

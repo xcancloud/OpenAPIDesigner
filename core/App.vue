@@ -7,8 +7,11 @@ import { useI18n } from 'vue-i18n';
 import { methodOpt } from './siderMenu/config';
 import { data1 as data } from './data.ts';
 
-
-const { t } = useI18n();
+let i18n = inject('i18n'); // for deme use
+if (!i18n) {
+  i18n = {global: useI18n()}; // for developer
+}
+const { t } = i18n?.global || useI18n();
 const getAppFunc = inject('getAppFunc', (arg: {name: string, func: Function}):void => {});
 const openApiDoc = inject('openApiDoc', undefined);
 const dataSource = ref<{[key: string]: any}>(data);
@@ -152,6 +155,7 @@ onMounted(() => {
 });
 
 provide('dataSource', dataSource);
+provide('i18n', i18n);
 </script>
 
 <template>

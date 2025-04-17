@@ -2,7 +2,7 @@
 import { onMounted, ref, watch, inject, onBeforeUnmount } from 'vue';
 import { Button, Popover, Switch, TabPane, Tabs, Tag, Tooltip, Select } from 'ant-design-vue';
 import { TagsOutlined, DeleteOutlined } from '@ant-design/icons-vue';
-import { useI18n } from 'vue-i18n';
+// import { useI18n } from 'vue-i18n';
 
 import { Props } from './PropTypes';
 
@@ -11,7 +11,9 @@ import Parameters from './parameters.vue';
 import RequestBody from './requestBody.vue';
 import Responses from './responses.vue';
 
-const { t } = useI18n();
+// const { t } = useI18n();
+const i18n = inject('i18n');
+const { t } = i18n?.global;
 const props = withDefaults(defineProps<Props>(), {
   dataSource: () => ({
     parameters: [],

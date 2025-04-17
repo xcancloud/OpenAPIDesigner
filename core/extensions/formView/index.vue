@@ -2,8 +2,10 @@
 import { ref, onMounted, inject, onBeforeUnmount, watch } from 'vue';
 import { Input, Button, Textarea } from 'ant-design-vue';
 import { DeleteOutlined } from '@ant-design/icons-vue';
-import { useI18n } from 'vue-i18n';
+// import { useI18n } from 'vue-i18n';
 
+const i18n = inject('i18n');
+const { t } = i18n?.global;
 const getAppFunc = inject('getAppFunc', (param: {name: string, func: Function})=>{});
 
 type Extension = {
@@ -16,7 +18,7 @@ type Extension = {
 interface Props {
   dataSource: Extension[]
 }
-const { t } = useI18n();
+// const { t } = useI18n();
 const props = withDefaults(defineProps<Props>(), {
   dataSource: () => ([])
 });

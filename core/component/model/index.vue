@@ -2,13 +2,15 @@
 import { inject, ref, watch, onBeforeUnmount, onMounted } from 'vue';
 import { TabPane, Tabs,  Input } from 'ant-design-vue';
 import { parseSchemaArrToObj, parseSchemaObjToArr } from '../basic/utils';
-import { useI18n } from 'vue-i18n';
+// import { useI18n } from 'vue-i18n';
 
 import AddAttrModal from '../basic/addAttrModal.vue';
 import AttrItemList from '../basic/attrItemList.vue';
 import ExampleBasic from '../basic/exampleBasic.vue';
 
-const { t } = useI18n();
+// const { t } = useI18n();
+const i18n = inject('i18n');
+const { t } = i18n?.global;
 
 interface Props {
   name: string;

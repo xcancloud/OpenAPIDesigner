@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onMounted, watch, inject, onBeforeUnmount, Ref } from 'vue';
+import { ref, defineAsyncComponent, onMounted, inject, onBeforeUnmount, Ref } from 'vue';
 import { Button } from 'ant-design-vue';
 import { DeleteOutlined } from '@ant-design/icons-vue'
-import { useI18n } from 'vue-i18n';
+// import { useI18n } from 'vue-i18n';
 import NoData from '@/icons/noData.svg';
+
 
 const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
 const SecurityBasic = defineAsyncComponent(() => import('../component/basic/securityBasic.vue'));
@@ -16,14 +17,15 @@ interface Props {
   dataSource: Record<string, any>;
 }
 
-const { t } = useI18n();
+// const { t } = useI18n();
+const i18n = inject('i18n');
+const { t } = i18n?.global;
 const securityRef = ref();
 const props = withDefaults(defineProps<Props>(), {
   viewMode: 'form'
 });
 
 const emits = defineEmits<{(e: 'save', value: {[key: string]: any})}>();
-
 const formViewRef = ref<Ref[]>([]);
 
 

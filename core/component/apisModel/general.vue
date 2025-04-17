@@ -87,7 +87,7 @@ defineExpose({
           dataType="mixin-en" />
       </div>
       <div>
-        <span class="text-4 font-medium"><Icon icon="icon-anquan" class="text-5" /> Description</span>
+        <span class="text-4 font-medium"> Description</span>
         <EasyMd ref="descRef" :value="data.description" />
       </div>
     </div>

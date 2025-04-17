@@ -118,7 +118,7 @@ defineExpose({
 <template>
 <div>
   <div class="flex items-center justify-between border-b pb-2 mt-6">
-    <span class="text-4 font-medium"><Icon icon="icon-anquan" class="text-5" /> Security</span>
+    <span class="text-4 font-medium"> Security</span>
     <Button
       type="primary"
       size="small"

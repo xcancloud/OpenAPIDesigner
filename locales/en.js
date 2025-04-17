@@ -72,13 +72,13 @@ export default {
   title_placeholder: 'API Documentation Title, (max length: 200)',
   summary_placeholder: 'API Documentation Summary, (max length: 400)',
   terms_service_placeholder: 'API Documentation Terms of Service (must be expressed as a URI), (max length: 400)',
-  contact_name_placeholder: 'Contact Name，(max length: 200)',
-  contact_url_placeholder: 'Contact URL，(max length: 400)',
-  contact_email_placeholder: 'Contact Email，(max length: 100)',
-  lisence_name_placeholder: 'License Name，(max length: 200)',
-  external_url_placeholder: 'External Documentation URL，(max length: 200)',
+  contact_name_placeholder: 'Contact Name, (max length: 200)',
+  contact_url_placeholder: 'Contact URL, (max length: 400)',
+  contact_email_placeholder: 'Contact Email, (max length: 100)',
+  lisence_name_placeholder: 'License Name, (max length: 200)',
+  external_url_placeholder: 'External Documentation URL, (max length: 200)',
   
-  tag_name_placeholder: 'Tag Name，(max length: 200)',
+  tag_name_placeholder: 'Tag Name, (max length: 200)',
   tag_external_url_placeholder: 'External Documentation URL for Tags (must be expressed as a URI),(max length: 400)',
   add_tag: 'Add Tag',
   form: 'Form',
@@ -86,11 +86,12 @@ export default {
   preview: 'Preview',
 
   name_placeholder: 'Input Name',
-  summary_placeholder: 'Input Summary',
+  summary_input_placeholder: 'Input Summary',
   tip: 'Tips',
   tip_repeat_content:'Duplicate name detected, please modify and re-enter',
   path_repeat_content: 'Duplicate path detected, please modify and retry',
   method_repeat_content: 'Method already exists, no need to add',
   search: 'Search',
   delete: 'Delete',
+  identifier: 'Identifier'
 };

@@ -2,13 +2,15 @@
 import { ref, onMounted, inject, onBeforeUnmount, watch, defineAsyncComponent } from 'vue';
 import { Form, FormItem, Input, Select, Button } from 'ant-design-vue';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue'
-import { useI18n } from 'vue-i18n';
+// import { useI18n } from 'vue-i18n';
 
 
 const getAppFunc = inject('getAppFunc', ()=>{});
 const descRef = ref(); // 用于init markdown 编辑器
 const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
-const { t } = useI18n();
+// const { t } = useI18n();
+const i18n = inject('i18n');
+const { t } = i18n?.global;
 
 type Server = {
   url: string;

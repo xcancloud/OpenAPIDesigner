@@ -17,7 +17,7 @@ const defaultOption = {
 class OpenApiDesign {
   container: HTMLElement|null| undefined;
   option: {
-    language:'en'|'zh_CN',
+    language?:'en'|'zh_CN',
     openApiDoc: Record<string, any>;
     onMountedCallback?: Function; // 渲染完成 callback
   }
@@ -34,7 +34,7 @@ class OpenApiDesign {
     const wrapHeight = this.container?.clientHeight;
     const en_messages = (await import(`./locales/en.js`)).default;
     const zh_message = (await import(`./locales/zh_CN.js`)).default;
-    const locale = this.option.language;
+    const locale = this.option.language || 'en';
     const i18n = createI18n({
       locale: locale,
       legacy: false,
@@ -52,6 +52,7 @@ class OpenApiDesign {
           this[appFunc.name] = appFunc.func;
         });
         app.provide('openApiDoc', this.option.openApiDoc);
+        app.provide('i18n', i18n);
       },
       shadowRoot: false
     });

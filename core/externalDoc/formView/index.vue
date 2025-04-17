@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { ref, onMounted, inject, onBeforeUnmount, defineAsyncComponent } from 'vue';
 import { Form, FormItem, Input } from 'ant-design-vue';
-import { useI18n } from 'vue-i18n';
+// import { useI18n } from 'vue-i18n';
 
 const getAppFunc = inject('getAppFunc', ()=>{});
 const dataSource = inject('dataSource', ref());
 const descRef = ref();
 const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
-const { t } = useI18n();
+// const { t } = useI18n();
+const i18n = inject('i18n');
+const { t } = i18n?.global;
 
 type ExternalDoc = {
   url: string;

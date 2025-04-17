@@ -2,7 +2,7 @@
 import { ref, defineAsyncComponent, onMounted, watch, inject, Ref, onBeforeUnmount } from 'vue';
 import { Tabs, TabPane, Button } from 'ant-design-vue';
 import { DeleteOutlined } from '@ant-design/icons-vue'
-import { useI18n } from 'vue-i18n'; 
+// import { useI18n } from 'vue-i18n'; 
 
 const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
 const CodeView = defineAsyncComponent(() => import('./codeView/index.vue'));
@@ -15,7 +15,9 @@ interface Props {
   dataSource?: Record<string, any>;
 }
 
-const { t } = useI18n();
+// const { t } = useI18n();
+const i18n = inject('i18n');
+const { t } = i18n?.global;
 const props = withDefaults(defineProps<Props>(), {
   viewMode: 'form',
   dataSource: undefined

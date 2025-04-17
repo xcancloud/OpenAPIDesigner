@@ -3,7 +3,7 @@ import { ref, onMounted, inject, onBeforeUnmount, computed, reactive, watch } fr
 import { Form, FormItem, Input, Select, Button } from 'ant-design-vue';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import { flowAuthKeys, authLabels, encryptionTypeOpt, API_EXTENSION_KEY } from './data.ts';
-import { useI18n } from 'vue-i18n';
+// import { useI18n } from 'vue-i18n';
 
 const { valueKey, securityApiKeyPerfix, oAuth2Key, oAuth2Token, newTokenKey, basicAuthKey } = API_EXTENSION_KEY;
 
@@ -11,7 +11,10 @@ type Authentication = {
   type: 'basic'|'bearer'|'apiKey'|'oauth2';
   name: string;
 };
-const { t } = useI18n();
+
+const i18n = inject('i18n');
+const { t } = i18n?.global;
+// const { t } = useI18n();
 
 
 const flowAuthType = [
