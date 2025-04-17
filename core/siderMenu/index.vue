@@ -4,7 +4,7 @@ import { computed, onMounted, ref, watch, inject } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Input, Select, Dropdown, Menu, MenuItem, Modal, notification, Button } from 'ant-design-vue';
 import Arrow from '@/common/arrow/index.vue';
-import { methodOpt } from './config';
+import { methodOpt, getPathParameterByPath } from './config';
 
 import docInfoSvg  from '../Icons/docInfo.svg';
 import outDocSvg from '../Icons/outDoc.svg';
@@ -43,6 +43,9 @@ const emits = defineEmits<{
 const createNameModalVisible = ref(false);
 const createName = ref();
 const parameterIn = ref('query');
+const handleCreatedName = () => {
+  createName.value = createName.value.replace(new RegExp('[^\\da-zA-Z\\s\\/\\{\\}]', 'gi'), '');
+}
 
 // 展开收起
 const compExpandMap = ref<{[key: string]: boolean}>({ paths: true });
@@ -365,15 +368,19 @@ const handleDeleteApis = (path: string, method: string) => {
   emits('delComp', `${path}_${method}`, 'paths');
 }
 
+
+
 const addMethod = () => {
   if (!createName.value) {
     return;
   }
   apiPaths.value[addMethdPath.value][addApiMethod.value] = {
-    summary: createName.value
+    summary: createName.value,
+    parameters: getPathParameterByPath(addMethdPath.value)
   };
   dataSource.value.paths[addMethdPath.value][addApiMethod.value] = {
-    summary: createName.value
+    summary: createName.value,
+    parameters: getPathParameterByPath(addMethdPath.value)
   };
   creatMethodVisible.value = false;
 };
@@ -615,7 +622,8 @@ const methodColorConfig:Record<string, string> = {
       <Input
         v-model:value="createName"
         :maxlength="80"
-        :placeholder="t('name_placeholder')"  />
+        :placeholder="t('name_placeholder')"
+        @change="handleCreatedName"  />
     </Modal>
 
     <Modal
@@ -630,7 +638,7 @@ const methodColorConfig:Record<string, string> = {
       <Input
         v-model:value="createName"
         :maxlength="80"
-        :placeholder="t('summary_placeholder')"  />
+        :placeholder="t('summary_placeholder')" />
     </Modal>
   </div>
 </template>

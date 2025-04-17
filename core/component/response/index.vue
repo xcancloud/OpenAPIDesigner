@@ -51,7 +51,7 @@ const delHeader = (idx: number) => {
   respHeader.value.splice(idx, 1);
 };
 
-const disabledBodyModelType = (type) => {
+const disabledBodyModelType = (type: string) => {
   return ['application/x-www-form-urlencoded',
     'multipart/form-data',
     'application/json',

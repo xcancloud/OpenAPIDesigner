@@ -73,7 +73,7 @@ defineExpose({
   <div class="flex border">
     <div class="w-50 min-h-50 border-r">
       <div
-        class="p-2 w-full flex items-center cursor-pointer"
+        class="p-2 w-full flex items-center cursor-pointer bg-blue-50"
         @click="addExample">
         + Add Example
       </div>

@@ -15,6 +15,7 @@ interface Props {
     disabled: boolean;
   }
   disabled: boolean;
+  disabledDelete: boolean;
 };
 
 const props = withDefaults(defineProps<Props>(), {
@@ -27,7 +28,8 @@ const props = withDefaults(defineProps<Props>(), {
   requiredProps: () => ({
     disabled: false
   }),
-  disabled: false
+  disabled: false,
+  disabledDelete: false
 });
 
 const emits = defineEmits<{
@@ -198,7 +200,7 @@ onMounted(() => {
     <Input
       v-model:value="parameterObj.name"
       :maxlength="80"
-      :disabled="props.disabled"
+      :disabled="props.disabled || props.disabledDelete"
       class="flex-1" />
     <span class="h-8.5"><Divider type="vertical" class="h-full mx-0" /></span>
     <Select
@@ -467,7 +469,7 @@ onMounted(() => {
     </Popover>
     <span class="h-8.5"><Divider type="vertical"class="h-full mx-0" /></span>
     <Button
-      :disabled="props.disabled"
+      :disabled="props.disabled || props.disabledDelete"
       class="px-1">
       <DeleteOutlined
       @click="handleDelete" />
