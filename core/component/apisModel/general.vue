@@ -6,14 +6,12 @@ import SecurityBasic from '../basic/securityBasic.vue';
 import Extensions from '@/extensions/formView/index.vue';
 
 const descRef = ref();
-const statusKey = 'x-xc-status';
 const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
 interface Props {
     dataSource: {
         method: string;
         summary: string;
         operationId: string;
-        [statusKey]?: string;
         description?: string;
         security?: Array<{[key: string]:string[]}>;
     },
@@ -25,7 +23,6 @@ const props = withDefaults(defineProps<Props>(), {
     method: '',
     summary: '',
     operationId: '',
-    [statusKey]: ''
   }),
   openapiDoc: () => ({})
 });
@@ -40,7 +37,6 @@ onMounted(() => {
   
   watch(() => props.dataSource, () => {
     data.value = props.dataSource;
-    data.value[statusKey] = data.value[statusKey] || 'UNKNOWN';
     extensionData.value = Object.keys(props.dataSource || {}).map(key => {
       if (key.startsWith('x-')) {
         return {name: key, value: props.dataSource?.[key] && typeof props.dataSource?.[key] === 'string'
@@ -96,15 +92,6 @@ defineExpose({
       </div>
     </div>
 
-    <!-- <div class="flex items-center justify-between border-b pb-2 mt-6">
-      <span class="text-4 font-medium"><Icon icon="icon-anquan" class="text-5" /> Security</span>
-      <Button
-        type="primary"
-        size="small"
-        @click="addSecurity">
-        Add
-      </Button>
-    </div> -->
     <SecurityBasic ref="securityRef" :dataSource="props.dataSource?.security"/>
 
     

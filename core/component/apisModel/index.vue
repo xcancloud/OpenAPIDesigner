@@ -40,14 +40,18 @@ const docs = ref<{[key: string]: any}>({});
 const sourceApi = ref<Props['dataSource']>();
 
 const saveData = (method: string, endpoint: string):Props['dataSource'] => {
+
   const apiData = {
     ...sourceApi.value,
   }
+  delete apiData.endpoint;
+  delete apiData.method;
   if (generalRef.value) {
     Object.assign(apiData, generalRef.value.getData());
   }
   if (parametersRef.value) {
-    apiData.parameters = parametersRef.value.getData();
+    const parameters = parametersRef.value.getData();
+    apiData.parameters = parameters?.length ? parameters : undefined;
   }
   if (responsesRef.value && responsesRef.value.getData()) {
     apiData.responses = responsesRef.value.getData()
@@ -65,7 +69,6 @@ onMounted(() => {
       saveData(oldNewValue1, oldNewValue2);
     }
     sourceApi.value = props.dataSource;
-    const { method, endpoint, ...datas } = props.dataSource;
   }, {
     immediate: true
   });

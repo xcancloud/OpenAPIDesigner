@@ -125,7 +125,10 @@ export default defineComponent({
         integer: 'text-status-blue-light',
         object: 'text-status-orange',
         array: 'text-status-purple',
-        boolean: 'text-status-error1'
+        boolean: 'text-status-error1',
+        onfOf: 'text-status-yellow',
+        anyOf: 'text-status-yellow',
+        allOf: 'text-status-yellow'
       },
       combineType: ['oneOf', 'anyOf', 'allOf']
     };

@@ -374,14 +374,11 @@ const addMethod = () => {
   if (!createName.value) {
     return;
   }
-  apiPaths.value[addMethdPath.value][addApiMethod.value] = {
+  const methodData = {
     summary: createName.value,
     parameters: getPathParameterByPath(addMethdPath.value)
-  };
-  dataSource.value.paths[addMethdPath.value][addApiMethod.value] = {
-    summary: createName.value,
-    parameters: getPathParameterByPath(addMethdPath.value)
-  };
+  }
+  dataSource.value.paths[addMethdPath.value][addApiMethod.value] = methodData;
   creatMethodVisible.value = false;
 };
 

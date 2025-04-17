@@ -279,7 +279,8 @@ module.exports = {
           'blue-light': 'rgb(171, 211, 255, 1)', // 浅蓝
           add: 'rgba(82, 196, 26, 0.1)',
           del: 'rgba(255, 82, 82, 0.1)',
-          modify: 'rgba(255, 102, 0, 0.1)'
+          modify: 'rgba(255, 102, 0, 0.1)',
+          yellow: '#ffe58f'
         },
         http: {
           get: 'rgba(30, 136, 229, 1)',
