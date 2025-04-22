@@ -34,14 +34,14 @@
           "version": "1.0.0"
       },
     },
-    language: 'en'
-    // onMountedCallback: () => {
-    //   const btn = document.querySelector('#btn');
-    //   window.btn = btn;
-    //   btn.onclick =  () => {
-    //     console.log(myapi.getDocApi());
-    //   }
-    // }
+    language: 'en',
+    onMountedCallback: () => {
+      const btn = document.querySelector('#btn');
+      window.btn = btn;
+      btn.onclick =  () => {
+        console.log(myapi.getDocApi());
+      }
+    }
   });
   
 </script>

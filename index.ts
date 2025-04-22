@@ -1,5 +1,5 @@
 
-import { defineCustomElement } from 'vue';
+import { defineCustomElement, h } from 'vue';
 import { createI18n } from 'vue-i18n';
 import MyComponent from './core/index.ts';
 import styleList from './assets/style';
@@ -18,10 +18,10 @@ class OpenApiDesign {
   container: HTMLElement|null| undefined;
   option: {
     language?:'en'|'zh_CN',
-    openApiDoc: Record<string, any>;
+    openApiDoc: Record<string, any> | URL;
     onMountedCallback?: Function; // 渲染完成 callback
   }
-  constructor (container: HTMLElement | string, option: {language:'en'|'zh_CN'}) {
+  constructor (container: HTMLElement | string, option: {language:'zh_CN'|'en'}) {
     this.container = resolveSelector(container);
     this.option = Object.assign(defaultOption, option);
     if (this.container) {
@@ -43,6 +43,7 @@ class OpenApiDesign {
         en: en_messages
       }
     });
+    
     const MyCustomElement = defineCustomElement(MyComponent, {
       styles: [`.api-root{width: ${wrapWidth}px; height: ${wrapHeight}px;}`, ...styleList],
       nonce: 'my-custome',
@@ -52,17 +53,18 @@ class OpenApiDesign {
           this[appFunc.name] = appFunc.func;
         });
         app.provide('openApiDoc', this.option.openApiDoc);
-        app.provide('i18n', i18n);
+        app.provide(Symbol.for('i18n'), i18n);
       },
       shadowRoot: false
     });
-
-    customElements.define('open-api-design', MyCustomElement);
+  
     const innerSlot = this.container?.innerHTML;
+    customElements.define('open-api-design', MyCustomElement);
+    
   
     this.container && (this.container.innerHTML = `<open-api-design>${innerSlot}</open-api-design>`);
     if (typeof this.option.onMountedCallback === 'function') {
-      this.option.onMountedCallback()
+      this.option.onMountedCallback();
     }
     // const sheetList: CSSStyleSheet[] = [];
     // styleList.forEach(styleText => {

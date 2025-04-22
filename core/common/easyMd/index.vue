@@ -25,6 +25,7 @@ onMounted(() => {
       element: textareaRef.value, 
       autoDownloadFontAwesome: true,
       toolbar: props.preview ? false : undefined,
+      spellChecker: false,
       status: props.preview ? false : ['autosave', 'lines', 'words', 'cursor'],
       minHeight: props.preview ? 'auto' : undefined
     });

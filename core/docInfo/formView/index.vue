@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted, inject, onBeforeUnmount, defineAsyncComponent } from 'vue';
+import { ref, onMounted, inject, onBeforeUnmount, defineAsyncComponent, watch } from 'vue';
 import { Form, FormItem, Input, Select } from 'ant-design-vue';
-// import { useI18n } from 'vue-i18n';
 
 const getAppFunc = inject('getAppFunc', (value: {name: string, func: Function})=>{});
 const dataSource = inject('dataSource', ref());
 const descRef = ref(); // 用于init markdown 编辑器
 const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
-// const { t } = useI18n();
+const easyMdKey = ref(0);
 
 const i18n = inject('i18n');
 const { t } = i18n?.global;
@@ -92,21 +91,26 @@ const getData = () => {
 
 onMounted(() => {
   getAppFunc({name: 'getDocInfoFormData', func: getData});
-  formState.value = props.dataSource?.info || {};
-  if (!formState.value.contact) {
-    formState.value.contact = {
-      name: undefined,
-      url: undefined,
-      email: undefined
+  watch(() => props.dataSource?.info, () => {
+    easyMdKey.value += 1;
+    formState.value = props.dataSource?.info || {};
+    if (!formState.value.contact) {
+      formState.value.contact = {
+        name: undefined,
+        url: undefined,
+        email: undefined
+      }
     }
-  }
-  if (!formState.value.license) {
-    formState.value.license = {
-      name: '',
-      identifier: '',
-      url: ''
+    if (!formState.value.license) {
+      formState.value.license = {
+        name: '',
+        identifier: '',
+        url: ''
+      }
     }
-  }
+  }, {
+    immediate: true
+  });
 });
 
 const saveData = () => {
@@ -146,7 +150,7 @@ layout="vertical">
       :placeholder="t('summary_placeholder')" />
   </FormItem>
   <FormItem :label="t('desc')">
-    <EasyMd ref="descRef" :value="formState.description" />
+    <EasyMd :key="easyMdKey" ref="descRef" :value="formState.description" />
   </FormItem>
   <FormItem :label="t('terms_service')">
     <Input

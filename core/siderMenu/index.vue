@@ -2,6 +2,7 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref, watch, inject } from 'vue';
 // import { useI18n } from 'vue-i18n';
+import { debounce } from 'throttle-debounce';
 import { Input, Select, Dropdown, Menu, MenuItem, Modal, notification, Button } from 'ant-design-vue';
 import Arrow from '@/common/arrow/index.vue';
 import { methodOpt, getPathParameterByPath } from './config';
@@ -30,6 +31,7 @@ const props = withDefaults(defineProps<Props>(), {
 const i18n = inject('i18n');
 const { t } = i18n?.global;
 const dataSource = inject('dataSource', ref());
+const searchKeywords = ref();
 
 interface MenuItem {
   key: string;
@@ -54,6 +56,53 @@ const compExpandMap = ref<{[key: string]: boolean}>({ paths: true });
 const toggleOpenValue = (key: string) => {
   compExpandMap.value[key] = !compExpandMap.value[key];
 };
+
+const handlekeywordsChange = debounce(600, () => {
+  if (!searchKeywords.value) {
+    return;
+  }
+  if (modelChildren.value.some(i => i.key.includes(searchKeywords.value))) {
+    compExpandMap.value['components'] = true;
+    compExpandMap.value['schemas'] = true;
+  }
+  if (parameterChildren.value.some(i => i.key.includes(searchKeywords.value))) {
+    compExpandMap.value['components'] = true;
+    compExpandMap.value['parameters'] = true;
+  }
+  if (bodyChildren.value.some(i => i.key.includes(searchKeywords.value))) {
+    compExpandMap.value['components'] = true;
+    compExpandMap.value['requestBodies'] = true;
+  }
+  if (responseChildren.value.some(i => i.key.includes(searchKeywords.value))) {
+    compExpandMap.value['components'] = true;
+    compExpandMap.value['responses'] = true;
+  }
+  if (headerChildren.value.some(i => i.key.includes(searchKeywords.value))) {
+    compExpandMap.value['component'] = true;
+    compExpandMap.value['headers'] = true;
+  }
+
+  if (securityChildren.value.some(i => i.key.includes(searchKeywords.value))) {
+    compExpandMap.value['components'] = true;
+    compExpandMap.value['securitySchemes'] = true;
+  }
+
+
+  Object.keys(apiPaths.value).forEach(path => {
+    if (path.includes(searchKeywords.value)) {
+      compExpandMap.value['apis'] = true;
+      console.log(path);
+    }
+    Object.keys(apiPaths.value[path]).forEach(method => {
+      console.log(path);
+      if (apiPaths.value[path][method].summary.includes(searchKeywords.value)) {
+        compExpandMap.value[path] = true;
+        compExpandMap.value['apis'] = true;
+      }
+    })
+  });
+
+});
 
 const modelChildren = ref<MenuItem[]>([]); // 模型组件
 const parameterChildren = ref<MenuItem[]>([]); // 参数组件
@@ -479,7 +528,7 @@ const methodColorConfig:Record<string, string> = {
 </script>
 <template>
   <div>
-    <Input :placeholder="t('search')" />
+    <Input v-model:value="searchKeywords" :placeholder="t('search')" allowClear @change="handlekeywordsChange" />
     <div v-for="menu in defaultMenu" :key="menu.key">
       <Dropdown v-if="menu.key === 'apis'" trigger="contextmenu">
         <div
@@ -492,7 +541,7 @@ const methodColorConfig:Record<string, string> = {
               v-if="menu.children"
               v-model:open="compExpandMap[menu.key]" />
             <span class="truncate">{{ menu.title }}</span>
-            <template v-if="['apis'].includes(menu.key)">{{ `(${Object.keys(apiPaths || {})?.length})` }}</template>
+            <template v-if="['apis'].includes(menu.key) && !searchKeywords">{{ `(${Object.keys(apiPaths || {})?.length})` }}</template>
           </div>
         </div>
         <template #overlay>
@@ -530,7 +579,7 @@ const methodColorConfig:Record<string, string> = {
                 v-if="subMenu.children"
                 v-model:open="compExpandMap[subMenu.key]" />
               <span class="truncate">{{ subMenu.title }}</span>
-              {{ `(${subMenu.children?.length})` }}
+              <template v-if="!searchKeywords">{{ `(${subMenu.children?.length})` }}</template>
             </div>
             <template #overlay>
               <Menu @click="handleAddModel(subMenu.key)">
@@ -543,6 +592,7 @@ const methodColorConfig:Record<string, string> = {
           <div v-show="compExpandMap[subMenu.key]">
             <div
               v-for="subsubMenu in subMenu.children"
+              v-show="!searchKeywords || subsubMenu.title.includes(searchKeywords)"
               :class="{'text-blue-1': subsubMenu.key === props.activeMenuKey && props.schemaType === subMenu.key}"
               class="h-8 pl-4 leading-8 px-2 cursor-pointer flex items-center justify-between font-medium bg-bg-content hover:bg-gray-200"
               @click="handleSelectComp(subsubMenu.key, subMenu.key)">
@@ -565,7 +615,7 @@ const methodColorConfig:Record<string, string> = {
       <template v-if="menu.key === 'apis'">
         <div
           v-for="(apis, path) in apiPaths"
-          v-show="compExpandMap[menu.key]"
+          v-show="compExpandMap[menu.key] && (!searchKeywords || (path as string || '').includes(searchKeywords) || Object.keys(apis).some(method => apis[method].summary.includes(searchKeywords)))"
           class="pl-4"
           :key="path">
           <Dropdown trigger="contextmenu">
@@ -586,7 +636,7 @@ const methodColorConfig:Record<string, string> = {
           </Dropdown>
           <div
             v-for="api,method in apis"
-            v-show="compExpandMap[path]"
+            v-show="compExpandMap[path] && (!searchKeywords || (path as string || '').includes(searchKeywords) || api.summary.includes(searchKeywords))"
             :key="method"
             :class="{'text-blue-1': `${path}_${method}` === props.activeMenuKey}"
             class="h-7 leading-7 pl-6 pr-1 cursor-pointer hover:bg-bg-hover  hover:bg-gray-200"

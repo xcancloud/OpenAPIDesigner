@@ -1,13 +1,14 @@
 
 <script setup lang="ts">
 import { defineAsyncComponent, ref, watch, provide, nextTick, inject, onMounted, computed} from 'vue';
-import { RadioGroup, RadioButton, Tabs, TabPane } from 'ant-design-vue';
+import { RadioGroup, RadioButton, Tabs, TabPane, Upload, Button } from 'ant-design-vue';
 import SiderMenu from './siderMenu/index.vue';
 import { useI18n } from 'vue-i18n';
 import { methodOpt } from './siderMenu/config';
+import YAML from 'yaml';
 import { data1 as data } from './data.ts';
 
-let i18n = inject('i18n'); // for deme use
+let i18n = inject(Symbol.for('i18n')); // for deme use
 if (!i18n) {
   i18n = {global: useI18n()}; // for developer
 }
@@ -33,6 +34,69 @@ const SecurityPreview = defineAsyncComponent(() => import('./security/preView/in
 const ApiPreview = defineAsyncComponent(() => import('./component/preView/index.vue'));
 
 const CodeView = defineAsyncComponent(() => import('./component/basic/code.vue'));
+
+
+const handleUploadFile = (options: {file: File, type: string}) => {
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      activeMenuKey.value = 'info';
+      viewMode.value = 'form';
+      nextTick(() => {
+        const fileContent = reader.result as string;
+        if (options.file.name.endsWith('.json')) {
+          dataSource.value = JSON.parse(fileContent);
+        }
+        if (options.file.name.endsWith('.yaml')) {
+          dataSource.value = YAML.parse(fileContent);
+        }
+        const opendocKeys = ['openapi', 'info', 'jsonSchemaDialect', 'servers', 'paths', 'webhooks', 'components', 'security', 'tags', 'externalDocs'];
+        Object.keys(dataSource.value).forEach(key => {
+          if (key.startsWith('x-')) {
+            return;
+          }
+          if (!opendocKeys.includes(key)) {
+            delete dataSource.value[key];
+          }
+        })
+      })
+
+    } catch (error) {
+    }
+  };
+  reader.readAsText(options.file);
+};
+
+const handleDownload = () => {
+  const data = dataSource.value;
+  if (!data) {
+    return '';
+  }
+
+  let blob:any = data;
+  if (!(data instanceof Blob)) {
+    if (typeof blob === 'object') {
+      blob = JSON.stringify(blob, null, 2);
+    }
+
+    blob = new Blob([blob], {
+      type: 'application/octet-stream'
+    });
+  }
+
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.style.display = 'none';
+  a.href = url;
+  a.download = 'open-api-designer.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  window.URL.revokeObjectURL(url);
+}
 
 
 
@@ -169,9 +233,17 @@ provide('i18n', i18n);
         @delComp="handleDelComp" />
     </div>
     <div class="flex flex-col flex-1 min-w-200 py-2 pl-2 h-full overflow-auto">
-      <div> <slot name="docTitle"></slot></div>
-      <div class="flex justify-end">
-        <slot name="docInfoButton"></slot>
+      <div> <slot name="docTitle"></slot> </div>
+      <div class="flex justify-between">
+        <div class="flex space-x-2 items-center">
+          <Upload
+            :customRequest="handleUploadFile"
+            accept=".json,.yaml"
+            :showUploadList="false">
+            <Button type="primary" size="small">上传</Button>
+          </Upload>
+          <Button size="small" @click="handleDownload">下载</Button>
+        </div>
         <RadioGroup v-model:value="viewMode">
           <RadioButton value="form">{{t('form')}}</RadioButton>
           <RadioButton value="code">{{t('code')}}</RadioButton>
