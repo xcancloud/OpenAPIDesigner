@@ -11,7 +11,7 @@ function resolveSelector(selector: string | HTMLElement | null | undefined) {
 }
 
 const defaultOption = {
-  language: 'zh_CN'
+  language: 'en',
 }
 
 class OpenApiDesign {
@@ -21,7 +21,7 @@ class OpenApiDesign {
     openApiDoc: Record<string, any> | URL;
     onMountedCallback?: Function; // 渲染完成 callback
   }
-  constructor (container: HTMLElement | string, option: {language:'zh_CN'|'en'}) {
+  constructor (container: HTMLElement | string, option: {language:'en'}) {
     this.container = resolveSelector(container);
     this.option = Object.assign(defaultOption, option);
     if (this.container) {
@@ -30,6 +30,19 @@ class OpenApiDesign {
   }
 
   async init () {
+    if (typeof this.option.openApiDoc === 'string') {
+      try {
+        new URL(this.option.openApiDoc);
+      } catch {
+        this.option.openApiDoc = {};
+      }
+    }
+    if (typeof this.option.openApiDoc === 'string') {
+      const response = await fetch(this.option.openApiDoc, {
+        'Content-Type': "application/json"
+      });
+      this.option.openApiDoc = await response.json();
+    }
     const wrapWidth = this.container?.clientWidth;
     const wrapHeight = this.container?.clientHeight;
     const en_messages = (await import(`./locales/en.js`)).default;

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, watch, ref } from 'vue';
-import EasyMDE from 'easymde';
-import 'easymde/dist/easymde.min.css'
+import EasyMDE from '@xcan-angus/easymde-enhanced';
+import '@xcan-angus/easymde-enhanced/dist/easymde.min.css'
 
 interface Props {
   value?: string;

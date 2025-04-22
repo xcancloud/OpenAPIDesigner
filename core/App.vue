@@ -6,7 +6,7 @@ import SiderMenu from './siderMenu/index.vue';
 import { useI18n } from 'vue-i18n';
 import { methodOpt } from './siderMenu/config';
 import YAML from 'yaml';
-import { data1 as data } from './data.ts';
+// import { data1 as data } from './data.ts';
 
 let i18n = inject(Symbol.for('i18n')); // for deme use
 if (!i18n) {
@@ -14,8 +14,8 @@ if (!i18n) {
 }
 const { t } = i18n?.global || useI18n();
 const getAppFunc = inject('getAppFunc', (arg: {name: string, func: Function}):void => {});
-const openApiDoc = inject('openApiDoc', undefined);
-const dataSource = ref<{[key: string]: any}>(data);
+const openApiDoc = inject('openApiDoc', {});
+const dataSource = ref<{[key: string]: any}>();
 
 const DocInfo = defineAsyncComponent(() => import('./docInfo/formView/index.vue'));
 const ExternalDoc = defineAsyncComponent(() => import('./externalDoc/formView/index.vue'));
@@ -90,7 +90,7 @@ const handleDownload = () => {
   const a = document.createElement('a');
   a.style.display = 'none';
   a.href = url;
-  a.download = 'open-api-designer.json';
+  a.download = 'open-api-doc.json';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

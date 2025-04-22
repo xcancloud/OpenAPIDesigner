@@ -6,8 +6,11 @@
   <title>Document</title>
   <link rel="stylesheet" href="../dist/open-api-designer.css" />
   <style>
+    body {
+      padding: 20px 10%;
+    }
     .my-api {
-      height: 100vh;
+      height: 100%;
     }
 
     #btn {
@@ -20,27 +23,22 @@
 <body>
   <div class="my-api">
     <div slot="docTitle" id="title">title</div>
-    <button slot="docInfoButton" id="btn">getDocInfoData</button>
   </div>
 </body>
 <script type="module">
   import OpenApiDesign from '../dist/index.mjs';
   const myapi = new OpenApiDesign('.my-api', {
-    openApiDoc: {
-      "openapi": "3.0.0",
-      "info": {
-          "title": "PayPal APIs",
-          "description": "",
-          "version": "1.0.0"
-      },
-    },
-    language: 'en',
+    // openApiDoc: {
+    //   "openapi": "3.0.0",
+    //   "info": {
+    //       "title": "PayPal APIs",
+    //       "description": "",
+    //       "version": "1.0.0"
+    //   },
+    // },
+    openApiDoc: 'https://generator3.swagger.io/openapi.json',
     onMountedCallback: () => {
-      const btn = document.querySelector('#btn');
-      window.btn = btn;
-      btn.onclick =  () => {
-        console.log(myapi.getDocApi());
-      }
+
     }
   });
   
