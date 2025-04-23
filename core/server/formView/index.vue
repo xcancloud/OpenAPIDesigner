@@ -164,13 +164,13 @@ defineExpose({
           <Input
             v-model:value="variable.name"
             :maxlength="100"
-            :placeholder="t('variabe_name_placeholder')" />
+            :placeholder="t('variable_name_placeholder')" />
         </FormItem>
         <FormItem :label="t('desc')" class="w-2/3">
           <Input
             v-model:value="variable.description"
             :maxlength="400"
-            :placeholder="t('variabe_desc_placeholder')" />
+            :placeholder="t('variable_desc_placeholder')" />
         </FormItem>
         <Button type="link" size="small" @click="deleteVariable(varIdx)"><delete-outlined /></Button>
       </div>
@@ -179,7 +179,7 @@ defineExpose({
           <Input
             v-model:value="variable.value.enum[idx]"
             class="w-1/3"
-            :placeholder="t('variabe_value_placeholder')" />
+            :placeholder="t('variable_value_placeholder')" />
           <Button v-show="variable.value.enum?.length > 1" type="link" size="small" @click="deleteEnum(varIdx, idx)"><delete-outlined /></Button>
           <Button v-show="idx === 0" type="link" size="small" @click="addEnum(varIdx)"><plus-outlined /></Button>
         </div>

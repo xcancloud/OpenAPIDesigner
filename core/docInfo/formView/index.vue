@@ -184,7 +184,7 @@ layout="vertical">
         v-model:value="formState.license.name"
         :maxlength="200"
         class="flex-1/4"
-        :placeholder="t('lisence_name_placeholder')" />
+        :placeholder="t('license_name_placeholder')" />
       <Select
         v-model:value="licenseType"
         class="flex-1/4"
