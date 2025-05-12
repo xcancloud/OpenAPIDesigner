@@ -94,5 +94,8 @@ export default {
   method_repeat_content: 'Method 已存在，无需添加',
   search: '搜索',
   delete: '删除',
-  identifier: '标识符'
+  identifier: '标识符',
+  
+  import: '导入',
+  export: '导出',
 };

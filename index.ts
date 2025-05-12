@@ -92,6 +92,23 @@ class OpenApiDesign {
     // }
   }
 
+  public changeLanguage (language: 'en' | 'zh_CN') {
+    if (language === this.option.language || !['en', 'zh_CN'].includes(language)) {
+      return;
+    }
+    this.option.language = language;
+    this.updateData();
+    this.reload();
+  }
+
+  public reload () {
+    const openApiDocData = this.getDocApi();
+    this.option.openApiDoc = openApiDocData;
+    this.container && (this.container.innerHTML = '');
+    this.init();
+  }
+
+
   // get openapidoc JSON Object
   getDocApi: Function
 

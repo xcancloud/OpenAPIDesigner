@@ -3,8 +3,9 @@ import { onMounted, ref, watch, inject, onBeforeUnmount, defineAsyncComponent, R
 import EasyMd from '@/common/easyMd/index.vue';
 import { Button } from 'ant-design-vue';
 import { DeleteOutlined } from '@ant-design/icons-vue';
-import NoData from '@/icons/noData.svg';
+// import NoData from '@/icons/noData.svg';
 
+import NoData from '@/common/noData/index.vue';
 const ServerForm = defineAsyncComponent(() => import('@/server/formView/index.vue'));
 
 
@@ -102,7 +103,8 @@ onBeforeUnmount(() => {
           <DeleteOutlined />
         </Button>
       </div>
-      <img v-if="!servers.length" :src="NoData" class="mx-auto" />
+      <NoData v-if="!servers.length" />
+      <!-- <img v-if="!servers.length" :src="NoData" class="mx-auto" /> -->
     </div>
 
     

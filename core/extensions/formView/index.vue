@@ -6,7 +6,6 @@ import { DeleteOutlined } from '@ant-design/icons-vue';
 
 const i18n = inject('i18n');
 const { t } = i18n?.global;
-const getAppFunc = inject('getAppFunc', (param: {name: string, func: Function})=>{});
 
 type Extension = {
   name: string;
@@ -157,12 +156,14 @@ defineExpose({
           <Input
             v-model:value="selectedExtension.name"
             :bordered="false"
+            class="font-semibold bg-gray-200"
             placeholder="x- (Required)"
             @blur="changeSelectExtension($event, selectedExtension.oldName)" />
           <Textarea
             v-model:value="selectedExtension.value"
             :bordered="false"
             type="textarea"
+            class="mt-2"
             :placeholder="t('extension_value_placeholder')"
             @blur="changeSelectExtensionValue($event, selectedExtension.name)" />
         </template>

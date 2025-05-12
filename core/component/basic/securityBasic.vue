@@ -2,7 +2,9 @@
 import { onMounted, ref, watch, computed, inject } from 'vue';
 import { Button, Select, InputGroup, notification } from 'ant-design-vue';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue';
-import NoData from '@/icons/noData.svg';
+// import NoData from '@/icons/noData.svg';
+
+import NoData from '@/common/noData/index.vue';
 
 interface Props {
   dataSource: {[key:string]: string[]}[];
@@ -153,6 +155,7 @@ defineExpose({
       </div>
     </div>
   </div>
-  <img v-if="!security.length" :src="NoData" class="mx-auto" />
+  <!-- <img v-if="!security.length" :src="NoData" class="mx-auto" /> -->
+  <NoData v-if="!security.length" />
 </div>
 </template>

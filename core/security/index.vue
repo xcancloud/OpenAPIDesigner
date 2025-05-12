@@ -3,9 +3,10 @@ import { ref, defineAsyncComponent, onMounted, inject, onBeforeUnmount, Ref } fr
 import { Button } from 'ant-design-vue';
 import { DeleteOutlined } from '@ant-design/icons-vue'
 // import { useI18n } from 'vue-i18n';
-import NoData from '@/icons/noData.svg';
+// import NoData from '@/icons/noData.svg';
 
 
+import NoData from '@/common/noData/index.vue';
 const FormView = defineAsyncComponent(() => import('./formView/index.vue'));
 const SecurityBasic = defineAsyncComponent(() => import('../component/basic/securityBasic.vue'));
 
@@ -95,7 +96,8 @@ onBeforeUnmount(() => {
         <DeleteOutlined class="text-5" />
       </Button>
     </div>
-    <img v-if="!securityList.length" :src="NoData" class="mx-auto" />
+    <!-- <img v-if="!securityList.length" :src="NoData" class="mx-auto" /> -->
+    <NoData v-if="!securityList.length" />
     <SecurityBasic ref="securityRef" :dataSource="props.dataSource?.security" />
   </div>
 </template>

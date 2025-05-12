@@ -93,5 +93,8 @@ export default {
   method_repeat_content: 'Method already exists, no need to add',
   search: 'Search',
   delete: 'Delete',
-  identifier: 'Identifier'
+  identifier: 'Identifier',
+  
+  import: '导入',
+  export: '导出',
 };

@@ -154,7 +154,6 @@ defineExpose({
   <FormItem>
     <template #label>
       <div class="flex space-x-4">
-        <label>{{ t('variable') }}</label>
         <Button size="small" class="text-3" type="primary" @click="addVariable">{{ t('add_variable') }}</Button>
       </div>
     </template>

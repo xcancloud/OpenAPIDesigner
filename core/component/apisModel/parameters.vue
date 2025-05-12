@@ -3,7 +3,8 @@ import { onMounted, ref, watch } from 'vue';
 import { Button } from 'ant-design-vue';
 
 import ParameterBasic from '../basic/parameterBasic.vue';
-import NoDataSvg from '@/icons/noData.svg';
+// import NoDataSvg from '@/icons/noData.svg';
+import NoData from '@/common/noData/index.vue';
 
 interface Props {
     dataSource: {[key: string]: any}[]
@@ -149,7 +150,8 @@ defineExpose({
       </div>
       <div class="space-y-2">
         <ParameterBasic v-for="(query, idx) in parameters" :key="idx" v-bind="query" @del="delQuery(idx)"  />
-        <img v-if="!parameters.length" :src="NoDataSvg" class="mx-auto w-40" />
+        <!-- <img v-if="!parameters.length" :src="NoDataSvg" class="mx-auto w-40" /> -->
+        <NoData v-if="!parameters.length" />
       </div>
       
     </div>
@@ -162,7 +164,8 @@ defineExpose({
 
       <div class="space-y-2">
         <ParameterBasic v-for="(query, idx) in header" :key="idx" v-bind="query" @del="delHeader(idx)"  />
-        <img v-if="!header.length" :src="NoDataSvg" class="mx-auto w-40"  />
+        <!-- <img v-if="!header.length" :src="NoDataSvg" class="mx-auto w-40"  /> -->
+        <NoData v-if="!header.length" />
       </div>
       
     </div>
@@ -175,7 +178,8 @@ defineExpose({
 
       <div class="space-y-2">
         <ParameterBasic v-for="(query, idx) in cookie" :key="idx" v-bind="query" @del="delCookie(idx)" />
-        <img v-if="!cookie.length" :src="NoDataSvg" class="mx-auto w-40" />
+        <!-- <img v-if="!cookie.length" :src="NoDataSvg" class="mx-auto w-40" /> -->
+        <NoData v-if="!cookie.length" />
       </div>
       
     </div>
@@ -187,7 +191,8 @@ defineExpose({
 
       <div class="space-y-2">
         <ParameterBasic v-for="(query, idx) in paths" :key="idx" v-bind="query" disabledDelete />
-        <img v-if="!paths.length" :src="NoDataSvg" class="mx-auto w-40" />
+        <!-- <img v-if="!paths.length" :src="NoDataSvg" class="mx-auto w-40" /> -->
+        <NoData v-if="!paths.length" />
       </div>
       
     </div>

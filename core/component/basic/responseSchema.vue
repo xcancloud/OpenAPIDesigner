@@ -2,11 +2,12 @@
 import { onMounted, ref, watch } from 'vue';
 import { Button, TabPane, Tabs } from 'ant-design-vue';
 import { CONTENT_TYPE } from './utils';
-import NoDataSvg from '@/icons/noData.svg';
+// import NoDataSvg from '@/icons/noData.svg';
 
 import BodyContentTypeTab from './bodyContentTypeTab.vue';
 import Dropdown from '@/common/dropdown/index.vue';
 import ParameterBasic from './parameterBasic.vue';
+import NoData from '@/common/noData/index.vue';
 
 interface Props {
   data: {
@@ -165,7 +166,8 @@ defineExpose({
 
       <div>
         <ParameterBasic v-for="(header, idx) in headers" :key="idx" v-bind="header" :disabled="props.disabled" @del="delHeader(idx)" />
-        <img v-if="!headers.length" :src="NoDataSvg" class="w-30 mx-auto" />
+        <!-- <img v-if="!headers.length" :src="NoDataSvg" class="w-30 mx-auto" /> -->
+        <NoData v-if="!headers.length" />
       </div>
 
     </div>

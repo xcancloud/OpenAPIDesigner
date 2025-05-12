@@ -6,7 +6,7 @@ import { CONTENT_TYPE } from '../basic/utils';
 import BodyContentTypeTab from '../basic/bodyContentTypeTab.vue';
 import parameterBasic from '../basic/parameterBasic.vue';
 import Dropdown from '@/common/dropdown/index.vue';
-import NoData from '@/icons/noData.svg'
+import NoData from '@/common/noData/index.vue';
 
 const descRef = ref();
 const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
@@ -151,7 +151,8 @@ onBeforeUnmount(() => {
           v-model:parameter-priorities="header.schema"
           :refrenceBtnProps="{show: true, disabled: false}"
           @del="delHeader(idx)" />
-        <img :src="NoData" class="mx-auto w-30" />
+        <!-- <img :src="NoData" class="mx-auto w-30" /> -->
+        <NoData v-if="!respHeader.length" />
       </div>
 
       <div class="flex justify-between items-center border-b mt-4">
