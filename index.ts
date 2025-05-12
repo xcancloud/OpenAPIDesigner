@@ -16,13 +16,17 @@ const defaultOption = {
 
 class OpenApiDesign {
   container: HTMLElement|null| undefined;
+
+  innerSlot:  HTMLElement|null| undefined|string;
   option: {
     language?:'en'|'zh_CN',
     openApiDoc: Record<string, any> | URL;
     onMountedCallback?: Function; // 渲染完成 callback
   }
+  reloadAccount: number;
   constructor (container: HTMLElement | string, option: {language:'en'}) {
     this.container = resolveSelector(container);
+    this.reloadAccount = 0;
     this.option = Object.assign(defaultOption, option);
     if (this.container) {
       this.init()
@@ -56,7 +60,6 @@ class OpenApiDesign {
         en: en_messages
       }
     });
-    
     const MyCustomElement = defineCustomElement(MyComponent, {
       styles: [`.api-root{width: ${wrapWidth}px; height: ${wrapHeight}px;}`, ...styleList],
       nonce: 'my-custome',
@@ -70,12 +73,15 @@ class OpenApiDesign {
       },
       shadowRoot: false
     });
+
+    this.reloadAccount += 1;
+    customElements.define( `open-api-design-${this.reloadAccount}`, MyCustomElement);
   
-    const innerSlot = this.container?.innerHTML;
-    customElements.define('open-api-design', MyCustomElement);
-    
+    if (!this.innerSlot) {
+      this.innerSlot = this.container?.innerHTML;
+    }
   
-    this.container && (this.container.innerHTML = `<open-api-design>${innerSlot}</open-api-design>`);
+    this.container && (this.container.innerHTML = `<open-api-design-${this.reloadAccount}>${this.innerSlot}</open-api-design-${this.reloadAccount}>`);
     if (typeof this.option.onMountedCallback === 'function') {
       this.option.onMountedCallback();
     }
@@ -97,7 +103,9 @@ class OpenApiDesign {
       return;
     }
     this.option.language = language;
-    this.updateData();
+    if (this.updateData && typeof this.updateData === 'function') {
+      this.updateData();
+    }
     this.reload();
   }
 

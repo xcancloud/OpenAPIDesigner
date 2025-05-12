@@ -240,9 +240,9 @@ provide('i18n', i18n);
             :customRequest="handleUploadFile"
             accept=".json,.yaml"
             :showUploadList="false">
-            <Button type="primary" size="small">上传</Button>
+            <Button type="primary" size="small">{{t('import')}}</Button>
           </Upload>
-          <Button size="small" @click="handleDownload">下载</Button>
+          <Button size="small" @click="handleDownload">{{ t('export')}}</Button>
         </div>
         <RadioGroup v-model:value="viewMode">
           <RadioButton value="form">{{t('form')}}</RadioButton>

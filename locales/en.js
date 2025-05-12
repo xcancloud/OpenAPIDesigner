@@ -95,6 +95,6 @@ export default {
   delete: 'Delete',
   identifier: 'Identifier',
   
-  import: '导入',
-  export: '导出',
+  import: 'Import',
+  export: 'Export',
 };
