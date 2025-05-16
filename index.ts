@@ -77,7 +77,7 @@ class OpenApiDesign {
     this.reloadAccount += 1;
     customElements.define( `open-api-design-${this.reloadAccount}`, MyCustomElement);
   
-    if (!this.innerSlot) {
+    if (!this.innerSlot && this.reloadAccount === 1) {
       this.innerSlot = this.container?.innerHTML;
     }
   
