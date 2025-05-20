@@ -2,7 +2,7 @@
   "name": "open-api-designer",
   "version": "1.0.0",
   "description": "open api design",
-  "main": "index.ts",
+  "main": "dist/index.mjs",
   "exports": {
     ".": {
       "import": "./dist/index.mjs"
@@ -52,6 +52,7 @@
     "build:main": "node ./script/build.js",
     "dev": "vite dev",
     "build": "vite build",
+    "deploy": "npm run build & npm --registry http://nexus.xcan.cloud/repository/xcan-npm-release/ publish",
     "demo": "http-server -p 8080 & open http://127.0.0.1:8080/demo/index.html"
   },
   "author": "",

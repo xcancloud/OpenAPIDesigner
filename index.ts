@@ -74,7 +74,10 @@ class OpenApiDesign {
       shadowRoot: false
     });
 
-    this.reloadAccount += 1;
+    while (customElements.get(`open-api-design-${this.reloadAccount}`)) {
+      this.reloadAccount += 1;
+    }
+
     customElements.define( `open-api-design-${this.reloadAccount}`, MyCustomElement);
   
     if (!this.innerSlot && this.reloadAccount === 1) {
