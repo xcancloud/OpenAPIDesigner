@@ -29,11 +29,11 @@ class OpenApiDesign {
     this.reloadAccount = 0;
     this.option = Object.assign(defaultOption, option);
     if (this.container) {
-      this.init()
+      this.init(true)
     }
   }
 
-  async init () {
+  async init (isConstructor = false) {
     if (typeof this.option.openApiDoc === 'string') {
       try {
         new URL(this.option.openApiDoc);
@@ -80,7 +80,7 @@ class OpenApiDesign {
 
     customElements.define( `open-api-design-${this.reloadAccount}`, MyCustomElement);
   
-    if (!this.innerSlot && this.reloadAccount === 1) {
+    if (!this.innerSlot && isConstructor) {
       this.innerSlot = this.container?.innerHTML;
     }
   
