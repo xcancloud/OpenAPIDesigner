@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, inject, onBeforeUnmount, defineAsyncComponent, watch } from 'vue';
+import { ref, onMounted, inject, onBeforeUnmount, defineAsyncComponent, watch, computed } from 'vue';
 import { Form, FormItem, Input, Select } from 'ant-design-vue';
 
 const getAppFunc = inject('getAppFunc', (value: {name: string, func: Function})=>{});
@@ -8,8 +8,11 @@ const descRef = ref(); // 用于init markdown 编辑器
 const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
 const easyMdKey = ref(0);
 
-const i18n = inject('i18n');
-const { t } = i18n?.global;
+// const i18n = inject('i18n');
+// const { t } = i18n?.global;
+// const t = inject('t');
+const useLocal = inject('useLocal');
+const language = inject('language', ref());
 type DocInfo = {
   title?: string;
   summary?: string;
@@ -59,16 +62,16 @@ const formState = ref<DocInfo>({
 
 
 const licenseType = ref('identifier');
-const licenseTypeOpt = [
+const licenseTypeOpt = computed(() =>[
   {
     label: 'URL',
     value: 'url',
   },
   {
-    label: t('identifier'),
+    label: useLocal(language.value)('identifier'),
     value: 'identifier',
   }
-];
+]);
 
 const getData = () => {
   const data = JSON.parse(JSON.stringify(formState.value));
@@ -132,59 +135,59 @@ defineExpose({
 <Form
 layout="vertical">
   <div class="flex space-x-4">
-    <FormItem :label="t('title')" name="" required class="w-2/3">
+    <FormItem :label="useLocal(language)('title')" name="" required class="w-2/3">
       <Input
         v-model:value="formState.title"
         :maxlength="200"
-        :placeholder="t('title_placeholder')" />
+        :placeholder="useLocal(language)('title_placeholder')" />
     </FormItem>
-    <FormItem :label="t('version')" name="" required class="w-1/3">
+    <FormItem :label="useLocal(language)('version')" name="" required class="w-1/3">
       <Input
         v-model:value="formState.version" />
     </FormItem>
   </div>
-  <FormItem :label="t('summary')">
+  <FormItem :label="useLocal(language)('summary')">
     <Input
       v-model:value="formState.summary"
       :maxlength="400"
-      :placeholder="t('summary_placeholder')" />
+      :placeholder="useLocal(language)('summary_placeholder')" />
   </FormItem>
-  <FormItem :label="t('desc')">
+  <FormItem :label="useLocal(language)('desc')">
     <EasyMd :key="easyMdKey" ref="descRef" :value="formState.description" />
   </FormItem>
-  <FormItem :label="t('terms_service')">
+  <FormItem :label="useLocal(language)('terms_service')">
     <Input
       v-model:value="formState.termsOfService"
       :maxlength="400"
-      :placeholder="t('terms_service_placeholder')" />
+      :placeholder="useLocal(language)('terms_service_placeholder')" />
   </FormItem>
-  <FormItem :label="t('contact_name')">
+  <FormItem :label="useLocal(language)('contact_name')">
     <div v-if="formState.contact" class="flex space-x-2 pt-2 border-t">
       <Input
         v-model:value="formState.contact.name"
         :maxlength="200"
         class="flex-1/4"
-        :placeholder="t('contact_name_placeholder')" />
+        :placeholder="useLocal(language)('contact_name_placeholder')" />
       <Input
         v-model:value="formState.contact.url"
         :maxlength="200"
         class="flex-1/2"
-        :placeholder="t('contact_url_placeholder')" />
+        :placeholder="useLocal(language)('contact_url_placeholder')" />
       <Input
         v-model:value="formState.contact.email"
         :maxlength="100"
         class="flex-1/4"
-        :placeholder="t('contact_email_placeholder')" />
+        :placeholder="useLocal(language)('contact_email_placeholder')" />
     </div>
   </FormItem>
 
-  <FormItem :label="t('license')">
+  <FormItem :label="useLocal(language)('license')">
     <div v-if="formState.license" class="flex space-x-2 pt-2 border-t">
       <Input
         v-model:value="formState.license.name"
         :maxlength="200"
         class="flex-1/4"
-        :placeholder="t('license_name_placeholder')" />
+        :placeholder="useLocal(language)('license_name_placeholder')" />
       <Select
         v-model:value="licenseType"
         class="flex-1/4"

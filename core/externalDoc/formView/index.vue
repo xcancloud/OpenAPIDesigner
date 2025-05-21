@@ -8,9 +8,11 @@ const dataSource = inject('dataSource', ref());
 const descRef = ref();
 const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
 // const { t } = useI18n();
-const i18n = inject('i18n');
-const { t } = i18n?.global;
-
+// const i18n = inject('i18n');
+// const { t } = i18n?.global;
+// const t = inject('t');
+const useLocal = inject('useLocal');
+const language = inject('language', ref());
 type ExternalDoc = {
   url: string;
   description?: string;
@@ -77,10 +79,10 @@ layout="vertical">
     <Input
       v-model:value="formState.url"
       :maxlength="200"
-      :placeholder="t('external_url_placeholder')" />
+      :placeholder="useLocal(language)('external_url_placeholder')" />
   </FormItem>
 
-  <FormItem :label="t('desc')">
+  <FormItem :label="useLocal(language)('desc')">
     <!-- <textarea ref="descRef">{{ formState.description }}</textarea> -->
     <EasyMd ref="descRef" :value="formState.description" />
   </FormItem>

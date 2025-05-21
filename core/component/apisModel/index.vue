@@ -12,8 +12,11 @@ import RequestBody from './requestBody.vue';
 import Responses from './responses.vue';
 
 // const { t } = useI18n();
-const i18n = inject('i18n');
-const { t } = i18n?.global;
+// const i18n = inject('i18n');
+// const { t } = i18n?.global;
+// const t = inject('t');
+const useLocal = inject('useLocal');
+const language = inject('language', ref());
 const props = withDefaults(defineProps<Props>(), {
   dataSource: () => ({
     parameters: [],
@@ -142,22 +145,22 @@ onBeforeUnmount(() => {
       class="flex-1 overflow-auto">
       <TabPane
         key="general"
-        :tab="t('general')">
+        :tab="useLocal(language)('general')">
         <Genaral ref="generalRef" :dataSource="props.dataSource" :openapiDoc="props.openapiDoc" />
       </TabPane>
       <TabPane
         key="parameter"
-        :tab="t('parameter')">
+        :tab="useLocal(language)('parameter')">
         <Parameters ref="parametersRef" :dataSource="props.dataSource.parameters" />
       </TabPane>
       <TabPane
         key="request"
-        :tab="t('request_body')">
+        :tab="useLocal(language)('request_body')">
         <RequestBody ref="requestBodyRef" :dataSource="props.dataSource?.requestBody" />
       </TabPane>
       <TabPane
         key="response"
-        :tab="t('response')">
+        :tab="useLocal(language)('response')">
         <Responses ref="responsesRef" :dataSource="props.dataSource.responses" />
       </TabPane>
     </Tabs>

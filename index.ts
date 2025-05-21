@@ -10,6 +10,13 @@ function resolveSelector(selector: string | HTMLElement | null | undefined) {
     : selector;
 }
 
+class MyElement extends HTMLElement {
+  constructor() {
+    super();
+    this.innerHTML = '';
+  }
+}
+
 const defaultOption = {
   language: 'en',
 }
@@ -17,7 +24,9 @@ const defaultOption = {
 class OpenApiDesign {
   container: HTMLElement|null| undefined;
 
-  innerSlot:  HTMLElement|null| undefined|string;
+  innerSlot:  NodeListOf<ChildNode>|null| undefined|string;
+
+  app: any;
   option: {
     language?:'en'|'zh_CN',
     openApiDoc: Record<string, any> | URL;
@@ -60,9 +69,11 @@ class OpenApiDesign {
         en: en_messages
       }
     });
+
     const MyCustomElement = defineCustomElement(MyComponent, {
-      styles: [`.api-root{width: ${wrapWidth}px; height: ${wrapHeight}px;}`, ...styleList],
-      nonce: 'my-custome',
+      styles: [`
+      .api-root{width: ${wrapWidth}px; height: ${wrapHeight}px;}
+      `, ...styleList],
       configureApp: (app) => {
         app.use(i18n);
         app.provide('getAppFunc', (appFunc: {name: string; func: Function})=> {
@@ -71,46 +82,41 @@ class OpenApiDesign {
         app.provide('openApiDoc', this.option.openApiDoc);
         app.provide(Symbol.for('i18n'), i18n);
       },
-      shadowRoot: false
+      shadowRoot: true
     });
 
-    while (customElements.get(`open-api-design-${this.reloadAccount}`)) {
-      this.reloadAccount += 1;
+    // while (customElements.get(`open-api-design-${this.reloadAccount}`)) {
+    //   this.reloadAccount += 1;
+    // }
+    if (!customElements.get(`open-api-design`)) {
+      customElements.define( `open-api-design`, MyCustomElement)
     }
 
-    customElements.define( `open-api-design-${this.reloadAccount}`, MyCustomElement);
+    // customElements.define( `open-api-design-${this.reloadAccount}`, MyCustomElement);
+
   
-    if (!this.innerSlot && isConstructor) {
-      this.innerSlot = this.container?.innerHTML;
-    }
-  
-    this.container && (this.container.innerHTML = `<open-api-design-${this.reloadAccount}>${this.innerSlot}</open-api-design-${this.reloadAccount}>`);
+    // if (!this.innerSlot && isConstructor) {
+    //   this.innerSlot = this.container?.innerHTML;
+    // }
+
+    // this.container && (this.container.innerHTML = `<open-api-design-${this.reloadAccount}></open-api-design-${this.reloadAccount}>`);
+    
     if (typeof this.option.onMountedCallback === 'function') {
       this.option.onMountedCallback();
     }
-    // const sheetList: CSSStyleSheet[] = [];
-    // styleList.forEach(styleText => {
-    //   const sheet = new CSSStyleSheet();
-    //   sheet.replaceSync(styleText);
-    //   sheetList.push(sheet);
-    // });
-    // const shadowHost = document.querySelector('open-api-design');
-    // const shadowRoot = shadowHost?.shadowRoot;
-    // if (shadowRoot) {
-    //   shadowRoot.adoptedStyleSheets = [...sheetList];
-    // }
   }
 
-  public changeLanguage (language: 'en' | 'zh_CN') {
-    if (language === this.option.language || !['en', 'zh_CN'].includes(language)) {
-      return;
-    }
-    this.option.language = language;
-    if (this.updateData && typeof this.updateData === 'function') {
-      this.updateData();
-    }
-    this.reload();
-  }
+  changeLanguage: (language: 'en' | 'zh_CN') => void;
+  // public changeLanguage (language: 'en' | 'zh_CN') {
+  //   if (language === this.option.language || !['en', 'zh_CN'].includes(language)) {
+  //     return;
+  //   }
+  //   this.option.language = language;
+  //   if (this.updateData && typeof this.updateData === 'function') {
+  //     this.updateData();
+  //   }
+  //   this.reload();
+  // }
 
   public reload () {
     const openApiDocData = this.getDocApi();

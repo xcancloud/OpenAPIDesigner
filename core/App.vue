@@ -1,21 +1,29 @@
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, watch, provide, nextTick, inject, onMounted, computed} from 'vue';
+import { defineAsyncComponent, ref, watch, provide, nextTick, inject, onMounted, computed } from 'vue';
 import { RadioGroup, RadioButton, Tabs, TabPane, Upload, Button } from 'ant-design-vue';
 import SiderMenu from './siderMenu/index.vue';
-import { useI18n } from 'vue-i18n';
+// import { useI18n } from 'vue-i18n';
 import { methodOpt } from './siderMenu/config';
 import YAML from 'yaml';
+import { useLocal } from '../locales/useLocal';
+
 // import { data1 as data } from './data.ts';
 
-let i18n = inject(Symbol.for('i18n')); // for deme use
-if (!i18n) {
-  i18n = {global: useI18n()}; // for developer
+interface Props {
+  openApiDoc: string;
+  language: 'en'|'zh_CN'
 }
-const { t } = i18n?.global || useI18n();
+
+const props = withDefaults(defineProps<Props>(), {
+  openApiDoc: '{}',
+  language: 'zh_CN'
+})
+
 const getAppFunc = inject('getAppFunc', (arg: {name: string, func: Function}):void => {});
-const openApiDoc = inject('openApiDoc', {});
 const dataSource = ref<{[key: string]: any}>();
+
+
 
 const DocInfo = defineAsyncComponent(() => import('./docInfo/formView/index.vue'));
 const ExternalDoc = defineAsyncComponent(() => import('./externalDoc/formView/index.vue'));
@@ -202,15 +210,36 @@ onMounted(() => {
     return dataSource.value;
   }});
 
+  getAppFunc({name: 'changeLanguage', func: handleChangeLanguage });
+
   watch(() => showPreview.value, (newValue) => {
     if (!newValue) {
       viewMode.value = 'form';
     }
   })
 
-  watch(() => openApiDoc, (newValue) => {
+  watch(() => props.openApiDoc, async (newValue) => {
+    let isUrl = false;
     if (newValue) {
-      dataSource.value = newValue;
+      try {
+        const value = JSON.parse(newValue)
+        dataSource.value = value;
+      } catch {
+        try {
+          new URL(newValue);
+          isUrl = true;
+        } catch {
+          dataSource.value = {};
+        }
+      }
+
+      if (isUrl) {
+        const response = await fetch(newValue, {
+          'Content-Type': "application/json"
+        });
+        dataSource.value = await response.json();
+      }
+      
     }
     
   }, {
@@ -218,13 +247,20 @@ onMounted(() => {
   })
 });
 
+const language = ref(props.language);
+const handleChangeLanguage = (lan: 'en'|'zh_CN') => {
+  language.value = lan;
+}
+
 provide('dataSource', dataSource);
-provide('i18n', i18n);
+provide('useLocal', useLocal);
+provide('language', language);
 </script>
 
 <template>
   <div class="flex p-1 api-root min-w-200 overflow-auto">
     <div class="w-80 bg-gray-100 h-full overflow-y-auto p-1">
+      {{ compKey }}
       <SiderMenu
         v-model:active-menu-key="activeMenuKey"
         v-model:schemaType="schemaType"
@@ -240,14 +276,14 @@ provide('i18n', i18n);
             :customRequest="handleUploadFile"
             accept=".json,.yaml"
             :showUploadList="false">
-            <Button type="primary" size="small">{{t('import')}}</Button>
+            <Button type="primary" size="small">{{useLocal(language)('import')}}</Button>
           </Upload>
-          <Button size="small" @click="handleDownload">{{ t('export')}}</Button>
+          <Button size="small" @click="handleDownload">{{ useLocal(language)('export')}}</Button>
         </div>
         <RadioGroup v-model:value="viewMode">
-          <RadioButton value="form">{{t('form')}}</RadioButton>
-          <RadioButton value="code">{{t('code')}}</RadioButton>
-          <RadioButton v-if="showPreview" value="preview">{{t('preview')}}</RadioButton>
+          <RadioButton value="form">{{useLocal(language)('form')}}</RadioButton>
+          <RadioButton value="code">{{useLocal(language)('code')}}</RadioButton>
+          <RadioButton v-if="showPreview" value="preview">{{useLocal(language)('preview')}}</RadioButton>
         </RadioGroup>
       </div>
       <Tabs v-model:activeKey="viewMode" destroyInactiveTabPane class="flex-1 view-type-tab">
@@ -281,12 +317,12 @@ provide('i18n', i18n);
   </div>
 </template>
 
-<style scoped>
-:deep(.ant-tabs.view-type-tab)>.ant-tabs-nav {
+<style>
+.ant-tabs.view-type-tab>.ant-tabs-nav {
   display: none;
 }
 
-:deep(.ant-tabs.view-type-tab) >.ant-tabs-content-holder > .ant-tabs-content.ant-tabs-content-top {
+.ant-tabs.view-type-tab >.ant-tabs-content-holder > .ant-tabs-content.ant-tabs-content-top {
   height: 100%;
 }
 </style>

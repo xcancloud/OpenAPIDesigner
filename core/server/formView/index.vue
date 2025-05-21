@@ -9,9 +9,11 @@ const getAppFunc = inject('getAppFunc', ()=>{});
 const descRef = ref(); // 用于init markdown 编辑器
 const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
 // const { t } = useI18n();
-const i18n = inject('i18n');
-const { t } = i18n?.global;
-
+// const i18n = inject('i18n');
+// const { t } = i18n?.global;
+// const t = inject('t');
+const useLocal = inject('useLocal');
+const language = inject('language', ref());
 type Server = {
   url: string;
   description?: string;
@@ -144,41 +146,41 @@ defineExpose({
     <Input
       v-model:value="formState.url"
       :maxlength="400"
-      :placeholder="t('server_name_placeholder')"
+      :placeholder="useLocal(language)('server_name_placeholder')"
       @change="handleUrlChange" />
   </FormItem>
 
-  <FormItem :label="t('desc')">
+  <FormItem :label="useLocal(language)('desc')">
     <EasyMd ref="descRef" :value="formState.description" />
   </FormItem>
   <FormItem>
     <template #label>
       <div class="flex space-x-4">
-        <Button size="small" class="text-3" type="primary" @click="addVariable">{{ t('add_variable') }}</Button>
+        <Button size="small" class="text-3" type="primary" @click="addVariable">{{ useLocal(language)('add_variable') }}</Button>
       </div>
     </template>
     <div v-for="(variable, varIdx) in formState.variables" class="border p-2 mb-2">
       <div class="flex space-x-2 items-center">
-        <FormItem :label="t('name')" class="w-1/3" required>
+        <FormItem :label="useLocal(language)('name')" class="w-1/3" required>
           <Input
             v-model:value="variable.name"
             :maxlength="100"
-            :placeholder="t('variable_name_placeholder')" />
+            :placeholder="useLocal(language)('variable_name_placeholder')" />
         </FormItem>
-        <FormItem :label="t('desc')" class="w-2/3">
+        <FormItem :label="useLocal(language)('desc')" class="w-2/3">
           <Input
             v-model:value="variable.description"
             :maxlength="400"
-            :placeholder="t('variable_desc_placeholder')" />
+            :placeholder="useLocal(language)('variable_desc_placeholder')" />
         </FormItem>
         <Button type="link" size="small" @click="deleteVariable(varIdx)"><delete-outlined /></Button>
       </div>
-      <FormItem :label="t('value')" required>
+      <FormItem :label="useLocal(language)('value')" required>
         <div v-for="(_enumValue, idx) in variable.value.enum" class="flex mb-2">
           <Input
             v-model:value="variable.value.enum[idx]"
             class="w-1/3"
-            :placeholder="t('variable_value_placeholder')" />
+            :placeholder="useLocal(language)('variable_value_placeholder')" />
           <Button v-show="variable.value.enum?.length > 1" type="link" size="small" @click="deleteEnum(varIdx, idx)"><delete-outlined /></Button>
           <Button v-show="idx === 0" type="link" size="small" @click="addEnum(varIdx)"><plus-outlined /></Button>
         </div>

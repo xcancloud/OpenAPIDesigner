@@ -4,9 +4,11 @@ import { Input, Button, Textarea } from 'ant-design-vue';
 import { DeleteOutlined } from '@ant-design/icons-vue';
 // import { useI18n } from 'vue-i18n';
 
-const i18n = inject('i18n');
-const { t } = i18n?.global;
-
+// const i18n = inject('i18n');
+// const { t } = i18n?.global;
+// const t = inject('t');
+const useLocal = inject('useLocal');
+const language = inject('language', ref());
 type Extension = {
   name: string;
   value?: string;
@@ -135,7 +137,7 @@ defineExpose({
   <div>
     <div class="flex justify-between mb-2 items-center">
       <slot name="title"><span></span></slot>
-      <Button size="small" type="primary" @click="addExtension">+ {{ t('add') }}</Button>
+      <Button size="small" type="primary" @click="addExtension">+ {{ useLocal(language)('add') }}</Button>
     </div>
 
     <div class="flex border">
@@ -164,7 +166,7 @@ defineExpose({
             :bordered="false"
             type="textarea"
             class="mt-2"
-            :placeholder="t('extension_value_placeholder')"
+            :placeholder="useLocal(language)('extension_value_placeholder')"
             @blur="changeSelectExtensionValue($event, selectedExtension.name)" />
         </template>
         <div v-else class="text-center">

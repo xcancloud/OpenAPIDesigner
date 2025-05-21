@@ -19,8 +19,11 @@ interface Props {
 }
 
 // const { t } = useI18n();
-const i18n = inject('i18n');
-const { t } = i18n?.global;
+// const i18n = inject('i18n');
+// const { t } = i18n?.global;
+// const t = inject('t');
+const useLocal = inject('useLocal');
+const language = inject('language', ref());
 const securityRef = ref();
 const props = withDefaults(defineProps<Props>(), {
   viewMode: 'form'
@@ -83,9 +86,9 @@ onBeforeUnmount(() => {
 <template>
   <div class="min-h-100">
     <div class="flex justify-between pr-8">
-      <span class="font-semibold">{{t('security_schema')}}</span>
+      <span class="font-semibold">{{useLocal(language)('security_schema')}}</span>
       <Button size="small" type="primary" @click="addTag">
-        + {{ t('add') }}
+        + {{ useLocal(language)('add') }}
       </Button>
     </div>
     <div
@@ -102,11 +105,11 @@ onBeforeUnmount(() => {
   </div>
 </template>
 <style scoped>
-:deep(.ant-tabs) .ant-tabs-nav {
+.ant-tabs .ant-tabs-nav {
   display: none;
 }
 
-:deep(.ant-tabs) .ant-tabs-content.ant-tabs-content-top {
+.ant-tabs .ant-tabs-content.ant-tabs-content-top {
   height: 100%;
 }
 </style>

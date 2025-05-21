@@ -28,8 +28,12 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 // const { t } = useI18n();
-const i18n = inject('i18n');
-const { t } = i18n?.global;
+// const i18n = inject('i18n');
+// const { t } = i18n?.global;
+// const t = inject('t');
+const useLocal = inject('useLocal');
+const language = inject('language', ref());
+
 const dataSource = inject('dataSource', ref());
 const searchKeywords = ref();
 
@@ -132,72 +136,72 @@ const selectPath = (endpoint: string) => {
 
 const defaultMenu = computed(() => [
   {
-    title: t('doc_info'),
+    title: useLocal(language.value)('doc_info'),
     key: 'info',
     icon: docInfoSvg
   },
   {
-    title: t('external_doc'),
+    title: useLocal(language.value)('external_doc'),
     key: 'externalDocs',
     icon: outDocSvg
   },
   {
-    title: t('servers'),
+    title: useLocal(language.value)('servers'),
     key: 'servers',
     icon: serverSvg
   },
   {
-    title: t('security'),
+    title: useLocal(language.value)('security'),
     key: 'security',
     icon: anquanSvg
   },
   {
-    title: t('tag'),
+    title: useLocal(language.value)('tag'),
     key: 'tags',
     icon: tagSvg
   },
   {
-    title: t('apis'),
+    title: useLocal(language.value)('apis'),
     key: 'apis',
     children: []
   },
   {
-    title: t('component'),
+    title: useLocal(language.value)('component'),
     key: 'components',
     selectable: false,
     children: [ // const compType = ['schemas', 'parameters', 'responses', 'requestBodies'];
       {
-        title: t('model'),
+        title: useLocal(language.value)('model'),
         key: 'schemas',
         selectable: false,
         children: [...modelChildren.value]
       },
       {
-        title: t('parameter'),
+        title: useLocal(language.value)('parameter'),
         key: 'parameters',
         selectable: false,
         children: [...parameterChildren.value]
       },
       {
-        title: t('request_body'),
+        title: useLocal(language.value)('request_body'),
         key: 'requestBodies',
         selectable: false,
         children: [...bodyChildren.value]
       },
       {
-        title: t('response'),
+        title: useLocal(language.value)('response'),
         key: 'responses',
         selectable: false,
         children: [...responseChildren.value]
       },
       {
-        title: t('header'),
+        title: useLocal(language.value)('header'),
         key: 'headers',
         selectable: false,
         children: [...headerChildren.value]
       },
       {
-        title: t('security_schema'),
+        title: useLocal(language.value)('security_schema'),
         key: 'securitySchemes',
         selectable: false,
         children: [...securityChildren.value]
@@ -205,7 +209,7 @@ const defaultMenu = computed(() => [
     ]
   },
   {
-    title: t('extension'),
+    title: useLocal(language.value)('extension'),
     key: 'extensions'
   }
 ]);
@@ -226,8 +230,8 @@ const addModel = () => {
   if (addType.value === 'schemas') {
     if (modelChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
-        message: t('tip'),
-        description: t('name_repeat_placeholder')
+        message: useLocal(language.value)('tip'),
+        description: useLocal(language.value)('name_repeat_placeholder')
       });
       return;
     }
@@ -246,8 +250,8 @@ const addModel = () => {
   if (addType.value === 'parameters') {
     if (parameterChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
-        message: t('tip'),
-        description: t('name_repeat_placeholder')
+        message: useLocal(language.value)('tip'),
+        description: useLocal(language.value)('name_repeat_placeholder')
       });
       return;
     }
@@ -267,8 +271,8 @@ const addModel = () => {
   if (addType.value === 'requestBodies') {
     if (bodyChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
-        message: t('tip'),
-        description: t('name_repeat_placeholder')
+        message: useLocal(language.value)('tip'),
+        description: useLocal(language.value)('name_repeat_placeholder')
       });
       return;
     }
@@ -286,8 +290,8 @@ const addModel = () => {
   if (addType.value === 'responses') {
     if (responseChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
-        message: t('tip'),
-        description: t('name_repeat_placeholder')
+        message: useLocal(language.value)('tip'),
+        description: useLocal(language.value)('name_repeat_placeholder')
       });
       return;
     }
@@ -306,8 +310,8 @@ const addModel = () => {
   if (addType.value === 'headers') {
     if (headerChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
-        message: t('tip'),
-        description: t('name_repeat_placeholder')
+        message: useLocal(language.value)('tip'),
+        description: useLocal(language.value)('name_repeat_placeholder')
       });
       return;
     }
@@ -326,8 +330,8 @@ const addModel = () => {
   if (addType.value === 'securitySchemes') {
     if (securityChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
-        message: t('tip'),
-        description: t('name_repeat_placeholder')
+        message: useLocal(language.value)('tip'),
+        description: useLocal(language.value)('name_repeat_placeholder')
       });
       return;
     }
@@ -346,8 +350,8 @@ const addModel = () => {
   if (addType.value === 'extension') {
     if (extensionChildren.value.find(i => i.title === createName.value)) {
       notification.warning({
-        message: t('tip'),
-        description: t('name_repeat_placeholder')
+        message: useLocal(language.value)('tip'),
+        description: useLocal(language.value)('name_repeat_placeholder')
       });
       return;
     }
@@ -363,8 +367,8 @@ const addModel = () => {
   if (addType.value === 'path') {
     if (apiPaths.value[createName.value]) {
       notification.warning({
-        message: t('tip'),
-        description: t('path_repeat_placeholder')
+        message: useLocal(language.value)('tip'),
+        description: useLocal(language.value)('path_repeat_placeholder')
       });
     }
     createNameModalVisible.value = false;
@@ -405,8 +409,8 @@ const handleAddApisMethod = (path: string) => {
   methodOptions.value = methodOpt.filter(m => !hasMethods.includes(m)).map(i => ({value: i, label: i}));
   if (!methodOptions.value.length) {
     notification.warning({
-      message: t('tip'),
-      description: t('method_repeat_placeholder')
+      message: useLocal(language.value)('tip'),
+      description: useLocal(language.value)('method_repeat_placeholder')
     });
     return;
   }
@@ -528,7 +532,7 @@ const methodColorConfig:Record<string, string> = {
 </script>
 <template>
   <div>
-    <Input v-model:value="searchKeywords" :placeholder="t('search')" allowClear @change="handlekeywordsChange" />
+    <Input v-model:value="searchKeywords" :placeholder="useLocal(language)('search')" allowClear @change="handlekeywordsChange" />
     <div v-for="menu in defaultMenu" :key="menu.key">
       <Dropdown v-if="menu.key === 'apis'" trigger="contextmenu">
         <div
@@ -546,7 +550,7 @@ const methodColorConfig:Record<string, string> = {
         </div>
         <template #overlay>
           <Menu @click="handleAddModel('path')">
-            <MenuItem key="add">{{ `${t('add')} Path` }}</MenuItem>
+            <MenuItem key="add">{{ `${useLocal(language)('add')} Path` }}</MenuItem>
           </Menu>
         </template>
       </Dropdown>
@@ -583,7 +587,7 @@ const methodColorConfig:Record<string, string> = {
             </div>
             <template #overlay>
               <Menu @click="handleAddModel(subMenu.key)">
-                <MenuItem key="add">{{ `${t('add')}${subMenu.title}` }}</MenuItem>
+                <MenuItem key="add">{{ `${useLocal(language)('add')}${subMenu.title}` }}</MenuItem>
               </Menu>
             </template>
           </Dropdown>
@@ -601,7 +605,7 @@ const methodColorConfig:Record<string, string> = {
               </div>
               <MenuDropdown
                 trigger="click"
-                :menuItems="[{key: 'del', name: t('delete')}]"
+                :menuItems="[{key: 'del', name: useLocal(language)('delete')}]"
                 @click="handleDelComp(subsubMenu.key, subMenu.key)">
                 <Button type="text" size="small">
                   ...
@@ -629,8 +633,8 @@ const methodColorConfig:Record<string, string> = {
             </div>
             <template #overlay>
               <Menu @click="handleApis(path as string, $event)">
-                <MenuItem key="add">{{ `${t('add')} Method` }}</MenuItem>
-                <MenuItem key="delete">{{ `${t('delete')} ` }}</MenuItem>
+                <MenuItem key="add">{{ `${useLocal(language)('add')} Method` }}</MenuItem>
+                <MenuItem key="delete">{{ `${useLocal(language)('delete')} ` }}</MenuItem>
               </Menu>
             </template>
           </Dropdown>
@@ -648,7 +652,7 @@ const methodColorConfig:Record<string, string> = {
               </div>
               <template #overlay>
               <Menu @click="handleApisMethod(path as string, method,  $event)">
-                <MenuItem key="delete">{{ `${t('delete')} ` }}</MenuItem>
+                <MenuItem key="delete">{{ `${useLocal(language)('delete')} ` }}</MenuItem>
               </Menu>
             </template>
             </Dropdown>
@@ -661,7 +665,7 @@ const methodColorConfig:Record<string, string> = {
     <Modal
       v-model:visible="createNameModalVisible"
       :width="400"
-      :title="t('name')"
+      :title="useLocal(language)('name')"
       @ok="addModel">
       <Select
         v-show="addType === 'parameters'"
@@ -671,7 +675,7 @@ const methodColorConfig:Record<string, string> = {
       <Input
         v-model:value="createName"
         :maxlength="80"
-        :placeholder="t('name_placeholder')"
+        :placeholder="useLocal(language)('name_placeholder')"
         @change="handleCreatedName"  />
     </Modal>
 
@@ -687,7 +691,7 @@ const methodColorConfig:Record<string, string> = {
       <Input
         v-model:value="createName"
         :maxlength="80"
-        :placeholder="t('summary_placeholder')" />
+        :placeholder="useLocal(language)('summary_placeholder')" />
     </Modal>
   </div>
 </template>

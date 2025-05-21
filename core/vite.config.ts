@@ -42,7 +42,7 @@ export default defineConfig({
     manifest: false,
     assetsDir: 'assets',
     copyPublicDir: false,
-    cssCodeSplit: false,
+    cssCodeSplit: true,
     assetsInlineLimit: 4096,
     chunkSizeWarningLimit: 500,
     reportCompressedSize: false,

@@ -476,7 +476,7 @@ defineExpose({
   
 </template>
 <style scoped>
-:deep(.error-ant-select) > .ant-select-selector {
+.error-ant-select > .ant-select-selector {
   @apply border-status-error;
 }
 </style>

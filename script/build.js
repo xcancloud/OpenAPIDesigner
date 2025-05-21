@@ -16,7 +16,10 @@ async function start() {
     if (file.endsWith('.css')) {
       console.log(true);
       let cssText = fs.readFileSync(resolve(`../coredist/${file}`), 'utf8');
-      cssText = cssText.replaceAll('\\', '');
+      cssText = cssText.replaceAll('\\\/', '\\\\\/');
+      cssText = cssText.replaceAll(' \\9', '');
+      cssText = cssText.replaceAll('content:"\\', 'content:"\\\\');
+      cssText = cssText.replaceAll('content:\'\\', 'content:\'\\\\');
       fs.appendFileSync(resolve(`../assets/style.js`), `const styleText${styleList.length} = \`${cssText}\`; \n`, 'utf8');
       styleList.push(`styleText${styleList.length}`);
     }

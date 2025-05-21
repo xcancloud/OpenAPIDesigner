@@ -12,29 +12,31 @@ type Authentication = {
   name: string;
 };
 
-const i18n = inject('i18n');
-const { t } = i18n?.global;
+// const i18n = inject('i18n');
+// const { t } = i18n?.global;
 // const { t } = useI18n();
 
-
-const flowAuthType = [
+// const t = inject('t');
+const useLocal = inject('useLocal');
+const language = inject('language', ref());
+const flowAuthType = computed(() => [
   {
     value: 'authorizationCode',
-    label: t('authorization_code')
+    label: useLocal(language.value)('authorization_code')
   },
   {
     value: 'password',
-    label: t('password_credentials')
+    label: useLocal(language.value)('password_credentials')
   },
   {
     value: 'implicit',
-    label: t('implicit')
+    label: useLocal(language.value)('implicit')
   },
   {
     value: 'clientCredentials',
-    label: t('client_credentials')
+    label: useLocal(language.value)('client_credentials')
   }
-];
+]);
 
 interface AuthItem {
   name?: string;
@@ -108,15 +110,15 @@ const authTypeOpt = [
 const authClientInOpt = [
     {
       value: "QUERY_PARAMETER",
-      label: t('security_query_parameter')
+      label: useLocal(language.value)('security_query_parameter')
     },
     {
       value: "BASIC_AUTH_HEADER",
-      label: t('security_basic_auth_header')
+      label: useLocal(language.value)('security_basic_auth_header')
     },
     {
       value: "REQUEST_BODY",
-      label: t('security_request_body')
+      label: useLocal(language.value)('security_request_body')
     }
 ]
 
@@ -297,66 +299,66 @@ defineExpose({
   :model="formState"
   layout="vertical">
   <div class="flex space-x-2">
-    <FormItem :label="t('type')" name="type" required class="flex-1/3">
+    <FormItem :label="useLocal(language)('type')" name="type" required class="flex-1/3">
       <Select
         v-model:value="formState.type"
         :options="authTypeOpt" />
     </FormItem>
-    <FormItem v-show="props.showName" :label="t('name')" name="securityName" required  class="flex-2/3">
+    <FormItem v-show="props.showName" :label="useLocal(language)('name')" name="securityName" required  class="flex-2/3">
       <Input
         v-model:value="formState.securityName"
         :maxlength="100"
-        :placeholder="t('security_name_placeholder')" />
+        :placeholder="useLocal(language)('security_name_placeholder')" />
     </FormItem>
   </div>
 
   <template v-if="formState.type === 'basic'">
     <div class="flex space-x-2">
-      <FormItem :label="t('username')" class="flex-1/3">
+      <FormItem :label="useLocal(language)('username')" class="flex-1/3">
         <Input
           v-model:value="httpAuthData.name"
           :maxlength="200"
-          :placeholder="t('security_username_placeholder')" />
+          :placeholder="useLocal(language)('security_username_placeholder')" />
       </FormItem>
 
-      <FormItem :label="t('password')" class="flex-2/3">
+      <FormItem :label="useLocal(language)('password')" class="flex-2/3">
         <Input
           v-model:value="httpAuthData.value"
           :maxlength="800"
-          :placeholder="t('security_password_placeholder')" />
+          :placeholder="useLocal(language)('security_password_placeholder')" />
       </FormItem>
     </div>
   </template>
 
   <template v-if="formState.type==='bearer'">
-    <FormItem :label="t('token')">
+    <FormItem :label="useLocal(language)('token')">
       <Input
         v-model:value="httpAuthData.value"
         :maxlength="800"
-        :placeholder="t('security_bearer_token_placeholder')" />
+        :placeholder="useLocal(language)('security_bearer_token_placeholder')" />
     </FormItem>
   </template>
 
   <template v-if="formState.type==='apiKey'">
     <div class="flex space-x-2">
-      <FormItem :label="t('param_name')" class="flex-1/3">
+      <FormItem :label="useLocal(language)('param_name')" class="flex-1/3">
         <Input
           v-for="(, idx) in apiKeyContentList"
           v-model:value="apiKeyContentList[idx].name"
           :key="idx+'name'"
           class="mb-2"
           :maxlength="100"
-          :placeholder="t('security_apikey_name_placeholder')" />
+          :placeholder="useLocal(language)('security_apikey_name_placeholder')" />
       </FormItem>
-      <FormItem :label="t('param_value')" class="flex-1/3">
+      <FormItem :label="useLocal(language)('param_value')" class="flex-1/3">
         <Input
           v-for="(, idx) in apiKeyContentList"
           class="mb-2"
           v-model:value="apiKeyContentList[idx]['x-xc-value']"
           :key="idx+'value'"
-          :placeholder="t('security_apikey_value_placeholder')" />
+          :placeholder="useLocal(language)('security_apikey_value_placeholder')" />
       </FormItem>
-      <FormItem :label="t('param_in')" class="flex-1/3">
+      <FormItem :label="useLocal(language)('param_in')" class="flex-1/3">
         <div v-for="(, idx) in apiKeyContentList" :key="idx+'in'" class="flex items-center mb-2">
           <Select
             v-model:value="apiKeyContentList[idx].in"
@@ -381,13 +383,13 @@ defineExpose({
       <FormItem class="flex-1/3">
         <Select
           v-model:value="oauthKey"
-          :options="[{value: 1, label: t('has_token')}, {value: 2, label: t('generate_token')}]" />
+          :options="[{value: 1, label: useLocal(language)('has_token')}, {value: 2, label: useLocal(language)('generate_token')}]" />
       </FormItem>
       <FormItem v-if="oauthKey === 1"  class="flex-2/3">
         <Input
           v-model:value="scheme"
           :maxlength="800"
-          :placeholder="t('token_placeholder')" />
+          :placeholder="useLocal(language)('token_placeholder')" />
       </FormItem>
       <FormItem v-if="oauthKey === 2"  class="flex-2/3">
         <Select
@@ -397,25 +399,25 @@ defineExpose({
       </FormItem>
     </div>
     <template v-if="oauthKey === 2">
-      <FormItem v-for="item in flowauthLabel" :key="item.valueKey" :required="item.required" :label="t(item.label_i18n)">
+      <FormItem v-for="item in flowauthLabel" :key="item.valueKey" :required="item.required" :label="useLocal(language)(item.label_i18n)">
         <Select
           v-if="item.valueKey === 'x-xc-oauth2-challengeMethod'"
           v-model:value="oauthData[item.valueKey]"
-          :placeholder="item.maxLength ? t('input_max_placeholder', {num: item.maxLength}) : ''"
+          :placeholder="item.maxLength ? useLocal(language)('input_max_placeholder', {num: item.maxLength}) : ''"
           :options="encryptionTypeOpt" />
         <Select
           v-else-if="item.valueKey==='scopes'"
           v-model:value="oauthData[item.valueKey]"
-          :placeholder="item.maxLength ? t('input_max_placeholder', {num: item.maxLength}) : ''"
+          :placeholder="item.maxLength ? useLocal(language)('input_max_placeholder', {num: item.maxLength}) : ''"
           mode="tags" />
         <Input
           v-else
           v-model:value="oauthData[item.valueKey]"
           :allowClear="true"
-          :placeholder="item.maxLength ? t('input_max_placeholder', {num: item.maxLength}) : ''"
+          :placeholder="item.maxLength ? useLocal(language)('input_max_placeholder', {num: item.maxLength}) : ''"
           :maxlength="item.maxLength" />
       </FormItem>
-      <FormItem :label="t('client_auth')">
+      <FormItem :label="useLocal(language)('client_auth')">
         <Select
           v-model:value="oauthData['x-xc-oauth2-clientAuthType']"
           :options="authClientInOpt" />

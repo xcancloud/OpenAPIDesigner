@@ -8,9 +8,11 @@ const descRef = ref(); // 用于init markdown 编辑器
 const externalDescRef = ref();
 const EasyMd = defineAsyncComponent(() => import('@/common/easyMd/index.vue'));
 // const { t } = useI18n();
-const i18n = inject('i18n');
-const { t } = i18n?.global;
-
+// const i18n = inject('i18n');
+// const { t } = i18n?.global;
+const t = inject('t');
+const useLocal = inject('useLocal');
+const language = inject('language', ref());
 type Tag = {
   url: string;
   description?: string;
@@ -89,26 +91,26 @@ defineExpose({
 <template>
 <Form
   layout="vertical">
-  <FormItem :label="t('name')" name="name" required>
+  <FormItem :label="useLocal(language)('name')" name="name" required>
     <Input
       v-model:value="formState.name"
       :maxlength="200"
-      :placeholder="t('tag_name_placeholder')" />
+      :placeholder="useLocal(language)('tag_name_placeholder')" />
   </FormItem>
 
-  <FormItem :label="t('desc')">
+  <FormItem :label="useLocal(language)('desc')">
     <EasyMd ref="descRef" :value="formState.description" />
   </FormItem>
 
-  <FormItem :label="t('external_url')" required>
+  <FormItem :label="useLocal(language)('external_url')" required>
     <Input
       v-if="formState.externalDocs"
       v-model:value="formState.externalDocs.url"
       :maxlength="400"
-      :placeholder="t('tag_external_url_placeholder')" />
+      :placeholder="useLocal(language)('tag_external_url_placeholder')" />
   </FormItem>
 
-  <FormItem :label="t('external_desc')" required>
+  <FormItem :label="useLocal(language)('external_desc')" required>
   
     <EasyMd ref="externalDescRef" :value="formState.externalDocs?.description" />
   </FormItem>

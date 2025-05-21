@@ -61,11 +61,11 @@ defineExpose({
   <FormView ref="formViewRef" :dataSource="extensions" />
 </template>
 <style scoped>
-:deep(.ant-tabs) .ant-tabs-nav {
+.ant-tabs .ant-tabs-nav {
   display: none;
 }
 
-:deep(.ant-tabs) .ant-tabs-content.ant-tabs-content-top {
+.ant-tabs .ant-tabs-content.ant-tabs-content-top {
   height: 100%;
 }
 </style>

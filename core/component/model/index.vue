@@ -9,9 +9,11 @@ import AttrItemList from '../basic/attrItemList.vue';
 import ExampleBasic from '../basic/exampleBasic.vue';
 
 // const { t } = useI18n();
-const i18n = inject('i18n');
-const { t } = i18n?.global;
-
+// const i18n = inject('i18n');
+// const { t } = i18n?.global;
+// const t = inject('t');
+const useLocal = inject('useLocal');
+const language = inject('language', ref());
 interface Props {
   name: string;
   data?: Record<string, any>
@@ -198,13 +200,13 @@ onBeforeUnmount(() => {
         :maxlength="200"
         :bordered="false"
         class="font-medium"
-        :placeholder="t('name')" />
+        :placeholder="useLocal(language)('name')" />
       <Input
         v-model:value="description"
         type="textarea"
         :bordered="false"
         :maxlength="1000"
-        :placeholder="t('desc')" />
+        :placeholder="useLocal(language)('desc')" />
         <div class="border">
           <Tabs>
             <TabPane key="scheams" tab="Schema" class="pb-3">

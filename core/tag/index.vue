@@ -16,8 +16,11 @@ interface Props {
 }
 
 // const { t } = useI18n();
-const i18n = inject('i18n');
-const { t } = i18n?.global;
+// const i18n = inject('i18n');
+// const { t } = i18n?.global;
+// const t = inject('t');
+const useLocal = inject('useLocal');
+const language = inject('language', ref());
 const props = withDefaults(defineProps<Props>(), {
   viewMode: 'form',
   dataSource: undefined
@@ -71,7 +74,7 @@ onBeforeUnmount(() => {
     <TabPane key="form" forceRender class="overflow-auto pr-3" >
       <div class="flex justify-end pr-8">
         <Button size="small" type="primary" @click="addTag">
-          {{ t('add_tag') }} +
+          {{ useLocal(language)('add_tag') }} +
         </Button>
       </div>
       <div
@@ -94,11 +97,11 @@ onBeforeUnmount(() => {
   </Tabs>
 </template>
 <style scoped>
-:deep(.ant-tabs) .ant-tabs-nav {
+.ant-tabs .ant-tabs-nav {
   display: none;
 }
 
-:deep(.ant-tabs) .ant-tabs-content.ant-tabs-content-top {
+.ant-tabs .ant-tabs-content.ant-tabs-content-top {
   height: 100%;
 }
 </style>
