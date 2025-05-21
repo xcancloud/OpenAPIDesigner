@@ -10,13 +10,6 @@ function resolveSelector(selector: string | HTMLElement | null | undefined) {
     : selector;
 }
 
-class MyElement extends HTMLElement {
-  constructor() {
-    super();
-    this.innerHTML = '';
-  }
-}
-
 const defaultOption = {
   language: 'en',
 }
