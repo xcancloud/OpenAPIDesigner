@@ -35,14 +35,15 @@ npm install open-api-designer
   <script type="module" src="your-entry-file.js"></script>
 </head>
 <body>
-<div class="openapi-container"></div></div>
+<div class="openapi-container">
+  <open-api-design></open-api-design>
+</div>
 </body>
 </html>
 ```
 
 ```javascript
 import OpenApiDesigner from 'open-api-designer';
-import 'open-api-designer/style.css';
 
 const initialSpec = {
   openapi: "3.0.1",
@@ -52,9 +53,13 @@ const initialSpec = {
   }
 };
 
-const designer = new OpenApiDesigner('.openapi-container', {
-  language: 'en', // 'en' | 'zh_CN' (默认: 'en')
-  openApiDoc: initialSpec
+const designer = new OpenApiDesigner({
+  onMountedCallback: () => {
+    const custom = document.querySelector('open-api-design');
+    custom.setAttribute('open-api-doc', 'https://generator3.swagger.io/openapi.json');
+    // or
+    custom.setAttribute('open-api-doc', JSON.stringify(initialSpec));
+  }
 });
 ```
 
@@ -63,18 +68,14 @@ const designer = new OpenApiDesigner('.openapi-container', {
 #### React 组件
 
 ```jsx
-import { useEffect } from 'react';
 import OpenApiDesigner from 'open-api-designer';
-import 'open-api-designer/style.css';
+
 
 export default function ApiDesigner() {
-  useEffect(() => {
-    new OpenApiDesigner('.designer-container', {
+  const designInstance = new OpenApiDesigner({
       openApiDoc: {} // 你的OpenAPI规范
     });
-  }, []);
-
-  return ;
+  return <open-api-design open-api-doc="https://generator3.swagger.io/openapi.json"></open-api-design>;
 }
 ```
 
@@ -83,14 +84,25 @@ export default function ApiDesigner() {
 ```vue
 import { onMounted } from 'vue';
 import OpenApiDesigner from 'open-api-designer';
-import 'open-api-designer/style.css';
 
+let designInstance;
 onMounted(() => {
-  new OpenApiDesigner('.designer-container', {
-    language: 'zh_CN',
-    openApiDoc: {} // 你的OpenAPI规范
+  designInstance = new OpenApiDesigner({
+    onMountedCallback: () => {
+      // 
+    }
   });
+
 });
+
+const changeLanguage = () => {
+  designInstance && designInstance.changeLanguage('en')
+}
+
+<template>
+  <component is="open-api-design" open-api-doc="{}"></component>
+</template>
+
 ```
 
 ## ⚙️ 配置选项
@@ -99,17 +111,23 @@ onMounted(() => {
 
 | 参数              | 类型       | 默认值   | 说明                          |
 |-------------------|------------|----------|-------------------------------|
-| `element`         | string     | -        | 容器元素CSS选择器             |
-| `language`        | string     | 'en'     | 界面语言（en/zh_CN）          |
-| `openApiDoc`      | object     | {}       | 初始OpenAPI规范               |
 | `onMountedCallback`| function  | -        | 初始化完成后的回调函数        |
+
+### attribute 参数
+
+| 参数              | 类型       | 默认值   | 说明                          |
+|-------------------|------------|----------|-------------------------------|
+| `open-api-doc`    | string     | '{}'     | 文档JSON 数据; 或者 json 地址    |
+| `language`        | string     | en       | 界面语言（en/zh_CN）             |
+
 
 ### 核心方法
 
-| 方法             | 说明                               |
-|------------------|-----------------------------------|
-| `getDocApi()`    | 获取当前OpenAPI JSON规范           |
-| `updateData()`   | 更新规范数据                       |
+| 方法                     | 说明                               |
+|-------------------------|-----------------------------------|
+| `getDocApi()`           | 获取当前OpenAPI JSON规范           |
+| `updateData()`          | 更新规范数据                       |
+| `changeLanguage(value)` | 更换语言 (en/zh_CN)                 |
 
 ## 🧪 演示预览
 

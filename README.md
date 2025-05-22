@@ -42,80 +42,91 @@ npm install open-api-designer
 
 ```javascript
 import OpenApiDesigner from 'open-api-designer';
-import 'open-api-designer/style.css';
 
 const initialSpec = {
   openapi: "3.0.1",
   info: {
-    title: "API Service",
+    title: "API 服务",
     version: "1.0.0"
   }
 };
 
-const designer = new OpenApiDesigner('.openapi-container', {
-  language: 'en', // 'en' | 'zh_CN' (default: 'en')
-  openApiDoc: initialSpec
+const designer = new OpenApiDesigner({
+  onMountedCallback: () => {
+    const custom = document.querySelector('open-api-design');
+    custom.setAttribute('open-api-doc', 'https://generator3.swagger.io/openapi.json');
+    // or
+    custom.setAttribute('open-api-doc', JSON.stringify(initialSpec));
+  }
 });
 ```
 
-### Framework Integration
+### 框架集成
 
-#### React Component
+#### React 组件
 
 ```jsx
-import { useEffect } from 'react';
 import OpenApiDesigner from 'open-api-designer';
-import 'open-api-designer/style.css';
 
 export default function ApiDesigner() {
-  useEffect(() => {
-    new OpenApiDesigner('.designer-container', {
-      openApiDoc: {} // Your OpenAPI spec
+  const designInstance = new OpenApiDesigner({
+      onMountedCallback: ()=> {
+        // 构建完成
+      }
     });
-  }, []);
-
-  return <div className="designer-container"></div>;
+  return <open-api-design open-api-doc="https://generator3.swagger.io/openapi.json"></open-api-design>;
 }
 ```
 
-#### Vue Component
+#### Vue 组件
 
 ```vue
-<script setup>
 import { onMounted } from 'vue';
 import OpenApiDesigner from 'open-api-designer';
-import 'open-api-designer/style.css';
 
+let designInstance;
 onMounted(() => {
-  new OpenApiDesigner('.designer-container', {
-    language: 'zh_CN',
-    openApiDoc: {} // Your OpenAPI spec
+  designInstance = new OpenApiDesigner({
+    onMountedCallback: () => {
+      // 
+    }
   });
+
 });
-</script>
+
+const changeLanguage = () => {
+  designInstance && designInstance.changeLanguage('en')
+}
 
 <template>
-  <div class="designer-container"></div>
+  <component is="open-api-design" open-api-doc="{}"></component>
 </template>
+
 ```
 
-## ⚙️ Configuration
+## ⚙️ 配置选项
 
-### Constructor Options
+### 构造器参数
 
-| Parameter          | Type     | Default | Description                     |
-|--------------------|----------|---------|---------------------------------|
-| `element`          | string   | -       | CSS selector for container      |
-| `language`         | string   | 'en'    | UI language (en/zh_CN)          |
-| `openApiDoc`       | object   | {}      | Initial OpenAPI specification   |
-| `onMountedCallback`| function | -       | Post-initialization callback    |
+| 参数              | 类型       | 默认值   | 说明                          |
+|-------------------|------------|----------|-------------------------------|
+| `onMountedCallback`| function  | -        | 初始化完成后的回调函数        |
 
-### Core Methods
+### attribute 参数
 
-| Method          | Description                          |
-|-----------------|--------------------------------------|
-| `getDocApi()`   | Returns current OpenAPI JSON spec    |
-| `updateData()`  | Update spec with new JSON data       |
+| 参数              | 类型       | 默认值   | 说明                          |
+|-------------------|------------|----------|-------------------------------|
+| `open-api-doc`    | string     | '{}'     | 文档JSON 数据; 或者 json 地址    |
+| `language`        | string     | en       | 界面语言（en/zh_CN）             |
+
+
+### 核心方法
+
+| 方法                     | 说明                               |
+|-------------------------|-----------------------------------|
+| `getDocApi()`           | 获取当前OpenAPI JSON规范           |
+| `updateData()`          | 更新规范数据                       |
+| `changeLanguage(value)` | 更换语言 (en/zh_CN)                 |
 
 ## 🧪 Demo Preview
 

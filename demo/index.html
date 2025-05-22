@@ -23,15 +23,13 @@
 <body>
   <div class="my-api">
     <open-api-design>
-      <div slot="docTitle" id="title" >OpenAPI Example</div> 
+      <div slot="docTitle" id="title" language="zh_CN">OpenAPI Example</div> 
     </open-api-design>
-  
   </div>
 </body>
 <script type="module">
   import OpenApiDesign from '../dist/index.mjs';
-  const myapi = new OpenApiDesign('.my-api', {
-    language: 'zh_CN',
+  const myapi = new OpenApiDesign({
     onMountedCallback: () => {
       const custom = document.querySelector('open-api-design');
       custom.setAttribute('open-api-doc', 'https://generator3.swagger.io/openapi.json');
