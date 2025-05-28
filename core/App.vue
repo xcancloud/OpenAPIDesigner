@@ -260,7 +260,6 @@ provide('language', language);
 <template>
   <div class="flex p-1 api-root min-w-200 overflow-auto">
     <div class="w-80 bg-gray-100 h-full overflow-y-auto p-1">
-      {{ compKey }}
       <SiderMenu
         v-model:active-menu-key="activeMenuKey"
         v-model:schemaType="schemaType"

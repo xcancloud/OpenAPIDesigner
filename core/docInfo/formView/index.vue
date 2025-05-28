@@ -93,7 +93,7 @@ const getData = () => {
 };
 
 onMounted(() => {
-  getAppFunc({name: 'getDocInfoFormData', func: getData});
+  getAppFunc({name: 'updateData', func: saveData});
   watch(() => props.dataSource?.info, () => {
     easyMdKey.value += 1;
     formState.value = props.dataSource?.info || {};
@@ -121,7 +121,7 @@ const saveData = () => {
 }
 
 onBeforeUnmount(() => {
-  getAppFunc({name: 'getDocInfoFormData', func: () => (false)});
+  getAppFunc({name: 'updateData', func: null});
   saveData();
 });
 
