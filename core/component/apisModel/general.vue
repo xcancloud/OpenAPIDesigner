@@ -81,13 +81,13 @@ defineExpose({
         <Input v-model:value="data.summary" :bordered="false" class="text-5" />
       </div>
       <div>
-        <span class="font-medium">Operation ID</span> 
+        <span class="text-3.5 font-medium">Operation ID</span> 
         <Input
           v-model:value="data.operationId"
           dataType="mixin-en" />
       </div>
       <div>
-        <span class="text-4 font-medium"> Description</span>
+        <span class="text-3.5 font-medium"> Description</span>
         <EasyMd ref="descRef" :value="data.description" />
       </div>
     </div>
@@ -97,7 +97,7 @@ defineExpose({
     
     <Extensions ref="extensionsRef" :dataSource="extensionData" >
       <template #title>
-        <span class="font-medium">Extensions</span> 
+        <span class="font-medium text-3.5">Extensions</span> 
       </template>
     </Extensions>
 

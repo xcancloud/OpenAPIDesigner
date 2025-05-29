@@ -133,6 +133,7 @@ defineExpose({
 
 <template>
 <Form
+class="ant-form-small"
 layout="vertical">
   <div class="flex space-x-4">
     <FormItem :label="useLocal(language)('title')" name="" required class="w-2/3">

@@ -1,0 +1,131 @@
+.ant-table-thead .ant-table-cell-ellipsis,
+.ant-table-thead .ant-table-cell-ellipsis .ant-table-column-title {
+  overflow: initial;
+}
+
+.ant-table-placeholder .ant-table-cell {
+  border: 0 !important;
+}
+
+.ant-select .ant-select-selector,
+.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+  border-radius: 4px;
+}
+
+.ant-select-sm.ant-select {
+  font-size: 12px;
+}
+
+.ant-tag-close-icon svg {
+  /* margin-bottom: 4px;
+  margin-left: 2px; */
+  /* transform: scale(0.85); */
+  font-size: 12px;
+}
+
+.ant-input-clear-icon svg {
+  font-size: 14px;
+}
+
+.ant-notification-notice-icon svg {
+  font-size: 16px;
+  line-height: 16px;
+}
+
+.ant-select-single .ant-select-clear {
+  margin-top: -8px;
+}
+
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected svg,
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected a {
+  color: var(--content-special-text);
+}
+
+.ant-menu-submenu-title:hover {
+  color: var(--content-special-text);
+}
+
+.ant-radio-group-small>label {
+  font-size: 12px;
+}
+
+.ant-picker.ant-picker-small {
+  height: 28px;
+}
+
+.ant-checkbox-group[size="small"] .ant-checkbox-wrapper {
+  font-size: 12px;
+}
+
+.ant-checkbox-wrapper:not(.ant-checkbox-wrapper-disabled):not(.ant-checkbox-wrapper-checked) .ant-checkbox-inner {
+  background-color: #fff;
+}
+
+.ant-form-item:last-child {
+  margin-bottom: 0;
+}
+.ant-form-item {
+  font-size: inherit;
+}
+
+.ant-form-vertical .ant-form-item-label {
+  padding: 0;
+  margin-bottom: 2px;
+}
+
+.ant-form {
+  font-size: inherit;
+}
+
+.ant-form-item-label > label {
+  font-size: inherit;
+}
+
+.ant-tabs {
+  font-size: inherit;
+}
+
+.ant-input {
+  font-size: inherit;
+}
+
+.ant-select {
+  font-size: inherit;
+}
+
+.ant-tabs-small > .ant-tabs-nav .ant-tabs-tab {
+  font-size: inherit;
+}
+
+.ant-input-group {
+  font-size: inherit;
+}
+
+.ant-modal-title {
+  font-size: 14px;
+}
+
+
+.ant-input-affix-wrapper-lg .ant-input {
+  line-height: 1.8;
+}
+
+.ant-select-lg .ant-input {
+  line-height: 1.8;
+}
+
+.ant-input-affix-wrapper.ant-input-affix-wrapper-sm {
+  height: 28px;
+}
+
+.ant-input-affix-wrapper-textarea-with-clear-btn .ant-input {
+  padding: 4px 7px;
+}
+
+.ant-input.ant-input-sm {
+  font-size: 12px;
+}
+
+.ant-tabs-dropdown-menu-item>span>span {
+  width: 100%;
+}

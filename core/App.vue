@@ -8,7 +8,7 @@ import { methodOpt } from './siderMenu/config';
 import YAML from 'yaml';
 import { useLocal } from '../locales/useLocal';
 
-// import { data1 as data } from './data.ts';
+import { data1 as data } from './data.ts';
 
 interface Props {
   openApiDoc: string;
@@ -16,7 +16,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  openApiDoc: '{}',
+  openApiDoc: JSON.stringify(data),
   language: 'zh_CN'
 })
 
@@ -258,7 +258,7 @@ provide('language', language);
 </script>
 
 <template>
-  <div class="flex p-1 api-root min-w-200 overflow-auto">
+  <div class="api-root flex p-1 min-w-200 overflow-auto">
     <div class="w-80 bg-gray-100 h-full overflow-y-auto p-1">
       <SiderMenu
         v-model:active-menu-key="activeMenuKey"
@@ -279,7 +279,7 @@ provide('language', language);
           </Upload>
           <Button size="small" @click="handleDownload">{{ useLocal(language)('export')}}</Button>
         </div>
-        <RadioGroup v-model:value="viewMode">
+        <RadioGroup v-model:value="viewMode" >
           <RadioButton value="form">{{useLocal(language)('form')}}</RadioButton>
           <RadioButton value="code">{{useLocal(language)('code')}}</RadioButton>
           <RadioButton v-if="showPreview" value="preview">{{useLocal(language)('preview')}}</RadioButton>
@@ -346,7 +346,7 @@ provide('language', language);
     "Noto Sans CJK SC",
     "Source Han Sans CN",
     sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #525A65;

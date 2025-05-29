@@ -5,6 +5,7 @@ import '../dist/open-api-designer.css';
 import 'tailwindcss/tailwind.css';
 import 'tailwindcss/components.css';
 import 'tailwindcss/utilities.css';
+import '../core/ant-reset.css';
 
 const init = async () => {
   const en_messages = (await import(`../locales/en.js`)).default;

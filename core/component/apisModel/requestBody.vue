@@ -131,7 +131,7 @@ defineExpose({
     <div class="font-medium text-4 border-b pb-1 mb-2 flex justify-between items-center">
       <div class="inline-flex items-center space-x-1">
         <NotificationOutlined />
-        <span class="text-5 font-medium">RequestBody Description</span>
+        <span class="text-3.5 font-medium">RequestBody Description</span>
       </div>
       <div class="">
         <Select
@@ -144,8 +144,8 @@ defineExpose({
     <EasyMd :key="refComp" :preview="refComp" ref="descRef" :value="data.description" />
   </div>
   <div class="mt-4">
-    <div class="font-medium text-4 border-b pb-1 mb-2 flex justify-between items-center">
-      <span  class="text-5 font-medium">
+    <div class="font-medium text-3.5 border-b pb-1 mb-2 flex justify-between items-center">
+      <span  class="text-3.5 font-medium">
           Body
       </span>
       <Dropdown

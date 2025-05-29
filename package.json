@@ -49,7 +49,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:main": "node ./script/build.js",
+    "build:style": "node ./script/build.js",
     "dev": "vite dev",
     "build": "vite build",
     "deploy": "npm run build & npm --registry http://nexus.xcan.cloud/repository/xcan-npm-release/ publish",

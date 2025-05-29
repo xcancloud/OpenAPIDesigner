@@ -144,8 +144,8 @@ defineExpose({
   <div class="space-y-6">
 
     <div>
-      <div class="font-medium text-4 border-b pb-1 mb-2 flex items-center justify-between">
-        <span class="text-5">Parameters</span>
+      <div class="font-medium text-3.5 border-b pb-1 mb-2 flex items-center justify-between">
+        <span class="text-3.5">Parameters</span>
         <Button type="primary" size="small" @click="addQuery">Add + </Button>
       </div>
       <div class="space-y-2">
@@ -157,8 +157,8 @@ defineExpose({
     </div>
 
     <div>
-      <div class="font-medium text-4 border-b pb-1 mb-2 flex items-center justify-between">
-        <span class="text-5">Header</span>
+      <div class="font-medium text-3.5 border-b pb-1 mb-2 flex items-center justify-between">
+        <span class="text-3.5">Header</span>
         <Button type="primary" size="small" @click="addHeader">Add + </Button>
       </div>
 
@@ -171,8 +171,8 @@ defineExpose({
     </div>
 
     <div>
-      <div class="font-medium text-4 border-b pb-1 mb-2 flex items-center justify-between">
-        <span class="text-5">Cookie</span>
+      <div class="font-medium text-3.5 border-b pb-1 mb-2 flex items-center justify-between">
+        <span class="text-3.5">Cookie</span>
         <Button type="primary" size="small" @click="addCookie">Add + </Button>
       </div>
 
@@ -185,8 +185,8 @@ defineExpose({
     </div>
 
     <div>
-      <div class="font-medium text-4 border-b pb-1 mb-2 flex items-center justify-between">
-        <span class="text-5">Path</span>
+      <div class="font-medium text-3.5 border-b pb-1 mb-2 flex items-center justify-between">
+        <span class="text-3.5">Path</span>
       </div>
 
       <div class="space-y-2">

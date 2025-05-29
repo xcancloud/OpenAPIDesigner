@@ -30,6 +30,7 @@
 <script type="module">
   import OpenApiDesign from '../dist/index.mjs';
   const myapi = new OpenApiDesign({
+    defaultFontSize: 12,
     onMountedCallback: () => {
       const custom = document.querySelector('open-api-design');
       custom.setAttribute('open-api-doc', 'https://generator3.swagger.io/openapi.json');

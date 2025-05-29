@@ -1,5 +1,5 @@
 const styleText0 = `
-[data-v-74dcfdfe] .error-ant-select > .ant-select-selector {
+.error-ant-select > .ant-select-selector[data-v-ff1783e4] {
     border-color: rgba(245, 34, 45, 1)
 }
 
@@ -79,7 +79,7 @@ const styleText2 = `
 .api-root{
   height:100%;
   font-family:Inter, "Apple System", "SF Pro SC", "SF Pro Display", "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", STHeiti, "Microsoft YaHei", "Microsoft JhengHei", "Source Han Sans SC", "Noto Sans CJK SC", "Source Han Sans CN", sans-serif;
-  font-size:14px;
+  font-size:13px;
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
   color:#525A65;
@@ -28577,36 +28577,163 @@ video{
 .hover\:underline:hover {
     text-decoration-line: underline
 }
-`; 
+.ant-table-thead .ant-table-cell-ellipsis,
+.ant-table-thead .ant-table-cell-ellipsis .ant-table-column-title{
+  overflow:initial;
+}
+
+.ant-table-placeholder .ant-table-cell{
+  border:0 !important;
+}
+
+.ant-select .ant-select-selector,
+.ant-select:not(.ant-select-customize-input) .ant-select-selector{
+  border-radius:4px;
+}
+
+.ant-select-sm.ant-select{
+  font-size:12px;
+}
+
+.ant-tag-close-icon svg{
+  font-size:12px;
+}
+
+.ant-input-clear-icon svg{
+  font-size:14px;
+}
+
+.ant-notification-notice-icon svg{
+  font-size:16px;
+  line-height:16px;
+}
+
+.ant-select-single .ant-select-clear{
+  margin-top:-8px;
+}
+
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected svg,
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected a{
+  color:var(--content-special-text);
+}
+
+.ant-menu-submenu-title:hover{
+  color:var(--content-special-text);
+}
+
+.ant-radio-group-small>label{
+  font-size:12px;
+}
+
+.ant-picker.ant-picker-small{
+  height:28px;
+}
+
+.ant-checkbox-group[size="small"] .ant-checkbox-wrapper{
+  font-size:12px;
+}
+
+.ant-checkbox-wrapper:not(.ant-checkbox-wrapper-disabled):not(.ant-checkbox-wrapper-checked) .ant-checkbox-inner{
+  background-color:#fff;
+}
+
+.ant-form-item:last-child{
+  margin-bottom:0;
+}
+.ant-form-item{
+  font-size:inherit;
+}
+
+.ant-form-vertical .ant-form-item-label{
+  padding:0;
+  margin-bottom:2px;
+}
+
+.ant-form{
+  font-size:inherit;
+}
+
+.ant-form-item-label > label{
+  font-size:inherit;
+}
+
+.ant-tabs{
+  font-size:inherit;
+}
+
+.ant-input{
+  font-size:inherit;
+}
+
+.ant-select{
+  font-size:inherit;
+}
+
+.ant-tabs-small > .ant-tabs-nav .ant-tabs-tab{
+  font-size:inherit;
+}
+
+.ant-input-group{
+  font-size:inherit;
+}
+
+.ant-modal-title{
+  font-size:14px;
+}
+
+
+.ant-input-affix-wrapper-lg .ant-input{
+  line-height:1.8;
+}
+
+.ant-select-lg .ant-input{
+  line-height:1.8;
+}
+
+.ant-input-affix-wrapper.ant-input-affix-wrapper-sm{
+  height:28px;
+}
+
+.ant-input-affix-wrapper-textarea-with-clear-btn .ant-input{
+  padding:4px 7px;
+}
+
+.ant-input.ant-input-sm{
+  font-size:12px;
+}
+
+.ant-tabs-dropdown-menu-item>span>span{
+  width:100%;
+}`; 
 const styleText3 = `
-[data-v-72d7dfa9] .ant-tabs .ant-tabs-nav{
+.ant-tabs .ant-tabs-nav[data-v-0cd833a6]{
   display:none;
 }
-[data-v-72d7dfa9] .ant-tabs .ant-tabs-content.ant-tabs-content-top{
+.ant-tabs .ant-tabs-content.ant-tabs-content-top[data-v-0cd833a6]{
   height:100%;
 }
 `; 
 const styleText4 = `
-[data-v-e07c060b] .ant-tabs .ant-tabs-nav{
+.ant-tabs .ant-tabs-nav[data-v-0885a2f9]{
   display:none;
 }
-[data-v-e07c060b] .ant-tabs .ant-tabs-content.ant-tabs-content-top{
+.ant-tabs .ant-tabs-content.ant-tabs-content-top[data-v-0885a2f9]{
   height:100%;
 }
 `; 
 const styleText5 = `
-[data-v-0e95d8b0] .ant-tabs .ant-tabs-nav{
+.ant-tabs .ant-tabs-nav[data-v-d4e009c7]{
   display:none;
 }
-[data-v-0e95d8b0] .ant-tabs .ant-tabs-content.ant-tabs-content-top{
+.ant-tabs .ant-tabs-content.ant-tabs-content-top[data-v-d4e009c7]{
   height:100%;
 }
 `; 
 const styleText6 = `
-[data-v-c9e08c3f] .ant-tabs .ant-tabs-nav{
+.ant-tabs .ant-tabs-nav[data-v-306feef8]{
   display:none;
 }
-[data-v-c9e08c3f] .ant-tabs .ant-tabs-content.ant-tabs-content-top{
+.ant-tabs .ant-tabs-content.ant-tabs-content-top[data-v-306feef8]{
   height:100%;
 }
 `; 

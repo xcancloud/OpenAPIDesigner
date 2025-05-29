@@ -81,7 +81,7 @@ defineExpose({
 <template>
 <div>
   <div class="flex justify-between mb-3">
-    <div class="text-5 font-semibold">Response</div>
+    <div class="text-3.5 font-semibold">Response</div>
     <div>
       <Select
         v-model:value="refComp"
