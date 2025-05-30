@@ -22,24 +22,46 @@
 </head>
 <body>
   <div class="my-api">
-    <open-api-design>
-      <div slot="docTitle" id="title" language="zh_CN">OpenAPI Example</div> 
-    </open-api-design>
+
+  </div>
+
+  <div class="my-api-1">
+
   </div>
 </body>
 <script type="module">
   import OpenApiDesign from '../dist/index.mjs';
   const myapi = new OpenApiDesign({
-    defaultFontSize: 12,
-    onMountedCallback: () => {
-      const custom = document.querySelector('open-api-design');
-      custom.setAttribute('open-api-doc', 'https://generator3.swagger.io/openapi.json');
-    }
+    defaultFontSize: 12
   });
+  const wrap = document.querySelector('.my-api');
+  wrap.innerHTML= `<${myapi.compName}>
+      <div slot="docTitle" id="title" language="zh_CN">OpenAPI Example</div> 
+    </${myapi.compName}>`
+  const custom = document.querySelector(myapi.compName);
+  custom.setAttribute('open-api-doc', 'https://generator3.swagger.io/openapi.json');
   const btn = document.querySelector('#title');
   btn && (btn.onclick= () => {
+    console.log(myapi);
     console.log(btn);
-    myapi.changeLanguage('zh_CN');
+    myapi.changeLanguage('en');
+  })
+
+  const myapi1 = new OpenApiDesign({
+    defaultFontSize: 12
+  });
+
+  const wrap1 = document.querySelector('.my-api-1');
+  wrap1.innerHTML= `<${myapi1.compName}>
+      <div slot="docTitle" id="title-1" language="zh_CN">OpenAPI Example</div> 
+    </${myapi1.compName}>`
+  const custom1 = document.querySelector(myapi1.compName);
+  custom1.setAttribute('open-api-doc', 'https://generator3.swagger.io/openapi.json');
+  const btn1 = document.querySelector('#title-1');
+  btn1 && (btn1.onclick= () => {
+    console.log(myapi1);
+    console.log(btn1);
+    myapi1.changeLanguage('en');
   })
 
 </script>

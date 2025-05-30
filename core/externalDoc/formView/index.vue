@@ -57,11 +57,12 @@ onMounted(() => {
     url: '',
     description: undefined
   };
-  // getAppFunc({name: 'getDocInfoFormData', func: getData});
+  getAppFunc({name: 'updateData', func: saveData});
+
 });
 
 onBeforeUnmount(() => {
-  // getAppFunc({name: 'getDocInfoFormData', func: () => ({})});
+  getAppFunc({name: 'updateData', func: null});
   saveData()
 });
 

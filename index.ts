@@ -3,11 +3,7 @@ import { defineCustomElement, h } from 'vue';
 // import { createI18n } from 'vue-i18n';
 import MyComponent from './core/index.ts';
 import styleList from './assets/style';
-
-const defaultOption = {
-  defaultFontSize: 14
-};
-
+import AppWrapper from './core/AppWrapper.vue';
 
 class DesignInstance {
   // Change Language
@@ -21,7 +17,9 @@ class DesignInstance {
   updateData: Function;
 }
 
-let designInstance;
+const defaultOption = {
+  defaultFontSize: 14
+};
 
 class OpenApiDesign {
   container: HTMLElement|null| undefined;
@@ -31,52 +29,70 @@ class OpenApiDesign {
     onMountedCallback?: Function; // 渲染完成 callback
     defaultFontSize?: number;
   } = {};
-  reloadAccount: number;
+  reloadAccount: number = 0;
+  compName: string;
+
+  instance: any;
 
   constructor (option = {}) {
 
-    this.reloadAccount = 0;
+    this.reloadAccount += 1;
     // this.option = option;
     Object.assign(this.option, {...defaultOption, ...option});
-    if (!designInstance) {
-      designInstance = new DesignInstance();
-    }
     this.init();
-    return designInstance;
   }
 
   init () {
-    // const en_messages = (await import(`./locales/en.js`)).default;
-    // const zh_message = (await import(`./locales/zh_CN.js`)).default;
 
-    // const i18n = createI18n({
-    //   locale: 'en',
-    //   legacy: false,
-    //   messages: {
-    //     zh_CN: zh_message,
-    //     en: en_messages
-    //   }
-    // });
-
+    // while (customElements.get(`design-${this.reloadAccount}`)) {
+    //   this.reloadAccount += 1;
+    // }
     const MyCustomElement = defineCustomElement(MyComponent, {
       styles: [...styleList, `.api-root {heigth: 100%; font-size: ${this.option.defaultFontSize}px}`],
       configureApp: (app) => {
         app.provide('getAppFunc', (appFunc: {name: string; func: Function})=> {
-          designInstance[appFunc.name] = appFunc.func;
+          this[appFunc.name] = appFunc.func;
         });
       },
       shadowRoot: true
     });
 
-    if (!customElements.get(`open-api-design`)) {
-      customElements.define( `open-api-design`, MyCustomElement)
+    // customElements.define( `design-${this.reloadAccount}`, MyCustomElement)
+
+    while (customElements.get(`open-api-design-${this.reloadAccount}`)) {
+      this.reloadAccount += 1;
     }
+
+    this.compName = `open-api-design-${this.reloadAccount}`;
+
+    customElements.define( `open-api-design-${this.reloadAccount}`, MyCustomElement);
+
+    // this.compName = `design-${this.reloadAccount}`;
+    // if (!customElements.get(`open-api-design`)) {
+      // const apiWrapperElement = defineCustomElement(AppWrapper, {
+      //   shadowRoot: false
+      // });
+      // customElements.define( `open-api-design`, MyCustomElement);
+    // }
+    // const wrapperEle = document.querySelector('open-api-design');
+    // wrapperEle?.setAttribute('comp-name', `design-${this.reloadAccount}`);
+
     
     if (typeof this.option.onMountedCallback === 'function') {
       this.option.onMountedCallback();
     }
 
   }
+
+  // Change Language
+  changeLanguage: (language: 'en' | 'zh_CN') => void;
+
+  // get openapidoc JSON Object
+  getDocApi: Function
+
+  // Update the form information to the openapidoc object
+  // When you leave this page, the form will be updated automatically
+  updateData: Function;
 
   
 

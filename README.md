@@ -27,16 +27,19 @@ npm install open-api-designer
 
 ### Basic HTML Integration
 
+
 ```html
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <script type="module" src="your-entry-file.js"></script>
-  </head>
-  <body>
-    <div class="openapi-container"></div>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <script type="module" src="your-entry-file.js"></script>
+</head>
+<body>
+<div class="openapi-container">
+
+</div>
+</body>
 </html>
 ```
 
@@ -51,14 +54,13 @@ const initialSpec = {
   }
 };
 
-const designer = new OpenApiDesigner({
-  onMountedCallback: () => {
-    const custom = document.querySelector('open-api-design');
-    custom.setAttribute('open-api-doc', 'https://generator3.swagger.io/openapi.json');
-    // or
-    custom.setAttribute('open-api-doc', JSON.stringify(initialSpec));
-  }
-});
+const wrap = document.querySelector('.openapi-container');
+
+
+const designer = new OpenApiDesigner();
+
+wrap.innerHTML= `<${designer.compName}> </${designer.compName}>`
+custom.setAttribute('open-api-doc', JSON.stringify(initialSpec));
 ```
 
 ### 框架集成
@@ -68,38 +70,33 @@ const designer = new OpenApiDesigner({
 ```jsx
 import OpenApiDesigner from 'open-api-designer';
 
+function renderCustomElement(tagName, props) {
+  return React.createElement(tagName, props);
+}
+
 export default function ApiDesigner() {
-  const designInstance = new OpenApiDesigner({
-      onMountedCallback: ()=> {
-        // 构建完成
-      }
-    });
-  return <open-api-design open-api-doc="https://generator3.swagger.io/openapi.json"></open-api-design>;
+  const designInstance = new OpenApiDesigner({});
+  return renderCustomElement(designInstance.compName, {'open-api-doc': 'https://generator3.swagger.io/openapi.json'})
 }
 ```
 
 #### Vue 组件
 
 ```vue
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import OpenApiDesigner from 'open-api-designer';
 
-let designInstance;
+const designInstance = ref();
 onMounted(() => {
-  designInstance = new OpenApiDesigner({
-    onMountedCallback: () => {
-      // 
-    }
-  });
-
+  designInstance.value = new OpenApiDesigner();
 });
 
 const changeLanguage = () => {
-  designInstance && designInstance.changeLanguage('en')
+  designInstance.value && designInstance.value.changeLanguage('en')
 }
 
 <template>
-  <component is="open-api-design" open-api-doc="{}"></component>
+  <component :is="designInstance.compName" open-api-doc="{}"></component>
 </template>
 
 ```
@@ -110,7 +107,8 @@ const changeLanguage = () => {
 
 | 参数              | 类型       | 默认值   | 说明                          |
 |-------------------|------------|----------|-------------------------------|
-| `onMountedCallback`| function  | -        | 初始化完成后的回调函数        |
+| `defaultFontSize` | string  | 13       |         |
+
 
 ### attribute 参数
 

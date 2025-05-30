@@ -8,7 +8,7 @@ import { methodOpt } from './siderMenu/config';
 import YAML from 'yaml';
 import { useLocal } from '../locales/useLocal';
 
-import { data1 as data } from './data.ts';
+// import { data1 as data } from './data.ts';
 
 interface Props {
   openApiDoc: string;
@@ -16,7 +16,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  openApiDoc: JSON.stringify(data),
+  openApiDoc: JSON.stringify('{}'),
   language: 'zh_CN'
 })
 
@@ -259,7 +259,7 @@ provide('language', language);
 
 <template>
   <div class="api-root flex p-1 min-w-200 overflow-auto">
-    <div class="w-80 bg-gray-100 h-full overflow-y-auto p-1">
+    <div class="w-80 bg-gray-50 h-full overflow-y-auto p-1">
       <SiderMenu
         v-model:active-menu-key="activeMenuKey"
         v-model:schemaType="schemaType"
@@ -317,16 +317,6 @@ provide('language', language);
 </template>
 
 <style>
-.ant-tabs.view-type-tab>.ant-tabs-nav {
-  display: none;
-}
-
-.ant-tabs.view-type-tab >.ant-tabs-content-holder > .ant-tabs-content.ant-tabs-content-top {
-  height: 100%;
-}
-</style>
-
-<style>
 
 .api-root{
   height: 100%;
@@ -354,5 +344,13 @@ provide('language', language);
 
 .ant-input.ant-input-borderless:hover {
  @apply bg-gray-200;
+}
+
+.api-root .ant-tabs.view-type-tab>.ant-tabs-nav {
+  display: none;
+}
+
+.api-root .ant-tabs.view-type-tab >.ant-tabs-content-holder > .ant-tabs-content.ant-tabs-content-top {
+  height: 100%;
 }
 </style>
