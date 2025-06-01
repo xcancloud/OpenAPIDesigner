@@ -49,7 +49,7 @@ import OpenApiDesigner from 'open-api-designer';
 const initialSpec = {
   openapi: "3.0.1",
   info: {
-    title: "API 服务",
+    title: "API Docs",
     version: "1.0.0"
   }
 };
@@ -63,9 +63,9 @@ wrap.innerHTML= `<${designer.compName}> </${designer.compName}>`
 custom.setAttribute('open-api-doc', JSON.stringify(initialSpec));
 ```
 
-### 框架集成
+### Framework Integration
 
-#### React 组件
+#### React
 
 ```jsx
 import OpenApiDesigner from 'open-api-designer';
@@ -80,7 +80,7 @@ export default function ApiDesigner() {
 }
 ```
 
-#### Vue 组件
+#### Vue
 
 ```vue
 import { onMounted, ref } from 'vue';
@@ -101,30 +101,28 @@ const changeLanguage = () => {
 
 ```
 
-## ⚙️ 配置选项
+## ⚙️ Configuration Options
 
-### 构造器参数
+### Constructor Parameters
 
-| 参数              | 类型       | 默认值   | 说明                          |
-|-------------------|------------|----------|-------------------------------|
-| `defaultFontSize` | string  | 13       |         |
+| Parameter         | Type     | Default | Description                  |
+|-------------------|----------|---------|------------------------------|
+| `defaultFontSize` | string   | 13      | Default font size for display |
 
+### Attribute Parameters
 
-### attribute 参数
+| Parameter         | Type     | Default | Description                          |
+|-------------------|----------|---------|---------------------------------------|
+| `open-api-doc`    | string   | '{}'    | OpenAPI documentation JSON data or URL to JSON file |
+| `language`        | string   | en      | UI language (en/zh_CN)                |
 
-| 参数              | 类型       | 默认值   | 说明                          |
-|-------------------|------------|----------|-------------------------------|
-| `open-api-doc`    | string     | '{}'     | 文档JSON 数据; 或者 json 地址    |
-| `language`        | string     | en       | 界面语言（en/zh_CN）             |
+### Core Methods
 
-
-### 核心方法
-
-| 方法                     | 说明                               |
-|-------------------------|-----------------------------------|
-| `getDocApi()`           | 获取当前OpenAPI JSON规范           |
-| `updateData()`          | 更新规范数据                       |
-| `changeLanguage(value)` | 更换语言 (en/zh_CN)                 |
+| Method               | Description                               |
+|----------------------|-------------------------------------------|
+| `getDocApi()`        | Get current OpenAPI JSON specification    |
+| `updateData()`       | Update specification data                 |
+| `changeLanguage(value)` | Change language (en/zh_CN)               |
 
 ## 🧪 Demo Preview
 

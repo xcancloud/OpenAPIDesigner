@@ -48,7 +48,7 @@ import OpenApiDesigner from 'open-api-designer';
 const initialSpec = {
   openapi: "3.0.1",
   info: {
-    title: "API 服务",
+    title: "title: "API Docs",",
     version: "1.0.0"
   }
 };
