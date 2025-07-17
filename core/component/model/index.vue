@@ -36,32 +36,7 @@ const modelType = ref<string|undefined>('object');
 const description = ref();
 
 // const schema = ref<Record<string, any>>({});
-const objectAttrList = ref<{name: string, [key: string]: any}[]>([
-  {
-    name: 'name0',
-    schema: {
-      type: 'string'
-    }
-  },
-  {
-    name: 'name1',
-    schema: {
-      type: 'object'
-    },
-    children: [
-      {
-        name: 'name2',
-        $ref: '#components/schema/name2'
-      }
-    ]
-  },
-  {
-    name: 'name3',
-    schema: {
-      type: 'string'
-    }
-  }
-]);
+const objectAttrList = ref<{name: string, [key: string]: any}[]>([]);
 
 const addFromType = ref<'object'|null>(null);
 let currentAddNode: {[key: string]: any} | undefined;
@@ -208,7 +183,7 @@ onBeforeUnmount(() => {
         :maxlength="1000"
         :placeholder="useLocal(language)('desc')" />
         <div class="border">
-          <Tabs>
+          <Tabs class="model-schema-tabs">
             <TabPane key="scheams" tab="Schema" class="pb-3">
               <AttrItemList
                 :dataSource="objectAttrList"
@@ -235,3 +210,8 @@ onBeforeUnmount(() => {
     </div>
   </div>
 </template>
+<style>
+.model-schema-tabs>.ant-tabs-nav {
+  padding-left: 20px;
+}
+</style>

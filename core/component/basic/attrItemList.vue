@@ -18,7 +18,7 @@
           <span v-if="attr.format">{{ `<${attr.format}>` }}</span>
           <span v-if="attr.$ref" class="text-status-warn hover:underline cursor-pointer" @click="editSelf(attr, )">$ref</span>
           <Button
-            v-show=" !attr.$ref && (attr.type === 'object' || combineType.includes(attr.type))"
+            v-show="!attr.$ref && (attr.type === 'object' || combineType.includes(attr.type))"
             :disabled="$props.disabled"
             type="link"
             size="small"
@@ -130,7 +130,7 @@ export default defineComponent({
         anyOf: 'text-status-yellow',
         allOf: 'text-status-yellow'
       },
-      combineType: ['oneOf', 'anyOf', 'allOf']
+      combineType: ['oneOf', 'anyOf', 'allOf'],
     };
   },
   methods: {
@@ -149,7 +149,19 @@ export default defineComponent({
       }
       this.$emit('edit', attr, type, excludesAttr);
     }
-  }
+  },
+
+  watch : {
+    dataSource: {
+      handler(newValue, oldValue) {
+        if (newValue.length && !oldValue?.length && this.$props.isRoot) {
+          this.$props.dataSource[0].open = true;
+        }
+      },
+      immediate: true,
+      deep: true
+    }
+  },
 });
 </script>
 <style scoped>

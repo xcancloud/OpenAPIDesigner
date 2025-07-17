@@ -529,6 +529,13 @@ const methodColorConfig:Record<string, string> = {
   trace: 'text-http-trace',
 };
 
+const compnentsCount = computed(() => {
+  const components = defaultMenu.value.find(i => i.key === 'components') || {};
+  return (components.children || [])?.reduce((pre, cur) => {
+    return pre + cur.children.length
+  }, 0);
+});
+
 </script>
 <template>
   <div>
@@ -566,6 +573,7 @@ const methodColorConfig:Record<string, string> = {
               v-model:open="compExpandMap[menu.key]" />
             <span class="truncate">{{ menu.title }}</span>
             <template v-if="['apis'].includes(menu.key)">{{ `(${menu.children?.length})` }}</template>
+            <template v-if="['components'].includes(menu.key)">{{ `(${compnentsCount})` }}</template>
           </div>
         </div>
       

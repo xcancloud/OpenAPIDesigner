@@ -3,10 +3,10 @@ const styleText0 = `
     border-color: rgba(245, 34, 45, 1)
 }
 
-.attr-item-wrap[data-v-7f31d73f]{
+.attr-item-wrap[data-v-44631854]{
   border-left:1px solid #07F
 }
-.attr-item-last[data-v-7f31d73f]::before{
+.attr-item-last[data-v-44631854]::before{
   content:'';
   display:inline-block;
   position:absolute;
@@ -15,7 +15,7 @@ const styleText0 = `
   height:32px;
   border-left:1px solid #07F;
 }
-.attr-item[data-v-7f31d73f]::after{
+.attr-item[data-v-44631854]::after{
   content:'';
   display:inline-block;
   position:absolute;
@@ -69,13 +69,6 @@ const styleText2 = `
   transform:rotate(90deg);
 }
 
-.ant-tabs.view-type-tab>.ant-tabs-nav{
-  display:none;
-}
-.ant-tabs.view-type-tab >.ant-tabs-content-holder > .ant-tabs-content.ant-tabs-content-top{
-  height:100%;
-}
-
 .api-root{
   height:100%;
   font-family:Inter, "Apple System", "SF Pro SC", "SF Pro Display", "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", STHeiti, "Microsoft YaHei", "Microsoft JhengHei", "Source Han Sans SC", "Noto Sans CJK SC", "Source Han Sans CN", sans-serif;
@@ -87,6 +80,12 @@ const styleText2 = `
 .ant-input.ant-input-borderless:hover{
   --tw-bg-opacity:1;
   background-color:rgb(229 231 235 / var(--tw-bg-opacity, 1));
+}
+.api-root .ant-tabs.view-type-tab>.ant-tabs-nav{
+  display:none;
+}
+.api-root .ant-tabs.view-type-tab >.ant-tabs-content-holder > .ant-tabs-content.ant-tabs-content-top{
+  height:100%;
 }
 [class^=ant-]::-ms-clear,
 [class*= ant-]::-ms-clear,
@@ -34541,6 +34540,11 @@ const styleText8 = `.monaco-editor{
 }
 `; 
 const styleText9 = `
+.model-schema-tabs>.ant-tabs-nav{
+  padding-left:20px;
+}
+`; 
+const styleText10 = `
 .required-icon[data-v-da281782]{
   color:#ff4d4f;
   font-family:SimSun, sans-serif;
@@ -34548,10 +34552,10 @@ const styleText9 = `
   line-height:12px;
 }
 `; 
-const styleText10 = `
+const styleText11 = `
 .param-basic-wrapper > *{
   border:none;
 }
 `; 
-const styleList = [styleText0, styleText1, styleText2, styleText3, styleText4, styleText5, styleText6, styleText7, styleText8, styleText9, styleText10]; 
+const styleList = [styleText0, styleText1, styleText2, styleText3, styleText4, styleText5, styleText6, styleText7, styleText8, styleText9, styleText10, styleText11]; 
 export default styleList;

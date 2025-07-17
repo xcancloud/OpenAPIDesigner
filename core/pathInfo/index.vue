@@ -7,7 +7,8 @@ import { DeleteOutlined } from '@ant-design/icons-vue';
 
 import NoData from '@/common/noData/index.vue';
 const ServerForm = defineAsyncComponent(() => import('@/server/formView/index.vue'));
-
+const useLocal = inject('useLocal');
+const language = inject('language', ref());
 
 type Server = {
   url: string;
@@ -84,12 +85,12 @@ onBeforeUnmount(() => {
 <template>
   <div class="space-y-4">
     <div>
-      <div class="text-6 font-semibold">Summary</div>
+      <div class="text-6 font-semibold">{{ useLocal(language)('summary') }}</div>
       <EasyMd ref="summaryRef" :value="props.dataSource?.summary" />
     </div>
     
     <div>
-      <div class="text-6 font-semibold">Description</div>
+      <div class="text-6 font-semibold">{{ useLocal(language)('desc') }}</div>
       <EasyMd ref="descRef" :value="props.dataSource?.description" />
     </div>
     <div class="space-y-3">

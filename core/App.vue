@@ -16,7 +16,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  openApiDoc: JSON.stringify('{}'),
+  openApiDoc: JSON.stringify({}),
   language: 'zh_CN'
 })
 
@@ -269,7 +269,7 @@ provide('language', language);
     </div>
     <div class="flex flex-col flex-1 min-w-200 py-2 pl-2 h-full overflow-auto">
       <div> <slot name="docTitle"></slot> </div>
-      <div class="flex justify-between">
+      <div class="flex justify-between pb-3">
         <div class="flex space-x-2 items-center">
           <Upload
             :customRequest="handleUploadFile"
