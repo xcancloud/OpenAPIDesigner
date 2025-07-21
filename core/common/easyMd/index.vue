@@ -55,12 +55,29 @@ defineExpose({
 });
 </script>
 <template>
-  <div :class="{'preview-wrapper': !!props.preview }">
+  <div class="revert-style text-4" :class="{'preview-wrapper': !!props.preview }">
     <textarea ref="textareaRef"></textarea>
   </div>
 </template>
 <style>
+
 .preview-wrapper > .EasyMDEContainer > .editor-toolbar[role="toolbar"]{
   display: none;;
-};
+}
+
+.revert-style h1,
+.revert-style h2,
+.revert-style h3,
+.revert-style h4,
+.revert-style h5,
+.revert-style h6,
+.revert-style p,
+.revert-style table,
+.revert-style ul,
+.revert-style ol,
+.revert-style pre,
+.revert-style code,
+.revert-style li {
+  all:revert;
+}
 </style>

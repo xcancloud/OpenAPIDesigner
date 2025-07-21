@@ -20,6 +20,10 @@ async function start() {
       cssText = cssText.replaceAll(' \\9', '');
       cssText = cssText.replaceAll('content:"\\', 'content:"\\\\');
       cssText = cssText.replaceAll('content:\'\\', 'content:\'\\\\');
+      if (cssText.startsWith('.CodeMirror')) {
+        cssText = cssText.replaceAll('\/', '\\\/');
+      }
+      
       fs.appendFileSync(resolve(`../assets/style.js`), `const styleText${styleList.length} = \`${cssText}\`; \n`, 'utf8');
       styleList.push(`styleText${styleList.length}`);
     }
