@@ -137,4 +137,4 @@ Access demo at `http://127.0.0.1:8080/demo/index.html`
 
 ## 📜 License
 
-Licensed under [GPLv3](https://www.gnu.org/licenses/gpl-3.0.html).
+Licensed under [Apache-2.0 license](http://www.apache.org/licenses/).
