@@ -137,4 +137,4 @@ npm run demo
 
 ## 📜 许可协议
 
-基于 [GPLv3](https://www.gnu.org/licenses/gpl-3.0.html) 协议授权。
+基于 [Apache-2.0](http://www.apache.org/licenses/) 协议授权。
