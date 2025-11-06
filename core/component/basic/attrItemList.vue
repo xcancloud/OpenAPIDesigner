@@ -52,8 +52,8 @@
 </template>
 <script>
 import { defineComponent } from 'vue';
-import IconRequired from '@/common/icons/IconRequired/index.vue';
-import Arrow from '@/common/arrow/index.vue';
+import IconRequired from '@/common/Icons/IconRequired/index.vue';
+import Arrow from '@/common/Arrow/index.vue';
 import { Button, Popover } from 'ant-design-vue';
 import { EditOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons-vue';
 

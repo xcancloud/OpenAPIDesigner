@@ -35,7 +35,7 @@ const Comp = defineAsyncComponent(() => import('./component/index.vue'));
 const ApiModel = defineAsyncComponent(() => import('./component/apisModel/index.vue'));
 const PathInfo = defineAsyncComponent(() => import('./pathInfo/index.vue'));
 
-const DocInfoPreview = defineAsyncComponent(() => import('./docInfo/preview/index.vue'));
+const DocInfoPreview = defineAsyncComponent(() => import('./docInfo/preView/index.vue'));
 const ExternalDocPreview = defineAsyncComponent(() => import('./externalDoc/preView/index.vue'));
 const ServerPreview = defineAsyncComponent(() => import('./server/preView/index.vue'));
 const SecurityPreview = defineAsyncComponent(() => import('./security/preView/index.vue'));

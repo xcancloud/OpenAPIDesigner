@@ -4,15 +4,15 @@ import { computed, onMounted, ref, watch, inject } from 'vue';
 // import { useI18n } from 'vue-i18n';
 import { debounce } from 'throttle-debounce';
 import { Input, Select, Dropdown, Menu, MenuItem, Modal, notification, Button } from 'ant-design-vue';
-import Arrow from '@/common/arrow/index.vue';
+import Arrow from '@/common/Arrow/index.vue';
 import { methodOpt, getPathParameterByPath } from './config';
 
-import docInfoSvg  from '../Icons/docInfo.svg';
-import outDocSvg from '../Icons/outDoc.svg';
-import serverSvg from '../Icons/server.svg';
-import anquanSvg from '../Icons/anquan.svg';
-import tagSvg from '../Icons/tag.svg';
-import MenuDropdown from '@/common/dropdown/index.vue';
+import docInfoSvg  from '../icons/docInfo.svg';
+import outDocSvg from '../icons/outDoc.svg';
+import serverSvg from '../icons/server.svg';
+import anquanSvg from '../icons/anquan.svg';
+import tagSvg from '../icons/tag.svg';
+import MenuDropdown from '@/common/Dropdown/index.vue';
 
 
 interface Props {

@@ -98,7 +98,7 @@ defineExpose({
           @blur="autoSave" />
       </template>
       <div v-else class="text-center">
-        <img class="inline-block" src="../../Icons/noData.svg" />
+        <img class="inline-block" src="../../icons/noData.svg" />
       </div>
     </div>
   </div>
