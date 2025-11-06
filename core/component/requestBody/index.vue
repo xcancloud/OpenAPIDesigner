@@ -2,7 +2,7 @@
 import { ref, watch, onMounted, nextTick, Ref, inject, onBeforeUnmount, defineAsyncComponent } from 'vue';
 import { Button, TabPane, Tabs  } from 'ant-design-vue';
 import { CONTENT_TYPE } from '../basic/utils';
-import Dropdown from '@/common/dropdown/index.vue';
+import Dropdown from '@/common/Dropdown/index.vue';
 
 import BodyContentTypeTab from '../basic/bodyContentTypeTab.vue';
 

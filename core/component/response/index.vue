@@ -5,7 +5,7 @@ import { CONTENT_TYPE } from '../basic/utils';
 
 import BodyContentTypeTab from '../basic/bodyContentTypeTab.vue';
 import parameterBasic from '../basic/parameterBasic.vue';
-import Dropdown from '@/common/dropdown/index.vue';
+import Dropdown from '@/common/Dropdown/index.vue';
 import NoData from '@/common/noData/index.vue';
 
 const descRef = ref();

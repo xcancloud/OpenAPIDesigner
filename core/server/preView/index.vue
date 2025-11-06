@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, inject, computed } from 'vue';
-import Arrow from '@/common/arrow/index.vue';
+import Arrow from '@/common/Arrow/index.vue';
 
 const dataSource = inject('dataSource', ref());
 

@@ -5,7 +5,7 @@ import { CONTENT_TYPE } from './utils';
 // import NoDataSvg from '@/icons/noData.svg';
 
 import BodyContentTypeTab from './bodyContentTypeTab.vue';
-import Dropdown from '@/common/dropdown/index.vue';
+import Dropdown from '@/common/Dropdown/index.vue';
 import ParameterBasic from './parameterBasic.vue';
 import NoData from '@/common/noData/index.vue';
 
