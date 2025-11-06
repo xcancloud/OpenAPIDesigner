@@ -1,0 +1,316 @@
+/* Form Beautification Styles */
+
+/* ===== Form Container ===== */
+.api-form-container {
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  transition: all var(--transition-base);
+}
+
+/* ===== Form Sections ===== */
+.form-section {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+}
+
+.form-section:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--card-shadow);
+}
+
+.form-section-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--border-primary);
+}
+
+/* ===== Form Items ===== */
+.ant-form-item {
+  margin-bottom: var(--spacing-lg);
+}
+
+.ant-form-item-label > label {
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+}
+
+/* ===== Input Fields ===== */
+.ant-input,
+.ant-input-number,
+.ant-select-selector {
+  background-color: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+  color: var(--text-primary) !important;
+  border-radius: var(--radius-sm) !important;
+  transition: all var(--transition-fast) !important;
+}
+
+.ant-input:hover,
+.ant-input-number:hover,
+.ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+  border-color: var(--border-hover) !important;
+}
+
+.ant-input:focus,
+.ant-input-number:focus,
+.ant-select-focused .ant-select-selector {
+  border-color: var(--input-focus-border) !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
+}
+
+.ant-input::placeholder {
+  color: var(--text-placeholder);
+}
+
+/* ===== Textarea ===== */
+.ant-input-textarea textarea {
+  background-color: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+  color: var(--text-primary) !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+/* ===== Select Dropdown ===== */
+.ant-select-dropdown {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.ant-select-item {
+  color: var(--text-primary);
+}
+
+.ant-select-item-option-selected {
+  background-color: var(--bg-hover);
+}
+
+.ant-select-item-option-active {
+  background-color: var(--bg-tertiary);
+}
+
+/* ===== Buttons ===== */
+.ant-btn {
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-fast);
+  border: 1px solid var(--border-primary);
+}
+
+.ant-btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.ant-btn-primary:hover {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+.ant-btn-primary:active {
+  background-color: var(--color-primary-active);
+  border-color: var(--color-primary-active);
+}
+
+/* ===== Radio & Checkbox ===== */
+.ant-radio-button-wrapper {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-primary);
+  color: var(--text-secondary);
+}
+
+.ant-radio-button-wrapper:hover {
+  color: var(--color-primary);
+}
+
+.ant-radio-button-wrapper-checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+}
+
+/* ===== Tags ===== */
+.ant-tag {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-primary);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  font-size: var(--font-size-xs);
+}
+
+/* ===== Cards ===== */
+.ant-card {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--card-shadow);
+  transition: all var(--transition-base);
+}
+
+.ant-card:hover {
+  box-shadow: var(--card-shadow-hover);
+}
+
+.ant-card-head {
+  border-bottom: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ===== Tables ===== */
+.ant-table {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.ant-table-thead > tr > th {
+  background-color: var(--bg-secondary);
+  border-bottom: 2px solid var(--border-primary);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.ant-table-tbody > tr > td {
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.ant-table-tbody > tr:hover > td {
+  background-color: var(--bg-hover);
+}
+
+/* ===== Modal ===== */
+.ant-modal-content {
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+}
+
+.ant-modal-header {
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.ant-modal-title {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.ant-modal-body {
+  color: var(--text-primary);
+}
+
+.ant-modal-footer {
+  border-top: 1px solid var(--border-primary);
+}
+
+/* ===== Tabs ===== */
+.ant-tabs-tab {
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.ant-tabs-tab:hover {
+  color: var(--color-primary);
+}
+
+.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.ant-tabs-ink-bar {
+  background-color: var(--color-primary);
+}
+
+/* ===== Sidebar Enhancement ===== */
+.api-root .w-80 {
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-primary);
+  padding: var(--spacing-lg);
+}
+
+/* ===== HTTP Method Tags ===== */
+.http-method-get {
+  background-color: var(--http-get);
+  color: white;
+}
+
+.http-method-post {
+  background-color: var(--http-post);
+  color: white;
+}
+
+.http-method-put {
+  background-color: var(--http-put);
+  color: white;
+}
+
+.http-method-patch {
+  background-color: var(--http-patch);
+  color: white;
+}
+
+.http-method-delete {
+  background-color: var(--http-delete);
+  color: white;
+}
+
+.http-method-options {
+  background-color: var(--http-options);
+  color: white;
+}
+
+/* ===== Improved Spacing ===== */
+.space-y-comfortable > * + * {
+  margin-top: var(--spacing-lg);
+}
+
+.space-x-comfortable > * + * {
+  margin-left: var(--spacing-lg);
+}
+
+/* ===== Better Visual Hierarchy ===== */
+.visual-hierarchy-1 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-lg);
+}
+
+.visual-hierarchy-2 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.visual-hierarchy-3 {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* ===== Improved Dividers ===== */
+.divider-subtle {
+  height: 1px;
+  background-color: var(--border-primary);
+  margin: var(--spacing-lg) 0;
+}
+
+.divider-prominent {
+  height: 2px;
+  background-color: var(--border-secondary);
+  margin: var(--spacing-xl) 0;
+}

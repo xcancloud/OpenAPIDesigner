@@ -73,27 +73,27 @@ const licenseTypeOpt = computed(() =>[
   }
 ]);
 
-const getData = () => {
-  const data = JSON.parse(JSON.stringify(formState.value));
+const getFormData = () => {
+  const formData = JSON.parse(JSON.stringify(formState.value));
   const description = descRef.value.getValue();
-  const {contact, license} = data;
-  data.description = description;
+  const {contact, license} = formData;
+  formData.description = description;
   if (contact && !contact.name && !contact.url && !contact.email ) {
-    delete data.contact;
+    delete formData.contact;
   }
 
   if (!license.name) {
-    delete data.contact;
+    delete formData.license;
   } else if (licenseType.value === 'identifier') {
-    delete data.license.url;
+    delete formData.license.url;
   } else if (licenseType.value === 'url') {
-    delete data.license.identifier;
+    delete formData.license.identifier;
   }
-  return data;
+  return formData;
 };
 
 onMounted(() => {
-  getAppFunc({name: 'updateData', func: saveData});
+  getAppFunc({name: 'updateData', func: saveFormData});
   watch(() => props.dataSource?.info, () => {
     easyMdKey.value += 1;
     formState.value = props.dataSource?.info || {};
@@ -116,17 +116,17 @@ onMounted(() => {
   });
 });
 
-const saveData = () => {
-  dataSource.value.info = getData();
+const saveFormData = () => {
+  dataSource.value.info = getFormData();
 }
 
 onBeforeUnmount(() => {
   getAppFunc({name: 'updateData', func: null});
-  saveData();
+  saveFormData();
 });
 
 defineExpose({
-  getData: getData
+  getData: getFormData
 });
 
 </script>

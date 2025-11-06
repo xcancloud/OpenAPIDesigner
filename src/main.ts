@@ -1,6 +1,8 @@
 import { createApp } from 'vue';
 import { createI18n } from 'vue-i18n';
 import App from '../core/App.vue';
+import '../core/styles/theme.css';
+import '../core/styles/forms.css';
 import '../dist/open-api-designer.css';
 import 'tailwindcss/tailwind.css';
 import 'tailwindcss/components.css';

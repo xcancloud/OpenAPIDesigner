@@ -95,10 +95,8 @@ const handlekeywordsChange = debounce(600, () => {
   Object.keys(apiPaths.value).forEach(path => {
     if (path.includes(searchKeywords.value)) {
       compExpandMap.value['apis'] = true;
-      console.log(path);
     }
     Object.keys(apiPaths.value[path]).forEach(method => {
-      console.log(path);
       if (apiPaths.value[path][method].summary.includes(searchKeywords.value)) {
         compExpandMap.value[path] = true;
         compExpandMap.value['apis'] = true;

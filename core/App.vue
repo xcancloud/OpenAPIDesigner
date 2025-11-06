@@ -23,6 +23,13 @@ const props = withDefaults(defineProps<Props>(), {
 const getAppFunc = inject('getAppFunc', (arg: {name: string, func: Function}):void => {});
 const dataSource = ref<{[key: string]: any}>();
 
+// Theme management
+const currentTheme = ref<'light' | 'dark'>('light');
+const toggleTheme = () => {
+  currentTheme.value = currentTheme.value === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', currentTheme.value);
+};
+
 
 
 const DocInfo = defineAsyncComponent(() => import('./docInfo/formView/index.vue'));
@@ -211,6 +218,8 @@ onMounted(() => {
   }});
 
   getAppFunc({name: 'changeLanguage', func: handleChangeLanguage });
+  
+  getAppFunc({name: 'toggleTheme', func: toggleTheme });
 
   watch(() => showPreview.value, (newValue) => {
     if (!newValue) {
@@ -258,8 +267,8 @@ provide('language', language);
 </script>
 
 <template>
-  <div class="api-root flex p-1 min-w-200 overflow-auto">
-    <div class="w-80 bg-gray-50 h-full overflow-y-auto p-1">
+  <div class="api-root flex p-2 min-w-200 overflow-auto">
+    <div class="api-sidebar w-80 h-full overflow-y-auto">
       <SiderMenu
         v-model:active-menu-key="activeMenuKey"
         v-model:schemaType="schemaType"
@@ -267,10 +276,10 @@ provide('language', language);
         @addComp="updateData"
         @delComp="handleDelComp" />
     </div>
-    <div class="flex flex-col flex-1 min-w-200 py-2 pl-2 h-full overflow-auto">
+    <div class="flex flex-col flex-1 min-w-200 h-full overflow-auto api-content">
       <div> <slot name="docTitle"></slot> </div>
-      <div class="flex justify-between pb-3">
-        <div class="flex space-x-2 items-center">
+      <div class="flex justify-between items-center pb-4 px-4 pt-3 bg-primary border-b">
+        <div class="flex space-x-3 items-center">
           <Upload
             :customRequest="handleUploadFile"
             accept=".json,.yaml"
@@ -278,24 +287,28 @@ provide('language', language);
             <Button type="primary" size="small">{{useLocal(language)('import')}}</Button>
           </Upload>
           <Button size="small" @click="handleDownload">{{ useLocal(language)('export')}}</Button>
+          <Button size="small" @click="toggleTheme" class="theme-toggle-btn">
+            <span v-if="currentTheme === 'light'">🌙</span>
+            <span v-else>☀️</span>
+          </Button>
         </div>
-        <RadioGroup v-model:value="viewMode" >
+        <RadioGroup v-model:value="viewMode" size="small">
           <RadioButton value="form">{{useLocal(language)('form')}}</RadioButton>
           <RadioButton value="code">{{useLocal(language)('code')}}</RadioButton>
           <RadioButton v-if="showPreview" value="preview">{{useLocal(language)('preview')}}</RadioButton>
         </RadioGroup>
       </div>
       <Tabs v-model:activeKey="viewMode" destroyInactiveTabPane class="flex-1 view-type-tab">
-        <TabPane key="form" class="overflow-auto pr-3" >
-          <DocInfo v-if="activeMenuKey === 'info'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
-          <ExternalDoc v-else-if="activeMenuKey === 'externalDocs'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
-          <Server v-else-if="activeMenuKey === 'servers'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
-          <Tag v-else-if="activeMenuKey === 'tags'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
-          <Extensions v-else-if="activeMenuKey === 'extensions'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" />
-          <Security v-else-if="activeMenuKey === 'security'" :dataSource="dataSource" :viewMode="viewMode" class="mt-4" @save="saveSecurity" />
+        <TabPane key="form" class="overflow-auto px-4 py-3" >
+          <DocInfo v-if="activeMenuKey === 'info'" :dataSource="dataSource" :viewMode="viewMode" class="api-form-container" />
+          <ExternalDoc v-else-if="activeMenuKey === 'externalDocs'" :dataSource="dataSource" :viewMode="viewMode" class="api-form-container" />
+          <Server v-else-if="activeMenuKey === 'servers'" :dataSource="dataSource" :viewMode="viewMode" class="api-form-container" />
+          <Tag v-else-if="activeMenuKey === 'tags'" :dataSource="dataSource" :viewMode="viewMode" class="api-form-container" />
+          <Extensions v-else-if="activeMenuKey === 'extensions'" :dataSource="dataSource" :viewMode="viewMode" class="api-form-container" />
+          <Security v-else-if="activeMenuKey === 'security'" :dataSource="dataSource" :viewMode="viewMode" class="api-form-container" @save="saveSecurity" />
           <ApiModel v-else-if="selectedApi" :dataSource="selectedApi" :openapiDoc="dataSource"/>
           <PathInfo :key="apiEndpoint" v-else-if="selectPath" :dataSource="selectPath" :path="apiEndpoint"  />
-          <Comp v-else  class="mt-4" :dataSource="dataSource" :schemaType="schemaType" :schemaName="activeMenuKey" @del="handleDelComp" />
+          <Comp v-else  class="api-form-container" :dataSource="dataSource" :schemaType="schemaType" :schemaName="activeMenuKey" @del="handleDelComp" />
         </TabPane>
         <TabPane key="code">
           <CodeView v-if="!schemaType && selectApiObj" class="h-full" :selectStr="selectApiObj" :startKey="selectApiObj ? (apiEndpoint || 'paths') : undefined" :dataSource="dataSource" />
@@ -304,7 +317,7 @@ provide('language', language);
           <CodeView v-else-if="!schemaType" class="h-full" :selectStr="{[activeMenuKey]: dataSource[activeMenuKey]}" :startKey="undefined" :dataSource="dataSource" />
           <CodeView v-else class="h-full" :selectStr="{[activeMenuKey]: dataSource.components?.[schemaType]?.[activeMenuKey]}" startKey="components" :dataSource="dataSource"  />
         </TabPane>
-        <TabPane v-if="showPreview" key="preview" class="overflow-auto pr-3 space-y-4">
+        <TabPane v-if="showPreview" key="preview" class="overflow-auto px-4 py-3 space-y-4">
           <DocInfoPreview v-if="activeMenuKey === 'info'" />
           <ExternalDocPreview  v-else-if="activeMenuKey === 'externalDocs'" />
           <ServerPreview  v-else-if="activeMenuKey === 'servers'" />
@@ -339,11 +352,39 @@ provide('language', language);
   font-size: 13px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #525A65;
+  color: var(--text-secondary);
+  background-color: var(--bg-secondary);
+}
+
+.api-sidebar {
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-primary);
+  padding: var(--spacing-lg);
+  transition: all var(--transition-base);
+}
+
+.api-content {
+  background-color: var(--bg-primary);
+  padding-left: var(--spacing-lg);
+}
+
+.bg-primary {
+  background-color: var(--bg-primary);
+}
+
+.border-b {
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.theme-toggle-btn {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .ant-input.ant-input-borderless:hover {
- @apply bg-gray-200;
+  background-color: var(--bg-hover);
 }
 
 .api-root .ant-tabs.view-type-tab>.ant-tabs-nav {
