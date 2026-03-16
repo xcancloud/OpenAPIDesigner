@@ -44,7 +44,7 @@ export function validateDocument(doc: OpenAPIDocument): ValidationError[] {
           if (!urlVars.includes(varName)) {
             errors.push({ path: `servers[${i}].variables.${varName}`, message: `Server variable "${varName}" is not referenced in the URL`, severity: 'warning' });
           }
-          if (!variable.default && variable.default !== '') {
+          if (variable.default === undefined || variable.default === null) {
             errors.push({ path: `servers[${i}].variables.${varName}.default`, message: 'Server variable must have a default value', severity: 'error' });
           }
           if (variable.enum && variable.enum.length > 0 && !variable.enum.includes(variable.default)) {

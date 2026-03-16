@@ -243,13 +243,18 @@ function PropertyEditor({
               <div>
                 <label className="text-[10px] text-muted-foreground">{t.common.default}</label>
                 <input
-                  value={schema.default !== undefined ? String(schema.default) : ''}
+                  value={schema.default !== undefined ? JSON.stringify(schema.default) : ''}
                   onChange={(e) => {
                     const val = e.target.value;
                     if (!val) { onUpdate({ ...schema, default: undefined }); return; }
-                    if (type === 'number' || type === 'integer') onUpdate({ ...schema, default: Number(val) });
-                    else if (type === 'boolean') onUpdate({ ...schema, default: val === 'true' });
-                    else onUpdate({ ...schema, default: val });
+                    if (type === 'number' || type === 'integer') {
+                      const num = Number(val);
+                      onUpdate({ ...schema, default: isNaN(num) ? undefined : num });
+                    } else if (type === 'boolean') {
+                      onUpdate({ ...schema, default: val === 'true' ? true : val === 'false' ? false : undefined });
+                    } else {
+                      onUpdate({ ...schema, default: val });
+                    }
                   }}
                   className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
                   placeholder={t.common.default}

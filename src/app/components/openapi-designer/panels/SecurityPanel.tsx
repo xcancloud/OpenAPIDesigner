@@ -274,11 +274,14 @@ export function SecurityPanel() {
                                     <input
                                       value={scopeName}
                                       onChange={(e) => {
+                                        const newName = e.target.value.trim();
+                                        if (!newName) return;
                                         const newFlows = JSON.parse(JSON.stringify(scheme.flows));
                                         const scopes = (newFlows as Record<string, OAuthFlowObject>)[flowType].scopes;
+                                        if (newName !== scopeName && newName in scopes) return;
                                         const desc = scopes[scopeName];
                                         delete scopes[scopeName];
-                                        scopes[e.target.value] = desc;
+                                        scopes[newName] = desc;
                                         updateScheme(name, { ...scheme, flows: newFlows });
                                       }}
                                       className="flex-1 px-2 py-1 rounded border border-border bg-background text-[10px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"

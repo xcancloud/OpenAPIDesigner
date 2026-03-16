@@ -197,7 +197,7 @@ function ServerCard({
                     <input
                       value={(variable.enum || []).join(', ')}
                       onChange={(e) => {
-                        const vals = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                        const vals = e.target.value.split(',').map(s => s.trim()).filter(s => s !== '');
                         onUpdateVariable(varName, { ...variable, enum: vals.length > 0 ? vals : undefined });
                       }}
                       className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
