@@ -143,6 +143,41 @@ function PropertyEditor({
             </div>
           )}
 
+          {/* String constraints */}
+          {type === 'string' && (
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <label className="text-[10px] text-muted-foreground">{t.schemas.minLength}</label>
+                <input
+                  type="number"
+                  value={schema.minLength ?? ''}
+                  onChange={(e) => onUpdate({ ...schema, minLength: e.target.value ? Number(e.target.value) : undefined })}
+                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  min={0}
+                />
+              </div>
+              <div>
+                <label className="text-[10px] text-muted-foreground">{t.schemas.maxLength}</label>
+                <input
+                  type="number"
+                  value={schema.maxLength ?? ''}
+                  onChange={(e) => onUpdate({ ...schema, maxLength: e.target.value ? Number(e.target.value) : undefined })}
+                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  min={0}
+                />
+              </div>
+              <div>
+                <label className="text-[10px] text-muted-foreground">{t.schemas.pattern}</label>
+                <input
+                  value={schema.pattern || ''}
+                  onChange={(e) => onUpdate({ ...schema, pattern: e.target.value || undefined })}
+                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                  placeholder="^[a-z]+$"
+                />
+              </div>
+            </div>
+          )}
+
           {/* Numeric constraints */}
           {(type === 'number' || type === 'integer') && (
             <div className="grid grid-cols-2 gap-2">
@@ -165,6 +200,94 @@ function PropertyEditor({
                 />
               </div>
             </div>
+          )}
+
+          {/* Array constraints */}
+          {type === 'array' && (
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <label className="text-[10px] text-muted-foreground">{t.schemas.minItems}</label>
+                <input
+                  type="number"
+                  value={schema.minItems ?? ''}
+                  onChange={(e) => onUpdate({ ...schema, minItems: e.target.value ? Number(e.target.value) : undefined })}
+                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  min={0}
+                />
+              </div>
+              <div>
+                <label className="text-[10px] text-muted-foreground">{t.schemas.maxItems}</label>
+                <input
+                  type="number"
+                  value={schema.maxItems ?? ''}
+                  onChange={(e) => onUpdate({ ...schema, maxItems: e.target.value ? Number(e.target.value) : undefined })}
+                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  min={0}
+                />
+              </div>
+              <label className="flex items-center gap-1.5 text-[10px] text-muted-foreground cursor-pointer mt-4">
+                <input
+                  type="checkbox"
+                  checked={schema.uniqueItems || false}
+                  onChange={(e) => onUpdate({ ...schema, uniqueItems: e.target.checked || undefined })}
+                  className="rounded"
+                />
+                {t.schemas.uniqueItems}
+              </label>
+            </div>
+          )}
+
+          {/* Common: default value, readOnly, writeOnly, nullable */}
+          {!schema.$ref && (
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[10px] text-muted-foreground">{t.common.default}</label>
+                <input
+                  value={schema.default !== undefined ? JSON.stringify(schema.default) : ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (!val) { onUpdate({ ...schema, default: undefined }); return; }
+                    if (type === 'number' || type === 'integer') {
+                      const num = Number(val);
+                      onUpdate({ ...schema, default: isNaN(num) ? undefined : num });
+                    } else if (type === 'boolean') {
+                      onUpdate({ ...schema, default: val === 'true' ? true : val === 'false' ? false : undefined });
+                    } else {
+                      onUpdate({ ...schema, default: val });
+                    }
+                  }}
+                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                  placeholder={t.common.default}
+                />
+              </div>
+              <div className="flex items-center gap-3 mt-4">
+                <label className="flex items-center gap-1 text-[10px] text-muted-foreground cursor-pointer">
+                  <input type="checkbox" checked={schema.nullable || false} onChange={(e) => onUpdate({ ...schema, nullable: e.target.checked || undefined })} className="rounded" />
+                  {t.schemas.nullable}
+                </label>
+                <label className="flex items-center gap-1 text-[10px] text-muted-foreground cursor-pointer">
+                  <input type="checkbox" checked={schema.readOnly || false} onChange={(e) => onUpdate({ ...schema, readOnly: e.target.checked || undefined })} className="rounded" />
+                  {t.schemas.readOnly}
+                </label>
+                <label className="flex items-center gap-1 text-[10px] text-muted-foreground cursor-pointer">
+                  <input type="checkbox" checked={schema.writeOnly || false} onChange={(e) => onUpdate({ ...schema, writeOnly: e.target.checked || undefined })} className="rounded" />
+                  {t.schemas.writeOnly}
+                </label>
+              </div>
+            </div>
+          )}
+
+          {/* Object: additionalProperties toggle */}
+          {type === 'object' && (
+            <label className="flex items-center gap-1.5 text-[10px] text-muted-foreground cursor-pointer">
+              <input
+                type="checkbox"
+                checked={schema.additionalProperties !== false}
+                onChange={(e) => onUpdate({ ...schema, additionalProperties: e.target.checked ? undefined : false })}
+                className="rounded"
+              />
+              {t.schemas.additionalProperties}
+            </label>
           )}
 
           {/* Object properties */}
@@ -265,6 +388,100 @@ function ObjectPropertiesEditor({
           <Plus size={11} /> {t.schemas.addProperty}
         </button>
       </div>
+    </div>
+  );
+}
+
+const COMPOSITION_KEYWORDS = ['allOf', 'oneOf', 'anyOf'] as const;
+
+function CompositionEditor({
+  schema,
+  onUpdate,
+  schemaNames,
+}: {
+  schema: SchemaObject;
+  onUpdate: (s: SchemaObject) => void;
+  schemaNames: string[];
+}) {
+  const { t } = useI18n();
+  const hasComposition = schema.allOf || schema.oneOf || schema.anyOf;
+
+  const addComposition = (keyword: typeof COMPOSITION_KEYWORDS[number]) => {
+    onUpdate({ ...schema, [keyword]: [...(schema[keyword] || []), { type: 'object' }] });
+  };
+
+  const removeCompositionItem = (keyword: typeof COMPOSITION_KEYWORDS[number], index: number) => {
+    const arr = [...(schema[keyword] || [])];
+    arr.splice(index, 1);
+    onUpdate({ ...schema, [keyword]: arr.length > 0 ? arr : undefined });
+  };
+
+  const updateCompositionItem = (keyword: typeof COMPOSITION_KEYWORDS[number], index: number, item: SchemaObject) => {
+    const arr = [...(schema[keyword] || [])];
+    arr[index] = item;
+    onUpdate({ ...schema, [keyword]: arr });
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] text-muted-foreground uppercase tracking-wide">{t.schemas.composition}</span>
+        <div className="flex gap-1 ml-auto">
+          {COMPOSITION_KEYWORDS.map((kw) => (
+            <button
+              key={kw}
+              onClick={() => addComposition(kw)}
+              className="text-[10px] px-2 py-0.5 rounded border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+            >
+              + {kw}
+            </button>
+          ))}
+        </div>
+      </div>
+      {COMPOSITION_KEYWORDS.map((keyword) => {
+        const items = schema[keyword];
+        if (!items || items.length === 0) return null;
+        return (
+          <div key={keyword} className="p-2 rounded-lg bg-muted/30 border border-border space-y-2">
+            <div className="text-[11px] text-foreground" style={{ fontWeight: 600 }}>{keyword}</div>
+            {items.map((item, idx) => (
+              <div key={idx} className="flex items-center gap-2 pl-2 border-l-2 border-primary/30">
+                <select
+                  value={item.$ref ? '$ref' : 'inline'}
+                  onChange={(e) => {
+                    if (e.target.value === '$ref') {
+                      updateCompositionItem(keyword, idx, { $ref: `#/components/schemas/${schemaNames[0] || 'Schema'}` });
+                    } else {
+                      updateCompositionItem(keyword, idx, { type: 'object' });
+                    }
+                  }}
+                  className="px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="inline">Inline</option>
+                  <option value="$ref">$ref</option>
+                </select>
+                {item.$ref ? (
+                  <select
+                    value={item.$ref.replace('#/components/schemas/', '')}
+                    onChange={(e) => updateCompositionItem(keyword, idx, { $ref: `#/components/schemas/${e.target.value}` })}
+                    className="flex-1 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                  >
+                    {schemaNames.map(n => <option key={n} value={n}>{n}</option>)}
+                  </select>
+                ) : (
+                  <span className="text-[11px] text-muted-foreground flex-1">{item.type || 'object'}</span>
+                )}
+                <button
+                  onClick={() => removeCompositionItem(keyword, idx)}
+                  className="p-1 text-muted-foreground hover:text-destructive"
+                >
+                  <X size={11} />
+                </button>
+              </div>
+            ))}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -464,19 +681,48 @@ export function SchemasPanel() {
                     )}
 
                     {type === 'string' && (
-                      <div>
-                        <label className="text-[10px] text-muted-foreground">{t.schemas.enumValues}</label>
-                        <input
-                          value={(schema.enum || []).join(', ')}
-                          onChange={(e) => {
-                            const vals = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
-                            updateSchema(name, { ...schema, enum: vals.length > 0 ? vals : undefined });
-                          }}
-                          className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
-                          placeholder="val1, val2, val3"
-                        />
+                      <div className="space-y-2">
+                        <div>
+                          <label className="text-[10px] text-muted-foreground">{t.schemas.enumValues}</label>
+                          <input
+                            value={(schema.enum || []).join(', ')}
+                            onChange={(e) => {
+                              const vals = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                              updateSchema(name, { ...schema, enum: vals.length > 0 ? vals : undefined });
+                            }}
+                            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                            placeholder="val1, val2, val3"
+                          />
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div>
+                            <label className="text-[10px] text-muted-foreground">{t.schemas.minLength}</label>
+                            <input type="number" value={schema.minLength ?? ''} min={0}
+                              onChange={(e) => updateSchema(name, { ...schema, minLength: e.target.value ? Number(e.target.value) : undefined })}
+                              className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-muted-foreground">{t.schemas.maxLength}</label>
+                            <input type="number" value={schema.maxLength ?? ''} min={0}
+                              onChange={(e) => updateSchema(name, { ...schema, maxLength: e.target.value ? Number(e.target.value) : undefined })}
+                              className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-muted-foreground">{t.schemas.pattern}</label>
+                            <input value={schema.pattern || ''} placeholder="^[a-z]+$"
+                              onChange={(e) => updateSchema(name, { ...schema, pattern: e.target.value || undefined })}
+                              className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono" />
+                          </div>
+                        </div>
                       </div>
                     )}
+
+                    {/* Composition: allOf / oneOf / anyOf */}
+                    <CompositionEditor
+                      schema={schema}
+                      onUpdate={(s) => updateSchema(name, s)}
+                      schemaNames={schemaNames.filter(n => n !== name)}
+                    />
                   </div>
                 )}
               </div>

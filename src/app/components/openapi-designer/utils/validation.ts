@@ -1,4 +1,4 @@
-import type { OpenAPIDocument, ValidationError, OperationObject, HttpMethod } from '../types/openapi';
+import type { OpenAPIDocument, ValidationError, OperationObject, HttpMethod, SchemaObject } from '../types/openapi';
 import { HTTP_METHODS } from '../types/openapi';
 
 export function validateDocument(doc: OpenAPIDocument): ValidationError[] {
@@ -36,6 +36,21 @@ export function validateDocument(doc: OpenAPIDocument): ValidationError[] {
     doc.servers.forEach((server, i) => {
       if (!server.url) {
         errors.push({ path: `servers[${i}].url`, message: 'Server URL is required', severity: 'error' });
+      }
+      // Validate server variables
+      if (server.variables) {
+        const urlVars = server.url.match(/\{([^}]+)\}/g)?.map(v => v.slice(1, -1)) || [];
+        Object.entries(server.variables).forEach(([varName, variable]) => {
+          if (!urlVars.includes(varName)) {
+            errors.push({ path: `servers[${i}].variables.${varName}`, message: `Server variable "${varName}" is not referenced in the URL`, severity: 'warning' });
+          }
+          if (variable.default === undefined || variable.default === null) {
+            errors.push({ path: `servers[${i}].variables.${varName}.default`, message: 'Server variable must have a default value', severity: 'error' });
+          }
+          if (variable.enum && variable.enum.length > 0 && !variable.enum.includes(variable.default)) {
+            errors.push({ path: `servers[${i}].variables.${varName}.default`, message: 'Server variable default must be in the enum list', severity: 'error' });
+          }
+        });
       }
     });
   }
@@ -94,6 +109,29 @@ export function validateDocument(doc: OpenAPIDocument): ValidationError[] {
             errors.push({ path: `${opPath}.parameters[${pi}].required`, message: 'Path parameters must be required', severity: 'error' });
           }
         });
+
+        // Validate request body
+        if (operation.requestBody) {
+          const content = operation.requestBody.content;
+          if (!content || Object.keys(content).length === 0) {
+            errors.push({ path: `${opPath}.requestBody.content`, message: 'Request body must have at least one media type', severity: 'error' });
+          }
+        }
+
+        // Validate operation-level security references
+        if (operation.security) {
+          operation.security.forEach((requirement, si) => {
+            Object.keys(requirement).forEach(schemeName => {
+              if (!doc.components?.securitySchemes?.[schemeName]) {
+                errors.push({
+                  path: `${opPath}.security[${si}].${schemeName}`,
+                  message: `Security scheme "${schemeName}" is not defined in components.securitySchemes`,
+                  severity: 'error',
+                });
+              }
+            });
+          });
+        }
       });
     });
   }
@@ -104,10 +142,54 @@ export function validateDocument(doc: OpenAPIDocument): ValidationError[] {
       if (!schema.type && !schema.$ref && !schema.allOf && !schema.oneOf && !schema.anyOf) {
         errors.push({ path: `components.schemas.${name}`, message: 'Schema should have a type, $ref, or composition keyword', severity: 'info' });
       }
+      validateSchemaConstraints(schema, `components.schemas.${name}`, errors);
     });
   }
 
-  // Security schemes
+  // Security schemes validation
+  if (doc.components?.securitySchemes) {
+    Object.entries(doc.components.securitySchemes).forEach(([name, scheme]) => {
+      if (scheme.type === 'apiKey') {
+        if (!scheme.name) {
+          errors.push({ path: `components.securitySchemes.${name}.name`, message: 'API Key name is required', severity: 'error' });
+        }
+        if (!scheme.in) {
+          errors.push({ path: `components.securitySchemes.${name}.in`, message: 'API Key location (in) is required', severity: 'error' });
+        }
+      }
+      if (scheme.type === 'http' && !scheme.scheme) {
+        errors.push({ path: `components.securitySchemes.${name}.scheme`, message: 'HTTP scheme is required', severity: 'error' });
+      }
+      if (scheme.type === 'oauth2') {
+        if (!scheme.flows || Object.keys(scheme.flows).length === 0) {
+          errors.push({ path: `components.securitySchemes.${name}.flows`, message: 'OAuth2 must define at least one flow', severity: 'error' });
+        } else {
+          if (scheme.flows.authorizationCode) {
+            if (!scheme.flows.authorizationCode.authorizationUrl) {
+              errors.push({ path: `components.securitySchemes.${name}.flows.authorizationCode.authorizationUrl`, message: 'Authorization URL is required for authorization code flow', severity: 'error' });
+            }
+            if (!scheme.flows.authorizationCode.tokenUrl) {
+              errors.push({ path: `components.securitySchemes.${name}.flows.authorizationCode.tokenUrl`, message: 'Token URL is required for authorization code flow', severity: 'error' });
+            }
+          }
+          if (scheme.flows.implicit && !scheme.flows.implicit.authorizationUrl) {
+            errors.push({ path: `components.securitySchemes.${name}.flows.implicit.authorizationUrl`, message: 'Authorization URL is required for implicit flow', severity: 'error' });
+          }
+          if (scheme.flows.password && !scheme.flows.password.tokenUrl) {
+            errors.push({ path: `components.securitySchemes.${name}.flows.password.tokenUrl`, message: 'Token URL is required for password flow', severity: 'error' });
+          }
+          if (scheme.flows.clientCredentials && !scheme.flows.clientCredentials.tokenUrl) {
+            errors.push({ path: `components.securitySchemes.${name}.flows.clientCredentials.tokenUrl`, message: 'Token URL is required for client credentials flow', severity: 'error' });
+          }
+        }
+      }
+      if (scheme.type === 'openIdConnect' && !scheme.openIdConnectUrl) {
+        errors.push({ path: `components.securitySchemes.${name}.openIdConnectUrl`, message: 'OpenID Connect URL is required', severity: 'error' });
+      }
+    });
+  }
+
+  // Global security references
   if (doc.security) {
     doc.security.forEach((requirement, i) => {
       Object.keys(requirement).forEach(name => {
@@ -139,6 +221,71 @@ export function validateDocument(doc: OpenAPIDocument): ValidationError[] {
   }
 
   return errors;
+}
+
+function validateSchemaConstraints(schema: SchemaObject, path: string, errors: ValidationError[]): void {
+  const type = typeof schema.type === 'string' ? schema.type : undefined;
+
+  // String constraints
+  if (type === 'string') {
+    if (schema.minLength !== undefined && schema.maxLength !== undefined && schema.minLength > schema.maxLength) {
+      errors.push({ path: `${path}.minLength`, message: 'minLength should not be greater than maxLength', severity: 'error' });
+    }
+    if (schema.minLength !== undefined && schema.minLength < 0) {
+      errors.push({ path: `${path}.minLength`, message: 'minLength must be non-negative', severity: 'error' });
+    }
+    if (schema.pattern) {
+      try { new RegExp(schema.pattern); } catch {
+        errors.push({ path: `${path}.pattern`, message: `Invalid regex pattern: ${schema.pattern}`, severity: 'error' });
+      }
+    }
+  }
+
+  // Numeric constraints
+  if (type === 'number' || type === 'integer') {
+    if (schema.minimum !== undefined && schema.maximum !== undefined && schema.minimum > schema.maximum) {
+      errors.push({ path: `${path}.minimum`, message: 'minimum should not be greater than maximum', severity: 'error' });
+    }
+    if (schema.multipleOf !== undefined && schema.multipleOf <= 0) {
+      errors.push({ path: `${path}.multipleOf`, message: 'multipleOf must be positive', severity: 'error' });
+    }
+  }
+
+  // Array constraints
+  if (type === 'array') {
+    if (schema.minItems !== undefined && schema.maxItems !== undefined && schema.minItems > schema.maxItems) {
+      errors.push({ path: `${path}.minItems`, message: 'minItems should not be greater than maxItems', severity: 'error' });
+    }
+    if (schema.minItems !== undefined && schema.minItems < 0) {
+      errors.push({ path: `${path}.minItems`, message: 'minItems must be non-negative', severity: 'error' });
+    }
+    if (!schema.items && !schema.$ref) {
+      errors.push({ path: `${path}.items`, message: 'Array schema should define items', severity: 'info' });
+    }
+  }
+
+  // Enum validation
+  if (schema.enum && schema.enum.length === 0) {
+    errors.push({ path: `${path}.enum`, message: 'Enum should have at least one value', severity: 'warning' });
+  }
+
+  // readOnly + writeOnly conflict
+  if (schema.readOnly && schema.writeOnly) {
+    errors.push({ path, message: 'Schema cannot be both readOnly and writeOnly', severity: 'error' });
+  }
+
+  // Recursively validate nested schemas
+  if (schema.properties) {
+    Object.entries(schema.properties).forEach(([propName, propSchema]) => {
+      validateSchemaConstraints(propSchema, `${path}.properties.${propName}`, errors);
+    });
+  }
+  if (schema.items && !schema.items.$ref) {
+    validateSchemaConstraints(schema.items, `${path}.items`, errors);
+  }
+  schema.allOf?.forEach((s, i) => { if (!s.$ref) validateSchemaConstraints(s, `${path}.allOf[${i}]`, errors); });
+  schema.oneOf?.forEach((s, i) => { if (!s.$ref) validateSchemaConstraints(s, `${path}.oneOf[${i}]`, errors); });
+  schema.anyOf?.forEach((s, i) => { if (!s.$ref) validateSchemaConstraints(s, `${path}.anyOf[${i}]`, errors); });
 }
 
 function isValidEmail(email: string): boolean {
