@@ -2,13 +2,13 @@
 
 # OpenAPIDesigner
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/nicepkg/OpenAPIDesigner/ci.yml?branch=main&style=flat-square)](https://github.com/nicepkg/OpenAPIDesigner/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/xcancloud/OpenAPIDesigner/ci.yml?branch=main&style=flat-square)](https://github.com/xcancloud/OpenAPIDesigner/actions)
 [![npm version](https://img.shields.io/npm/v/openapi-designer?style=flat-square)](https://www.npmjs.com/package/openapi-designer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](./LICENSE)
 
 A visual OpenAPI 3.1 specification designer built with React. Design, edit, and preview your API documentation — all in one component.
 
-[English](./README.md) · [简体中文](./README.zh-CN.md) · [Live Demo](https://nicepkg.github.io/OpenAPIDesigner/) · [Documentation](./website/)
+[English](./README.md) · [简体中文](./README.zh-CN.md) · [Live Demo](https://xcancloud.github.io/OpenAPIDesigner/) · [Documentation](./website/)
 
 <!-- screenshot -->
 

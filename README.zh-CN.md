@@ -2,13 +2,13 @@
 
 # OpenAPIDesigner
 
-[![构建状态](https://img.shields.io/github/actions/workflow/status/nicepkg/OpenAPIDesigner/ci.yml?branch=main&style=flat-square)](https://github.com/nicepkg/OpenAPIDesigner/actions)
+[![构建状态](https://img.shields.io/github/actions/workflow/status/xcancloud/OpenAPIDesigner/ci.yml?branch=main&style=flat-square)](https://github.com/xcancloud/OpenAPIDesigner/actions)
 [![npm 版本](https://img.shields.io/npm/v/openapi-designer?style=flat-square)](https://www.npmjs.com/package/openapi-designer)
 [![许可证: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](./LICENSE)
 
 基于 React 构建的可视化 OpenAPI 3.1 规范设计器。在一个组件中完成 API 文档的设计、编辑和预览。
 
-[English](./README.md) · [简体中文](./README.zh-CN.md) · [在线演示](https://nicepkg.github.io/OpenAPIDesigner/) · [文档](./website/)
+[English](./README.md) · [简体中文](./README.zh-CN.md) · [在线演示](https://xcancloud.github.io/OpenAPIDesigner/) · [文档](./website/)
 
 <!-- screenshot -->
 
