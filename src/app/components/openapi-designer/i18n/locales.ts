@@ -160,6 +160,7 @@ export interface I18nMessages {
     nullable: string;
     readOnly: string;
     writeOnly: string;
+    additionalProperties: string;
     ref: string;
     selectRef: string;
     schemaTypes: {
@@ -418,6 +419,7 @@ export const en: I18nMessages = {
     nullable: 'Nullable',
     readOnly: 'Read Only',
     writeOnly: 'Write Only',
+    additionalProperties: 'Allow Additional Properties',
     ref: '$ref',
     selectRef: 'Select Reference',
     schemaTypes: {
@@ -670,6 +672,7 @@ export const zh: I18nMessages = {
     nullable: '可为空',
     readOnly: '只读',
     writeOnly: '只写',
+    additionalProperties: '允许额外属性',
     ref: '引用（$ref）',
     selectRef: '选择引用',
     schemaTypes: {

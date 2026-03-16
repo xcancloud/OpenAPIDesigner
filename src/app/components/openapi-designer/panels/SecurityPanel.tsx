@@ -240,6 +240,76 @@ export function SecurityPanel() {
                                   />
                                 </div>
                               )}
+                              <div>
+                                <label className="text-[10px] text-muted-foreground">{t.security.refreshUrl}</label>
+                                <input
+                                  value={flow!.refreshUrl || ''}
+                                  onChange={(e) => {
+                                    const newFlows = { ...scheme.flows };
+                                    (newFlows as Record<string, OAuthFlowObject>)[flowType] = { ...flow!, refreshUrl: e.target.value || undefined };
+                                    updateScheme(name, { ...scheme, flows: newFlows });
+                                  }}
+                                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                                  placeholder="https://..."
+                                />
+                              </div>
+                              {/* Scopes editor */}
+                              <div className="space-y-1.5">
+                                <div className="flex items-center justify-between">
+                                  <label className="text-[10px] text-muted-foreground">{t.security.scopes}</label>
+                                  <button
+                                    onClick={() => {
+                                      const newFlows = JSON.parse(JSON.stringify(scheme.flows));
+                                      const scopeName = `scope${Object.keys(flow!.scopes).length + 1}`;
+                                      (newFlows as Record<string, OAuthFlowObject>)[flowType].scopes[scopeName] = '';
+                                      updateScheme(name, { ...scheme, flows: newFlows });
+                                    }}
+                                    className="text-[10px] text-primary hover:underline flex items-center gap-0.5"
+                                  >
+                                    <Plus size={10} /> {t.security.addScope}
+                                  </button>
+                                </div>
+                                {Object.entries(flow!.scopes).map(([scopeName, scopeDesc]) => (
+                                  <div key={scopeName} className="flex items-center gap-1.5">
+                                    <input
+                                      value={scopeName}
+                                      onChange={(e) => {
+                                        const newFlows = JSON.parse(JSON.stringify(scheme.flows));
+                                        const scopes = (newFlows as Record<string, OAuthFlowObject>)[flowType].scopes;
+                                        const desc = scopes[scopeName];
+                                        delete scopes[scopeName];
+                                        scopes[e.target.value] = desc;
+                                        updateScheme(name, { ...scheme, flows: newFlows });
+                                      }}
+                                      className="flex-1 px-2 py-1 rounded border border-border bg-background text-[10px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                                      placeholder={t.security.scopeName}
+                                    />
+                                    <input
+                                      value={scopeDesc}
+                                      onChange={(e) => {
+                                        const newFlows = JSON.parse(JSON.stringify(scheme.flows));
+                                        (newFlows as Record<string, OAuthFlowObject>)[flowType].scopes[scopeName] = e.target.value;
+                                        updateScheme(name, { ...scheme, flows: newFlows });
+                                      }}
+                                      className="flex-1 px-2 py-1 rounded border border-border bg-background text-[10px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                      placeholder={t.security.scopeDescription}
+                                    />
+                                    <button
+                                      onClick={() => {
+                                        const newFlows = JSON.parse(JSON.stringify(scheme.flows));
+                                        delete (newFlows as Record<string, OAuthFlowObject>)[flowType].scopes[scopeName];
+                                        updateScheme(name, { ...scheme, flows: newFlows });
+                                      }}
+                                      className="p-0.5 text-muted-foreground hover:text-destructive"
+                                    >
+                                      <Trash2 size={10} />
+                                    </button>
+                                  </div>
+                                ))}
+                                {Object.keys(flow!.scopes).length === 0 && (
+                                  <p className="text-[10px] text-muted-foreground">{t.common.noData}</p>
+                                )}
+                              </div>
                             </div>
                           ))}
                       </div>
