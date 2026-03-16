@@ -1,7 +1,7 @@
 {
-  "name": "@figma/my-make-file",
+  "name": "@angus/open-api-designer",
   "private": true,
-  "version": "0.0.1",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
     "build": "vite build",
