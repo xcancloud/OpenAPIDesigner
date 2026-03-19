@@ -3,7 +3,7 @@
 # OpenAPIDesigner
 
 [![构建状态](https://img.shields.io/github/actions/workflow/status/xcancloud/OpenAPIDesigner/ci.yml?branch=main&style=flat-square)](https://github.com/xcancloud/OpenAPIDesigner/actions)
-[![npm 版本](https://img.shields.io/npm/v/openapi-designer?style=flat-square)](https://www.npmjs.com/package/openapi-designer)
+[![npm 版本](https://img.shields.io/npm/v/@xcan-cloud/open-api-designer?style=flat-square)](https://www.npmjs.com/package/@xcan-cloud/open-api-designer)
 [![许可证: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](./LICENSE)
 
 基于 React 构建的可视化 OpenAPI 3.1 规范设计器。在一个组件中完成 API 文档的设计、编辑和预览。
@@ -51,13 +51,13 @@
 ### 安装
 
 ```bash
-npm install openapi-designer
+npm install @xcan-cloud/open-api-designer
 ```
 
 ### 基本用法
 
 ```tsx
-import { OpenAPIDesigner } from 'openapi-designer';
+import { OpenAPIDesigner } from '@xcan-cloud/open-api-designer';
 
 function App() {
   return (
@@ -73,7 +73,7 @@ function App() {
 ### 使用示例文档
 
 ```tsx
-import { OpenAPIDesigner, createPetStoreDocument } from 'openapi-designer';
+import { OpenAPIDesigner, createPetStoreDocument } from '@xcan-cloud/open-api-designer';
 
 function App() {
   return (

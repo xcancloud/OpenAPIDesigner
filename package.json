@@ -1,7 +1,11 @@
 {
-  "name": "@angus/open-api-designer",
-  "private": true,
-  "version": "2.0.0",
+  "name": "@xcan-cloud/open-api-designer",
+  "version": "1.0.0",
+  "description": "OpenAPI Designer - Visual OpenAPI design tool",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "type": "module",
   "scripts": {
     "build": "vite build",

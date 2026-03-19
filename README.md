@@ -3,7 +3,7 @@
 # OpenAPIDesigner
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/xcancloud/OpenAPIDesigner/ci.yml?branch=main&style=flat-square)](https://github.com/xcancloud/OpenAPIDesigner/actions)
-[![npm version](https://img.shields.io/npm/v/openapi-designer?style=flat-square)](https://www.npmjs.com/package/openapi-designer)
+[![npm version](https://img.shields.io/npm/v/@xcan-cloud/open-api-designer?style=flat-square)](https://www.npmjs.com/package/@xcan-cloud/open-api-designer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](./LICENSE)
 
 A visual OpenAPI 3.1 specification designer built with React. Design, edit, and preview your API documentation — all in one component.
@@ -51,13 +51,13 @@ A visual OpenAPI 3.1 specification designer built with React. Design, edit, and 
 ### Installation
 
 ```bash
-npm install openapi-designer
+npm install @xcan-cloud/open-api-designer
 ```
 
 ### Basic Usage
 
 ```tsx
-import { OpenAPIDesigner } from 'openapi-designer';
+import { OpenAPIDesigner } from '@xcan-cloud/open-api-designer';
 
 function App() {
   return (
@@ -73,7 +73,7 @@ function App() {
 ### Using a Starter Document
 
 ```tsx
-import { OpenAPIDesigner, createPetStoreDocument } from 'openapi-designer';
+import { OpenAPIDesigner, createPetStoreDocument } from '@xcan-cloud/open-api-designer';
 
 function App() {
   return (

@@ -7,3 +7,4 @@ coverage
 *.log
 .idea
 .vscode
+*.iml
