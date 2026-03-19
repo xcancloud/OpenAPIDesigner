@@ -1,0 +1,17 @@
+import { defineConfig } from 'vite'
+import path from 'path'
+import tailwindcss from '@tailwindcss/vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, '../src'),
+      '@components': path.resolve(__dirname, '../src/app/components'),
+    },
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom'],
+  },
+})
