@@ -99,11 +99,12 @@ export function TagsPanel() {
                     className="w-full px-3 py-1.5 rounded-lg border border-border bg-background text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
                     placeholder={t.tags.tagName}
                   />
-                  <input
+                  <textarea
                     value={tag.description || ''}
                     onChange={(e) => updateTag(index, { ...tag, description: e.target.value })}
-                    className="w-full px-3 py-1.5 rounded-lg border border-border bg-background text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    placeholder={t.common.description}
+                    className="w-full px-3 py-1.5 rounded-lg border border-border bg-background text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                    rows={2}
+                    placeholder={t.common.description + ' (Markdown)'}
                   />
                 </div>
                 <button

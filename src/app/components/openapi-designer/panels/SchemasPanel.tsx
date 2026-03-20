@@ -673,32 +673,30 @@ export function SchemasPanel() {
                 {isExpanded && (
                   <div className="border-t border-border p-4">
                     <div className="space-y-3 mb-3">
-                      <div className="grid grid-cols-3 gap-2">
-                        <div>
-                          <label className="text-[10px] text-muted-foreground">{t.common.type}</label>
-                          <select
-                            value={type}
-                            onChange={(e) => {
-                              const newSchema: SchemaObject = { type: e.target.value, description: schema.description };
-                              if (e.target.value === 'object') newSchema.properties = {};
-                              if (e.target.value === 'array') newSchema.items = { type: 'string' };
-                              updateSchema(name, newSchema);
-                            }}
-                            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
-                          >
-                            {SCHEMA_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                          </select>
-                        </div>
-                        <div className="col-span-2">
-                          <label className="text-[10px] text-muted-foreground">{t.common.description}</label>
-                          <textarea
-                            value={schema.description || ''}
-                            onChange={(e) => updateSchema(name, { ...schema, description: e.target.value })}
-                            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
-                            rows={3}
-                            placeholder="Markdown supported..."
-                          />
-                        </div>
+                      <div>
+                        <label className="text-[10px] text-muted-foreground">{t.common.type}</label>
+                        <select
+                          value={type}
+                          onChange={(e) => {
+                            const newSchema: SchemaObject = { type: e.target.value, description: schema.description };
+                            if (e.target.value === 'object') newSchema.properties = {};
+                            if (e.target.value === 'array') newSchema.items = { type: 'string' };
+                            updateSchema(name, newSchema);
+                          }}
+                          className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        >
+                          {SCHEMA_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-muted-foreground">{t.common.description}</label>
+                        <textarea
+                          value={schema.description || ''}
+                          onChange={(e) => updateSchema(name, { ...schema, description: e.target.value })}
+                          className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                          rows={3}
+                          placeholder="Markdown supported..."
+                        />
                       </div>
                     </div>
 
