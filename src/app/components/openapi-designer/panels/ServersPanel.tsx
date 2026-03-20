@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useI18n, useDesigner } from '../context/DesignerContext';
 import { Server, Plus, Trash2, Globe, ChevronDown, ChevronRight } from 'lucide-react';
 import type { ServerObject, ServerVariableObject } from '../types/openapi';
+import { MarkdownEditor } from './MarkdownEditor';
 
 export function ServersPanel() {
   const { t } = useI18n();
@@ -146,25 +147,22 @@ function ServerCard({
         </div>
         <div>
           <label className="text-[11px] text-muted-foreground uppercase tracking-wide">{t.servers.serverDescription}</label>
-          <textarea
-            value={server.description || ''}
-            onChange={(e) => onUpdateField('description', e.target.value)}
-            className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none"
-            rows={3}
-            placeholder="Markdown supported..."
-          />
+          <div className="mt-1">
+            <MarkdownEditor
+              value={server.description || ''}
+              onChange={(v) => onUpdateField('description', v)}
+              placeholder={t.hints.serverDescription}
+              rows={2}
+            />
+          </div>
         </div>
-      </div>
-
-      {/* Server Variables */}
-      <div className="border-t border-border pt-3">
         <div className="flex items-center justify-between">
           <button
             onClick={() => setVarsExpanded(!varsExpanded)}
-            className="flex items-center gap-1.5 text-[12px] text-foreground hover:text-primary transition-colors"
+            className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1"
           >
-            {varsExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-            <span style={{ fontWeight: 500 }}>{t.servers.variables}</span>
+            {varsExpanded ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
+            {t.servers.variables}
             {varCount > 0 && <span className="text-[10px] text-muted-foreground">({varCount})</span>}
           </button>
           <button

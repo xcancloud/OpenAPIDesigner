@@ -1,12 +1,32 @@
 import React, { useState, useMemo } from 'react';
 import { useI18n, useDesigner } from '../context/DesignerContext';
 import {
-  Plus, Trash2, Route, ChevronDown, ChevronRight, Search, X
+  Plus, Trash2, Route, ChevronDown, ChevronRight, Search, X, HelpCircle
 } from 'lucide-react';
 import type {
   PathItemObject, OperationObject, ParameterObject, HttpMethod, ResponseObject
 } from '../types/openapi';
 import { HTTP_METHODS, METHOD_COLORS } from '../types/openapi';
+import { MarkdownEditor } from './MarkdownEditor';
+
+function FieldHint({ text }: { text: string }) {
+  const [show, setShow] = React.useState(false);
+  return (
+    <span className="relative inline-flex items-center ml-1 align-middle">
+      <HelpCircle
+        size={10}
+        className="text-muted-foreground/50 cursor-help hover:text-muted-foreground transition-colors"
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+      />
+      {show && (
+        <span className="absolute bottom-full left-0 mb-1.5 w-60 p-2 rounded-lg bg-popover border border-border shadow-xl text-[11px] text-muted-foreground leading-relaxed z-50 whitespace-normal pointer-events-none">
+          {text}
+        </span>
+      )}
+    </span>
+  );
+}
 
 function MethodBadge({ method, size = 'sm' }: { method: HttpMethod; size?: 'sm' | 'md' }) {
   const color = METHOD_COLORS[method];
@@ -120,16 +140,22 @@ function OperationEditor({
           {/* Basic fields */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] text-muted-foreground uppercase tracking-wide">{t.common.summary}</label>
+              <label className="text-[11px] text-muted-foreground uppercase tracking-wide flex items-center">
+                {t.common.summary}
+                <FieldHint text={t.hints.operationSummary} />
+              </label>
               <input
                 value={operation.summary || ''}
                 onChange={(e) => onUpdate({ ...operation, summary: e.target.value })}
                 className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-background text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
-                placeholder="Brief summary"
+                placeholder="e.g. List all pets"
               />
             </div>
             <div>
-              <label className="text-[11px] text-muted-foreground uppercase tracking-wide">{t.common.operationId}</label>
+              <label className="text-[11px] text-muted-foreground uppercase tracking-wide flex items-center">
+                {t.common.operationId}
+                <FieldHint text={t.hints.operationId} />
+              </label>
               <input
                 value={operation.operationId || ''}
                 onChange={(e) => onUpdate({ ...operation, operationId: e.target.value })}
@@ -140,14 +166,18 @@ function OperationEditor({
           </div>
 
           <div>
-            <label className="text-[11px] text-muted-foreground uppercase tracking-wide">{t.common.description}</label>
-            <textarea
-              value={operation.description || ''}
-              onChange={(e) => onUpdate({ ...operation, description: e.target.value })}
-              className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-background text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all resize-none"
-              rows={3}
-              placeholder="Detailed description (Markdown supported)"
-            />
+            <label className="text-[11px] text-muted-foreground uppercase tracking-wide flex items-center">
+              {t.common.description}
+              <FieldHint text={t.hints.operationDescription} />
+            </label>
+            <div className="mt-1">
+              <MarkdownEditor
+                value={operation.description || ''}
+                onChange={(v) => onUpdate({ ...operation, description: v })}
+                placeholder="Describe what this operation does. **Markdown** is fully supported."
+                rows={3}
+              />
+            </div>
           </div>
 
           <div className="flex items-center gap-4">
@@ -161,7 +191,10 @@ function OperationEditor({
               {t.paths.deprecated}
             </label>
             <div className="flex items-center gap-2">
-              <label className="text-[11px] text-muted-foreground">{t.paths.tags}:</label>
+              <label className="text-[11px] text-muted-foreground flex items-center">
+                {t.paths.tags}:
+                <FieldHint text={t.hints.operationTags} />
+              </label>
               <input
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
@@ -170,7 +203,7 @@ function OperationEditor({
                   onUpdate({ ...operation, tags: tags.length ? tags : undefined });
                 }}
                 className="px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
-                placeholder="tag1, tag2"
+                placeholder="users, pets"
               />
             </div>
           </div>
@@ -237,7 +270,7 @@ function OperationEditor({
                       value={param.description || ''}
                       onChange={(e) => updateParam(pi, 'description', e.target.value)}
                       className="col-span-3 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
-                      placeholder="..."
+                      placeholder="Parameter description"
                     />
                     <button
                       onClick={() => removeParam(pi)}
@@ -344,7 +377,7 @@ function OperationEditor({
                   value={resp.description}
                   onChange={(e) => updateResponse(code, { ...resp, description: e.target.value })}
                   className="flex-1 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
-                  placeholder="Response description"
+                  placeholder={code.startsWith('2') ? 'Successful response' : code.startsWith('4') ? 'Client error response' : 'Server error response'}
                 />
                 {schemaNames.length > 0 && (
                   <select

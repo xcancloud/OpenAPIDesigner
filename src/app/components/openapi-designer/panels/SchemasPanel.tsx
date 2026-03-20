@@ -4,6 +4,7 @@ import {
   Plus, Trash2, Box, ChevronDown, ChevronRight, Search, X, Copy
 } from 'lucide-react';
 import type { SchemaObject } from '../types/openapi';
+import { MarkdownEditor } from './MarkdownEditor';
 
 const SCHEMA_TYPES = ['string', 'number', 'integer', 'boolean', 'array', 'object', 'null'];
 const STRING_FORMATS = ['', 'date', 'date-time', 'email', 'uri', 'uuid', 'hostname', 'ipv4', 'ipv6', 'byte', 'binary', 'password'];
@@ -117,14 +118,16 @@ function PropertyEditor({
                 </select>
               </div>
             )}
-            <div>
-              <label className="text-[10px] text-muted-foreground">{t.common.description}</label>
-              <textarea
+          </div>
+          {/* Description — always on its own full-width row */}
+          <div>
+            <label className="text-[10px] text-muted-foreground">{t.common.description}</label>
+            <div className="mt-0.5">
+              <MarkdownEditor
                 value={schema.description || ''}
-                onChange={(e) => onUpdate({ ...schema, description: e.target.value })}
-                className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
-                rows={3}
-                placeholder="Markdown supported..."
+                onChange={(v) => onUpdate({ ...schema, description: v })}
+                placeholder="Describe this property. Markdown supported."
+                rows={2}
               />
             </div>
           </div>
@@ -690,13 +693,14 @@ export function SchemasPanel() {
                       </div>
                       <div>
                         <label className="text-[10px] text-muted-foreground">{t.common.description}</label>
-                        <textarea
-                          value={schema.description || ''}
-                          onChange={(e) => updateSchema(name, { ...schema, description: e.target.value })}
-                          className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
-                          rows={3}
-                          placeholder="Markdown supported..."
-                        />
+                        <div className="mt-0.5">
+                          <MarkdownEditor
+                            value={schema.description || ''}
+                            onChange={(v) => updateSchema(name, { ...schema, description: v })}
+                            placeholder="Describe this schema. **Markdown** is supported."
+                            rows={3}
+                          />
+                        </div>
                       </div>
                     </div>
 

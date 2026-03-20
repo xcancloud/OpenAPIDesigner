@@ -28,6 +28,7 @@ import type {
   OAuthFlowObject,
 } from '../types/openapi';
 import { HTTP_METHODS } from '../types/openapi';
+import { renderMarkdown, MARKDOWN_CSS } from './markdown';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -693,7 +694,7 @@ function generateHTML(doc: OpenAPIDocument): string {
     if (depth > 0) {
       const t = schemaTypeLabel(schema, doc);
       if (t !== 'any') html += `<div style="margin:4px 0">${schemaTypeHtml(schema)} ${cs}</div>`;
-      if (schema.description) html += `<div style="color:#6b7280;font-size:12px;margin:2px 0">${esc(schema.description)}</div>`;
+      if (schema.description) html += `<div class="md-rendered" style="color:#6b7280;font-size:12px;margin:2px 0">${renderMarkdown(schema.description)}</div>`;
     }
     if (schema.example !== undefined) {
       html += `<div style="font-size:11px;color:#6b7280;margin:4px 0">Example: <code>${esc(JSON.stringify(schema.example))}</code></div>`;
@@ -772,7 +773,7 @@ function generateHTML(doc: OpenAPIDocument): string {
   // ── Request body ─────────────────────────────────────────────────────────────
   function requestBodyHtml(rb: NonNullable<OperationObject['requestBody']>): string {
     let html = `<div class="op-section"><div class="section-label">Request Body${rb.required ? ' <span style="color:#ef4444">*</span>' : ''}</div>`;
-    if (rb.description) html += `<p style="font-size:13px;color:#4b5563;margin-bottom:8px">${esc(rb.description)}</p>`;
+    if (rb.description) html += `<div class="md-rendered" style="font-size:13px;color:#4b5563;margin-bottom:8px">${renderMarkdown(rb.description)}</div>`;
     for (const [ct, media] of Object.entries(rb.content || {})) {
       html += `<div style="margin-bottom:12px">
         <span style="font-size:11px;font-weight:700;padding:2px 8px;background:#f3f4f6;border-radius:4px;color:#374151">${esc(ct)}</span>`;
@@ -835,7 +836,7 @@ function generateHTML(doc: OpenAPIDocument): string {
         ${op.operationId ? `<code style="font-size:10px;color:#9ca3af;margin-left:auto">${esc(op.operationId)}</code>` : ''}
       </div>`;
 
-    if (op.description) html += `<div class="op-description">${esc(op.description).replace(/\n/g, '<br>')}</div>`;
+    if (op.description) html += `<div class="op-description">${renderMarkdown(op.description)}</div>`;
     if (op.security !== undefined) html += `<div class="op-meta">Security: ${securityHtml(op.security)}</div>`;
     if (op.externalDocs) html += `<div class="op-meta">📖 <a href="${esc(op.externalDocs.url)}" target="_blank">${esc(op.externalDocs.description || op.externalDocs.url)}</a></div>`;
 
@@ -912,7 +913,7 @@ function generateHTML(doc: OpenAPIDocument): string {
         <span class="badge badge-oas">OAS ${esc(doc.openapi)}</span>
       </div>`;
     if (doc.info.summary) html += `<p style="font-size:15px;color:#4b5563;margin:8px 0 14px">${esc(doc.info.summary)}</p>`;
-    if (doc.info.description) html += `<div style="color:#374151;margin-bottom:16px;line-height:1.8">${esc(doc.info.description).replace(/\n/g, '<br>')}</div>`;
+    if (doc.info.description) html += `<div class="md-rendered" style="color:#374151;margin-bottom:16px;line-height:1.8">${renderMarkdown(doc.info.description)}</div>`;
     html += `<table class="meta-table">${metaRows.map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join('')}</table>`;
     html += `</section>`;
     return html;
@@ -954,7 +955,7 @@ function generateHTML(doc: OpenAPIDocument): string {
     for (const { tag, ops, tagId } of allGroups) {
       if (!ops.length) continue;
       html += `<div id="${tagId}"><h3>${esc(tag)}</h3>`;
-      if (tagDescriptions[tag]) html += `<p style="color:#6b7280;margin-bottom:12px">${esc(tagDescriptions[tag])}</p>`;
+      if (tagDescriptions[tag]) html += `<div class="md-rendered" style="color:#6b7280;margin-bottom:12px">${renderMarkdown(tagDescriptions[tag])}</div>`;
       if (tagExternalDocs[tag]) {
         const ed = tagExternalDocs[tag];
         html += `<p style="margin-bottom:12px">📖 <a href="${esc(ed.url)}" target="_blank">${esc(ed.description || ed.url)}</a></p>`;
@@ -981,7 +982,7 @@ function generateHTML(doc: OpenAPIDocument): string {
           ${schema.deprecated ? `<span class="badge-depr">deprecated</span>` : ''}
         </div>
         <div class="schema-body">
-          ${schema.description ? `<p style="color:#4b5563;margin-bottom:12px">${esc(schema.description)}</p>` : ''}
+          ${schema.description ? `<div class="md-rendered" style="color:#4b5563;margin-bottom:12px">${renderMarkdown(schema.description)}</div>` : ''}
           ${constraintsHtml(schema) ? `<div style="margin-bottom:10px">${constraintsHtml(schema)}</div>` : ''}
           ${renderSchemaHtml(schema)}
         </div>
@@ -1097,7 +1098,8 @@ function generateHTML(doc: OpenAPIDocument): string {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${esc(doc.info.title)} v${esc(doc.info.version)} — API Docs</title>
-  <style>${HTML_CSS}</style>
+  <style>${HTML_CSS}
+${MARKDOWN_CSS}</style>
 </head>
 <body>
   <div class="layout">

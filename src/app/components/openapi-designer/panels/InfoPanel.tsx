@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useI18n, useDesigner } from '../context/DesignerContext';
 import { User, Mail, Globe, FileText, Scale, HelpCircle } from 'lucide-react';
+import { MarkdownEditor } from './MarkdownEditor';
 
 function FieldHint({ text }: { text: string }) {
   const [show, setShow] = useState(false);
@@ -13,7 +14,7 @@ function FieldHint({ text }: { text: string }) {
         onMouseLeave={() => setShow(false)}
       />
       {show && (
-        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-60 p-2 rounded-lg bg-popover border border-border shadow-lg text-[11px] text-muted-foreground leading-relaxed z-50 whitespace-normal pointer-events-none">
+        <span className="absolute bottom-full left-0 mb-1.5 w-64 p-2.5 rounded-lg bg-popover border border-border shadow-xl text-[11px] text-muted-foreground leading-relaxed z-50 whitespace-normal pointer-events-none">
           {text}
         </span>
       )}
@@ -148,53 +149,58 @@ export function InfoPanel() {
       {/* Basic Info */}
       <SectionCard title={t.info.title} icon={<FileText size={15} />}>
         <div className="grid grid-cols-2 gap-4">
-          <FieldGroup label={t.info.apiTitle} hint="The title of the API. Required by OpenAPI 3.1.">
-            <InputField value={doc.info.title} onChange={(v) => update('info.title', v)} placeholder="My API" />
+          <FieldGroup label={t.info.apiTitle} hint={t.hints.apiTitle}>
+            <InputField value={doc.info.title} onChange={(v) => update('info.title', v)} placeholder="Petstore API" />
           </FieldGroup>
-          <FieldGroup label={t.info.apiVersion} hint="The version of the OpenAPI document (not the OpenAPI spec version). E.g. 1.0.0, 2.1.3.">
+          <FieldGroup label={t.info.apiVersion} hint={t.hints.apiVersion}>
             <InputField value={doc.info.version} onChange={(v) => update('info.version', v)} placeholder="1.0.0" />
           </FieldGroup>
         </div>
-        <FieldGroup label={t.info.apiSummary} hint="A short, one-line summary of the API. Displayed in listings alongside the title.">
-          <InputField value={doc.info.summary || ''} onChange={(v) => update('info.summary', v)} placeholder={t.common.inputPlaceholder} />
+        <FieldGroup label={t.info.apiSummary} hint={t.hints.apiSummary}>
+          <InputField value={doc.info.summary || ''} onChange={(v) => update('info.summary', v)} placeholder="A simple API for managing pets" />
         </FieldGroup>
-        <FieldGroup label={t.info.apiDescription} hint="A long description of the API. CommonMark (Markdown) syntax can be used for rich text formatting.">
-          <TextAreaField value={doc.info.description || ''} onChange={(v) => update('info.description', v)} placeholder="Markdown supported..." rows={4} />
+        <FieldGroup label={t.info.apiDescription} hint={t.hints.apiDescription}>
+          <MarkdownEditor
+            value={doc.info.description || ''}
+            onChange={(v) => update('info.description', v)}
+            placeholder="Describe your API in detail. **Markdown** is fully supported."
+            rows={5}
+          />
         </FieldGroup>
-        <FieldGroup label={t.info.termsOfService} hint="A URL pointing to the Terms of Service for the API. Must be a valid URL.">
-          <InputField value={doc.info.termsOfService || ''} onChange={(v) => update('info.termsOfService', v)} placeholder="https://example.com/tos" />
+        <FieldGroup label={t.info.termsOfService} hint={t.hints.termsOfService}>
+          <InputField value={doc.info.termsOfService || ''} onChange={(v) => update('info.termsOfService', v)} placeholder="https://example.com/terms" />
         </FieldGroup>
-        <FieldGroup label={t.info.openApiVersion} hint="The version of the OpenAPI Specification. Use 3.1.0 for JSON Schema 2020-12 support.">
+        <FieldGroup label={t.info.openApiVersion} hint={t.hints.openApiVersion}>
           <InputField value={doc.openapi} onChange={(v) => update('openapi', v)} placeholder="3.1.0" />
         </FieldGroup>
       </SectionCard>
 
       {/* Contact */}
       <SectionCard title={t.info.contact} icon={<User size={15} />}>
-        <FieldGroup label={t.info.contactName} hint="The name of the contact person or organization responsible for this API.">
-          <InputField value={doc.info.contact?.name || ''} onChange={(v) => update('info.contact.name', v)} placeholder="API Support" />
+        <FieldGroup label={t.info.contactName} hint={t.hints.contactName}>
+          <InputField value={doc.info.contact?.name || ''} onChange={(v) => update('info.contact.name', v)} placeholder="API Support Team" />
         </FieldGroup>
         <div className="grid grid-cols-2 gap-4">
-          <FieldGroup label={t.info.contactEmail} hint="The contact email address. Must be a valid email format.">
+          <FieldGroup label={t.info.contactEmail} hint={t.hints.contactEmail}>
             <InputField value={doc.info.contact?.email || ''} onChange={(v) => update('info.contact.email', v)} placeholder="support@example.com" type="email" />
           </FieldGroup>
-          <FieldGroup label={t.info.contactUrl} hint="A URL pointing to contact information for the API.">
-            <InputField value={doc.info.contact?.url || ''} onChange={(v) => update('info.contact.url', v)} placeholder="https://example.com" />
+          <FieldGroup label={t.info.contactUrl} hint={t.hints.contactUrl}>
+            <InputField value={doc.info.contact?.url || ''} onChange={(v) => update('info.contact.url', v)} placeholder="https://example.com/support" />
           </FieldGroup>
         </div>
       </SectionCard>
 
       {/* License */}
       <SectionCard title={t.info.license} icon={<Scale size={15} />}>
-        <FieldGroup label={t.info.licenseName} hint="The license name for the API. E.g. Apache 2.0, MIT.">
+        <FieldGroup label={t.info.licenseName} hint={t.hints.licenseName}>
           <InputField value={doc.info.license?.name || ''} onChange={(v) => update('info.license.name', v)} placeholder="Apache 2.0" />
         </FieldGroup>
         <div className="grid grid-cols-2 gap-4">
-          <FieldGroup label={t.info.licenseIdentifier} hint="An SPDX license expression for the API. E.g. Apache-2.0, MIT.">
+          <FieldGroup label={t.info.licenseIdentifier} hint={t.hints.licenseIdentifier}>
             <InputField value={doc.info.license?.identifier || ''} onChange={(v) => update('info.license.identifier', v)} placeholder="Apache-2.0" />
           </FieldGroup>
-          <FieldGroup label={t.info.licenseUrl} hint="A URL to the license used for the API.">
-            <InputField value={doc.info.license?.url || ''} onChange={(v) => update('info.license.url', v)} placeholder="https://..." />
+          <FieldGroup label={t.info.licenseUrl} hint={t.hints.licenseUrl}>
+            <InputField value={doc.info.license?.url || ''} onChange={(v) => update('info.license.url', v)} placeholder="https://www.apache.org/licenses/LICENSE-2.0" />
           </FieldGroup>
         </div>
       </SectionCard>

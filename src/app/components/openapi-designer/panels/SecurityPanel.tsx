@@ -141,35 +141,35 @@ export function SecurityPanel() {
 
                 {isExpanded && (
                   <div className="border-t border-border p-4 space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-[10px] text-muted-foreground uppercase tracking-wide">{t.security.schemeType}</label>
-                        <select
-                          value={scheme.type}
-                          onChange={(e) => {
-                            const newType = e.target.value as SecuritySchemeObject['type'];
-                            const base: SecuritySchemeObject = { type: newType, description: scheme.description };
-                            if (newType === 'apiKey') { base.in = 'header'; base.name = 'X-API-Key'; }
-                            if (newType === 'http') { base.scheme = 'bearer'; base.bearerFormat = 'JWT'; }
-                            if (newType === 'oauth2') { base.flows = { authorizationCode: { authorizationUrl: '', tokenUrl: '', scopes: {} } }; }
-                            if (newType === 'openIdConnect') { base.openIdConnectUrl = ''; }
-                            updateScheme(name, base);
-                          }}
-                          className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
-                        >
-                          {SECURITY_TYPES.map(type => (
-                            <option key={type} value={type}>{(t.security.types as Record<string, string>)[type]}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="text-[10px] text-muted-foreground uppercase tracking-wide">{t.common.description}</label>
-                        <input
-                          value={scheme.description || ''}
-                          onChange={(e) => updateScheme(name, { ...scheme, description: e.target.value })}
-                          className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
-                        />
-                      </div>
+                    <div>
+                      <label className="text-[10px] text-muted-foreground uppercase tracking-wide">{t.security.schemeType}</label>
+                      <select
+                        value={scheme.type}
+                        onChange={(e) => {
+                          const newType = e.target.value as SecuritySchemeObject['type'];
+                          const base: SecuritySchemeObject = { type: newType, description: scheme.description };
+                          if (newType === 'apiKey') { base.in = 'header'; base.name = 'X-API-Key'; }
+                          if (newType === 'http') { base.scheme = 'bearer'; base.bearerFormat = 'JWT'; }
+                          if (newType === 'oauth2') { base.flows = { authorizationCode: { authorizationUrl: '', tokenUrl: '', scopes: {} } }; }
+                          if (newType === 'openIdConnect') { base.openIdConnectUrl = ''; }
+                          updateScheme(name, base);
+                        }}
+                        className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      >
+                        {SECURITY_TYPES.map(type => (
+                          <option key={type} value={type}>{(t.security.types as Record<string, string>)[type]}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-muted-foreground uppercase tracking-wide">{t.common.description}</label>
+                      <textarea
+                        value={scheme.description || ''}
+                        onChange={(e) => updateScheme(name, { ...scheme, description: e.target.value })}
+                        className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                        rows={2}
+                        placeholder="Brief description of this security scheme"
+                      />
                     </div>
 
                     {/* API Key fields */}

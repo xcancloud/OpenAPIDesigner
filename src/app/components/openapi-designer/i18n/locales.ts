@@ -280,6 +280,35 @@ export interface I18nMessages {
     bundled: string;
     dereferenced: string;
   };
+  // Markdown editor
+  markdown: {
+    edit: string;
+    preview: string;
+    noContent: string;
+  };
+  // Tooltip hints (i18n keys for ? icon tooltips)
+  hints: {
+    apiTitle: string;
+    apiVersion: string;
+    apiSummary: string;
+    apiDescription: string;
+    termsOfService: string;
+    openApiVersion: string;
+    contactName: string;
+    contactEmail: string;
+    contactUrl: string;
+    licenseName: string;
+    licenseIdentifier: string;
+    licenseUrl: string;
+    serverUrl: string;
+    serverDescription: string;
+    operationSummary: string;
+    operationId: string;
+    operationDescription: string;
+    operationTags: string;
+    schemaDescription: string;
+    tagDescription: string;
+  };
 }
 
 export const en: I18nMessages = {
@@ -548,6 +577,33 @@ export const en: I18nMessages = {
     bundled: 'Bundled',
     dereferenced: 'Dereferenced',
   },
+  markdown: {
+    edit: 'Edit',
+    preview: 'Preview',
+    noContent: 'No content to preview.',
+  },
+  hints: {
+    apiTitle: 'The name of the API. Required. Shown as the main heading in generated documentation.',
+    apiVersion: 'Version string of this API (not the OpenAPI spec version). E.g. 1.0.0, 2.1.3-beta.',
+    apiSummary: 'A short one-line summary shown alongside the title in API listing pages.',
+    apiDescription: 'Full description of the API. CommonMark (Markdown) syntax supported for rich text.',
+    termsOfService: 'URL pointing to the Terms of Service page. Must be a valid absolute URL.',
+    openApiVersion: 'OpenAPI Specification version in use. 3.1.0 adds full JSON Schema 2020-12 support.',
+    contactName: 'Name of the contact person or organization responsible for this API.',
+    contactEmail: 'Email address of the contact person. Must be a valid email format.',
+    contactUrl: 'URL pointing to the contact information page for this API.',
+    licenseName: 'License name for the API. E.g. Apache 2.0, MIT, GPL-3.0.',
+    licenseIdentifier: 'SPDX license expression. E.g. Apache-2.0, MIT. Mutually exclusive with licenseUrl.',
+    licenseUrl: 'URL pointing to the license text. Mutually exclusive with licenseIdentifier.',
+    serverUrl: 'Target server URL. Supports {curly-brace} template variables. E.g. https://api.example.com/v1.',
+    serverDescription: 'Optional description of the server. Markdown is supported.',
+    operationSummary: 'A short one-line summary of the operation shown in endpoint listings.',
+    operationId: 'Unique string ID for the operation, used in code generation. E.g. listPets, createUser.',
+    operationDescription: 'Detailed description of what this operation does. Markdown is supported.',
+    operationTags: 'Comma-separated tag names to group this operation. Tags must be defined in the Tags panel.',
+    schemaDescription: 'Human-readable description of this schema or property. Markdown is supported.',
+    tagDescription: 'Optional description for this tag. Markdown supported. Displayed under the tag heading in docs.',
+  },
 };
 
 export const zh: I18nMessages = {
@@ -815,6 +871,33 @@ export const zh: I18nMessages = {
     exportAsJson: '导出为 JSON',
     bundled: '打包模式',
     dereferenced: '解引用模式',
+  },
+  markdown: {
+    edit: '编辑',
+    preview: '预览',
+    noContent: '暂无内容可预览。',
+  },
+  hints: {
+    apiTitle: 'API 名称，必填。将作为生成文档的主标题显示。',
+    apiVersion: '该 API 的版本号（非 OpenAPI 规范版本）。例如：1.0.0、2.1.3-beta。',
+    apiSummary: '一句话摘要，显示在 API 列表页面的标题旁边。',
+    apiDescription: 'API 的完整描述，支持 CommonMark（Markdown）语法进行富文本格式化。',
+    termsOfService: '指向服务条款页面的 URL，必须是合法的绝对 URL 地址。',
+    openApiVersion: '所使用的 OpenAPI 规范版本。3.1.0 完整支持 JSON Schema 2020-12。',
+    contactName: '负责该 API 的联系人或组织名称。',
+    contactEmail: '联系人的电子邮件地址，必须符合合法的邮箱格式。',
+    contactUrl: '指向该 API 联系信息页面的 URL 地址。',
+    licenseName: 'API 的许可证名称。例如：Apache 2.0、MIT、GPL-3.0。',
+    licenseIdentifier: 'SPDX 许可证表达式，例如：Apache-2.0、MIT。与 licenseUrl 互斥，不可同时填写。',
+    licenseUrl: '指向许可证文本的 URL 地址。与 licenseIdentifier 互斥，不可同时填写。',
+    serverUrl: '目标服务器的 URL，支持使用 {花括号} 定义路径变量。例如：https://api.example.com/v1。',
+    serverDescription: '服务器的可选描述信息，支持 Markdown 语法。',
+    operationSummary: '接口的一句话简短描述，显示在接口列表中。',
+    operationId: '接口的唯一标识符，用于代码生成。例如：listPets、createUser。',
+    operationDescription: '该接口的详细描述，支持 Markdown 语法进行富文本格式化。',
+    operationTags: '以逗号分隔的标签列表，用于对接口分组。标签须在"标签"面板中预先定义。',
+    schemaDescription: '该数据模型或属性的可读描述，支持 Markdown 语法。',
+    tagDescription: '标签的可选描述，支持 Markdown 语法，将显示在文档章节标题下方。',
   },
 };
 

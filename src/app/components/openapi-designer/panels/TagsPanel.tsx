@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useI18n, useDesigner } from '../context/DesignerContext';
 import { Tag, Plus, Trash2, Hash } from 'lucide-react';
 import type { TagObject } from '../types/openapi';
+import { MarkdownEditor } from './MarkdownEditor';
 
 export function TagsPanel() {
   const { t } = useI18n();
@@ -99,12 +100,11 @@ export function TagsPanel() {
                     className="w-full px-3 py-1.5 rounded-lg border border-border bg-background text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
                     placeholder={t.tags.tagName}
                   />
-                  <textarea
+                  <MarkdownEditor
                     value={tag.description || ''}
-                    onChange={(e) => updateTag(index, { ...tag, description: e.target.value })}
-                    className="w-full px-3 py-1.5 rounded-lg border border-border bg-background text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                    onChange={(v) => updateTag(index, { ...tag, description: v })}
+                    placeholder={t.hints.tagDescription}
                     rows={2}
-                    placeholder={t.common.description + ' (Markdown)'}
                   />
                 </div>
                 <button
