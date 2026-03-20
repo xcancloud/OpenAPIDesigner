@@ -36,12 +36,19 @@ export interface OpenAPIDesignerProps {
 function DesignerLayout({ onChange }: { onChange?: (doc: OpenAPIDocument) => void }) {
   const { state } = useDesigner();
 
-  // Notify parent on changes
+  // Keep a stable ref to the latest onChange so the effect doesn't re-run when the
+  // consumer passes a new arrow function on every render (which would otherwise trigger
+  // an infinite update loop: document change → onChange → parent setState → new onChange
+  // reference → effect re-runs → onChange called again → ...).
+  const onChangeRef = React.useRef(onChange);
   React.useEffect(() => {
-    if (onChange) {
-      onChange(state.document);
-    }
-  }, [state.document, onChange]);
+    onChangeRef.current = onChange;
+  });
+
+  // Only depend on state.document — the ref always holds the latest callback.
+  React.useEffect(() => {
+    onChangeRef.current?.(state.document);
+  }, [state.document]);
 
   const renderPanel = () => {
     switch (state.activePanel) {

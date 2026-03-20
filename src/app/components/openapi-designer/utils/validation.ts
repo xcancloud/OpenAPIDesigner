@@ -220,6 +220,9 @@ export function validateDocument(doc: OpenAPIDocument): ValidationError[] {
     });
   }
 
+  // $ref resolution check
+  validateRefs(doc, errors);
+
   return errors;
 }
 
@@ -299,4 +302,53 @@ function isValidUrl(url: string): boolean {
   } catch {
     return false;
   }
+}
+
+// ---------------------------------------------------------------------------
+// $ref resolution — checks that every internal $ref points to a defined component
+// ---------------------------------------------------------------------------
+function validateRefs(doc: OpenAPIDocument, errors: ValidationError[]): void {
+  // Build the set of all reachable internal reference targets.
+  const defined = new Set<string>();
+  const components = doc.components;
+  if (components) {
+    (['schemas', 'responses', 'parameters', 'examples', 'requestBodies', 'headers', 'securitySchemes', 'links', 'callbacks'] as const)
+      .forEach(section => {
+        const bucket = components[section as keyof typeof components];
+        if (bucket && typeof bucket === 'object') {
+          Object.keys(bucket).forEach(k => defined.add(`#/components/${section}/${k}`));
+        }
+      });
+  }
+
+  // Recursively walk the document object, collect $ref strings and validate them.
+  function walk(node: unknown, nodePath: string): void {
+    if (!node || typeof node !== 'object') return;
+    if (Array.isArray(node)) {
+      node.forEach((item, i) => walk(item, `${nodePath}[${i}]`));
+      return;
+    }
+    const obj = node as Record<string, unknown>;
+    if (typeof obj['$ref'] === 'string') {
+      const ref = obj['$ref'] as string;
+      // Only validate internal (same-document) references.
+      if (ref.startsWith('#/')) {
+        if (!defined.has(ref)) {
+          errors.push({
+            path: nodePath,
+            message: `Unresolved $ref: "${ref}"`,
+            severity: 'error',
+          });
+        }
+      }
+      // JSON Reference objects are not supposed to have sibling keys; stop walking.
+      return;
+    }
+    Object.entries(obj).forEach(([key, value]) => walk(value, `${nodePath}.${key}`));
+  }
+
+  if (doc.paths) walk(doc.paths, 'paths');
+  if (doc.webhooks) walk(doc.webhooks, 'webhooks');
+  // Walk components itself to catch inter-component $ref cycles / dangling refs.
+  if (doc.components) walk(doc.components, 'components');
 }

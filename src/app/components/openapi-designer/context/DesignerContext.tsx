@@ -185,6 +185,8 @@ export function DesignerProvider({
   const historyRef = useRef<OpenAPIDocument[]>([initDoc]);
   const historyIndexRef = useRef(0);
   const isUndoRedoRef = useRef(false);
+  // Mirrors historyIndexRef as React state so canUndo/canRedo cause re-renders.
+  const [historyIndex, setHistoryIndex] = useState(0);
 
   const updateDocument = useCallback((partial: Partial<OpenAPIDocument>) => {
     dispatch({ type: 'UPDATE_DOCUMENT', payload: partial });
@@ -210,6 +212,7 @@ export function DesignerProvider({
       historyRef.current = newHistory;
       historyIndexRef.current = newHistory.length - 1;
       prevDocRef.current = docStr;
+      setHistoryIndex(historyIndexRef.current);
     }
   }, [state.document]);
 
@@ -217,6 +220,7 @@ export function DesignerProvider({
     if (historyIndexRef.current > 0) {
       isUndoRedoRef.current = true;
       historyIndexRef.current--;
+      setHistoryIndex(historyIndexRef.current);
       const doc = JSON.parse(JSON.stringify(historyRef.current[historyIndexRef.current]));
       dispatch({ type: 'SET_DOCUMENT', payload: doc });
     }
@@ -226,6 +230,7 @@ export function DesignerProvider({
     if (historyIndexRef.current < historyRef.current.length - 1) {
       isUndoRedoRef.current = true;
       historyIndexRef.current++;
+      setHistoryIndex(historyIndexRef.current);
       const doc = JSON.parse(JSON.stringify(historyRef.current[historyIndexRef.current]));
       dispatch({ type: 'SET_DOCUMENT', payload: doc });
     }
@@ -245,8 +250,8 @@ export function DesignerProvider({
     };
   }, [state.document, state.isDirty]);
 
-  const canUndo = historyIndexRef.current > 0;
-  const canRedo = historyIndexRef.current < historyRef.current.length - 1;
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex < historyRef.current.length - 1;
 
   return (
     <I18nContext.Provider value={{ locale, setLocale, t }}>

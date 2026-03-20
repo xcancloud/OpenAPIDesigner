@@ -57,9 +57,25 @@ function OperationEditor({
 
   const addResponse = () => {
     const responses = { ...(operation.responses || {}) };
-    const code = Object.keys(responses).length === 0 ? '200' : '201';
+    // Pick the first unused code from common candidates instead of always duplicating 200/201.
+    const candidates = ['200', '201', '204', '400', '401', '403', '404', '422', '500', '503'];
+    const code = candidates.find(c => !responses[c])
+      ?? String(200 + Object.keys(responses).length);
     responses[code] = { description: 'Successful response' };
     onUpdate({ ...operation, responses });
+  };
+
+  const renameResponseCode = (oldCode: string, newCode: string) => {
+    if (!newCode.trim() || newCode === oldCode) return;
+    const responses = { ...(operation.responses || {}) };
+    if (responses[newCode]) return; // don't overwrite an existing code
+    const entry = responses[oldCode];
+    delete responses[oldCode];
+    // Preserve insertion order by rebuilding the object.
+    const rebuilt: typeof responses = {};
+    Object.entries(responses).forEach(([k, v]) => { rebuilt[k] = v; });
+    rebuilt[newCode] = entry;
+    onUpdate({ ...operation, responses: rebuilt });
   };
 
   const updateResponse = (code: string, resp: ResponseObject) => {
@@ -234,7 +250,20 @@ function OperationEditor({
                   <select
                     value={operation.requestBody?.content ? Object.keys(operation.requestBody.content)[0] || 'application/json' : 'application/json'}
                     className="px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    onChange={() => {}}
+                    onChange={(e) => {
+                      const newContentType = e.target.value;
+                      const currentContent = operation.requestBody?.content || {};
+                      const currentKey = Object.keys(currentContent)[0];
+                      // Move the existing schema to the new content-type key.
+                      const existingMedia = currentKey ? currentContent[currentKey] : {};
+                      onUpdate({
+                        ...operation,
+                        requestBody: {
+                          required: operation.requestBody?.required ?? true,
+                          content: { [newContentType]: existingMedia },
+                        },
+                      });
+                    }}
                   >
                     <option>application/json</option>
                     <option>multipart/form-data</option>
@@ -242,17 +271,21 @@ function OperationEditor({
                   </select>
                   {schemaNames.length > 0 && (
                     <select
-                      value={
-                        operation.requestBody?.content?.['application/json']?.schema?.$ref?.replace('#/components/schemas/', '') || ''
-                      }
+                      value={(() => {
+                        const content = operation.requestBody?.content || {};
+                        const key = Object.keys(content)[0] || 'application/json';
+                        return content[key]?.schema?.$ref?.replace('#/components/schemas/', '') || '';
+                      })()}
                       onChange={(e) => {
                         const ref = e.target.value ? `#/components/schemas/${e.target.value}` : undefined;
+                        const currentContent = operation.requestBody?.content || {};
+                        const contentType = Object.keys(currentContent)[0] || 'application/json';
                         onUpdate({
                           ...operation,
                           requestBody: {
                             required: true,
                             content: {
-                              'application/json': {
+                              [contentType]: {
                                 schema: ref ? { $ref: ref } : { type: 'object' },
                               },
                             },
@@ -285,12 +318,18 @@ function OperationEditor({
             </div>
             {Object.entries(operation.responses || {}).map(([code, resp]) => (
               <div key={code} className="flex items-center gap-2 mb-2">
-                <span className={`text-[12px] px-2 py-1 rounded font-mono ${
-                  code.startsWith('2') ? 'bg-green-500/10 text-green-600' :
-                  code.startsWith('4') ? 'bg-yellow-500/10 text-yellow-600' :
-                  code.startsWith('5') ? 'bg-red-500/10 text-red-600' :
-                  'bg-muted text-muted-foreground'
-                }`} style={{ fontWeight: 600 }}>{code}</span>
+                <input
+                  defaultValue={code}
+                  onBlur={(e) => renameResponseCode(code, e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+                  className={`text-[12px] w-16 px-2 py-1 rounded font-mono text-center border focus:outline-none focus:ring-2 focus:ring-primary/30 ${
+                    code.startsWith('2') ? 'bg-green-500/10 text-green-600 border-green-300' :
+                    code.startsWith('4') ? 'bg-yellow-500/10 text-yellow-600 border-yellow-300' :
+                    code.startsWith('5') ? 'bg-red-500/10 text-red-600 border-red-300' :
+                    'bg-muted text-muted-foreground border-border'
+                  }`}
+                  style={{ fontWeight: 600 }}
+                />
                 <input
                   value={resp.description}
                   onChange={(e) => updateResponse(code, { ...resp, description: e.target.value })}
