@@ -195,6 +195,7 @@ export interface SchemaObject {
   // Ref
   $ref?: string;
   // Meta — note: `nullable` is an OAS 3.0 construct; in OAS 3.1 use `type: ['string', 'null']`
+  nullable?: boolean; // kept for OAS 3.0 interop
   readOnly?: boolean;
   writeOnly?: boolean;
   example?: unknown;

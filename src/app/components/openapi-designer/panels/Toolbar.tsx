@@ -2,17 +2,109 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useI18n, useDesigner } from '../context/DesignerContext';
 import {
   FilePlus, Undo2, Redo2, Download, Upload, BookOpen,
-  ChevronDown, Keyboard
+  ChevronDown, Keyboard, FileJson, Printer, FileText
 } from 'lucide-react';
 import yaml from 'js-yaml';
 import { createDefaultDocument, createPetStoreDocument } from '../types/openapi';
-import type { OpenAPIDocument } from '../types/openapi';
+import type { OpenAPIDocument, OperationObject, ParameterObject } from '../types/openapi';
 import { toast } from 'sonner';
+import { downloadMarkdown, downloadHtml, downloadWord, printPdf } from '../utils/exporters';
+
+// ==================== Postman → OpenAPI converter ====================
+function convertPostmanToOpenAPI(collection: Record<string, unknown>): OpenAPIDocument {
+  const info = (collection.info || {}) as Record<string, string>;
+  const doc: OpenAPIDocument = {
+    openapi: '3.1.0',
+    info: {
+      title: info.name || 'Imported from Postman',
+      version: '1.0.0',
+      description: info.description || '',
+    },
+    paths: {},
+  };
+
+  function processItems(items: Record<string, unknown>[], parentTag?: string) {
+    for (const item of items) {
+      if (Array.isArray(item.item)) {
+        // Folder → use as tag group
+        processItems(item.item as Record<string, unknown>[], (item.name as string) || parentTag);
+      } else if (item.request) {
+        const req = item.request as Record<string, unknown>;
+        const method = ((req.method as string) || 'GET').toLowerCase();
+        const urlObj = typeof req.url === 'string'
+          ? { raw: req.url, path: [], query: [] }
+          : (req.url as Record<string, unknown> || {});
+        const rawUrl = (urlObj.raw as string) || '';
+
+        // Build path string
+        let pathStr = '';
+        if (Array.isArray(urlObj.path)) {
+          pathStr = '/' + (urlObj.path as string[]).join('/');
+        } else {
+          try {
+            const u = new URL(rawUrl.replace(/{{[^}]+}}/g, '__placeholder__'));
+            pathStr = u.pathname;
+          } catch {
+            pathStr = rawUrl.replace(/^https?:\/\/[^/]+/, '') || '/';
+          }
+        }
+        // Postman {{var}} → OpenAPI {var} in path
+        pathStr = pathStr.replace(/{{([^}]+)}}/g, '{$1}').replace(/:([a-zA-Z_]\w*)/g, '{$1}');
+        if (!pathStr.startsWith('/')) pathStr = '/' + pathStr;
+
+        const headers = (req.header as Record<string, string>[]) || [];
+        const queryItems = (Array.isArray(urlObj.query) ? urlObj.query : []) as Record<string, string>[];
+        const skipHeaders = new Set(['content-type', 'accept', 'authorization', 'content-length']);
+
+        const parameters: ParameterObject[] = [];
+        // Path params
+        for (const match of pathStr.matchAll(/\{([^}]+)\}/g)) {
+          parameters.push({ name: match[1], in: 'path', required: true, schema: { type: 'string' } });
+        }
+        // Query params
+        for (const q of queryItems) {
+          if (q.key) {
+            parameters.push({ name: q.key, in: 'query', description: q.description || '', schema: { type: 'string' } });
+          }
+        }
+        // Header params (non-standard)
+        for (const h of headers) {
+          if (h.key && !skipHeaders.has(h.key.toLowerCase())) {
+            parameters.push({ name: h.key, in: 'header', schema: { type: 'string' } });
+          }
+        }
+
+        const operation: OperationObject = {
+          summary: (item.name as string) || '',
+          description: (req.description as string) || '',
+          responses: { '200': { description: 'Successful response' } },
+        };
+        if (parentTag) operation.tags = [parentTag];
+        if (parameters.length > 0) operation.parameters = parameters;
+
+        const bodyMethods = new Set(['post', 'put', 'patch']);
+        const body = req.body as Record<string, unknown> | undefined;
+        if (body && bodyMethods.has(method)) {
+          const ctHeader = headers.find(h => h.key?.toLowerCase() === 'content-type');
+          const ct = (ctHeader?.value || 'application/json').split(';')[0].trim();
+          operation.requestBody = { content: { [ct]: { schema: { type: 'object' } } } };
+        }
+
+        if (!doc.paths![pathStr]) doc.paths![pathStr] = {};
+        (doc.paths![pathStr] as Record<string, unknown>)[method] = operation;
+      }
+    }
+  }
+
+  processItems((collection.item as Record<string, unknown>[]) || []);
+  return doc;
+}
 
 export function Toolbar() {
   const { t } = useI18n();
   const { state, setDocument, undo, redo, canUndo, canRedo, saveNow } = useDesigner();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const postmanInputRef = useRef<HTMLInputElement>(null);
   const [showFileMenu, setShowFileMenu] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
 
@@ -79,6 +171,28 @@ export function Toolbar() {
     e.target.value = '';
   };
 
+  const handlePostmanImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const collection = JSON.parse(evt.target?.result as string);
+        if (!collection?.info || !Array.isArray(collection.item)) {
+          toast.error('Invalid Postman collection: missing info or item array');
+          return;
+        }
+        const openapi = convertPostmanToOpenAPI(collection);
+        setDocument(openapi);
+        toast.success(`Postman collection imported: ${collection.info.name || file.name}`);
+      } catch (err) {
+        toast.error(`Import failed: ${String(err)}`);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
   const handleExport = (format: 'yaml' | 'json') => {
     const content = format === 'yaml'
       ? yaml.dump(state.document, { indent: 2, lineWidth: -1, noRefs: true })
@@ -95,14 +209,38 @@ export function Toolbar() {
     toast.success(format === 'yaml' ? t.common.downloadYaml : t.common.downloadJson);
   };
 
+  const handleExportMarkdown = () => {
+    downloadMarkdown(state.document);
+    setShowFileMenu(false);
+    toast.success(t.common.downloadMarkdown);
+  };
+
+  const handleExportHtml = () => {
+    downloadHtml(state.document);
+    setShowFileMenu(false);
+    toast.success(t.common.downloadHtml);
+  };
+
+  const handleExportWord = () => {
+    downloadWord(state.document);
+    setShowFileMenu(false);
+    toast.success(t.common.downloadWord);
+  };
+
+  const handlePrintPdf = () => {
+    printPdf(state.document);
+    setShowFileMenu(false);
+    toast.success(t.common.printPdf);
+  };
+
   const doc = state.document;
 
   return (
-    <div className="h-12 border-b border-border bg-card flex items-center justify-between px-4 shrink-0">
+    <div className="h-[57px] border-b border-border bg-card flex items-center justify-between px-4 shrink-0">
       {/* Left: Doc info */}
       <div className="flex items-center gap-3 min-w-0">
         <div className="flex items-center gap-2 text-[13px] min-w-0">
-          <span className="text-foreground truncate max-w-[200px]" style={{ fontWeight: 600 }}>{doc.info.title}</span>
+          <span className="text-foreground truncate max-w-[360px]" style={{ fontWeight: 600 }}>{doc.info.title}</span>
           <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0">v{doc.info.version}</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary shrink-0">OAS {doc.openapi}</span>
           {state.isDirty && (
@@ -199,6 +337,13 @@ export function Toolbar() {
                   {t.common.importFile}
                 </button>
                 <button
+                  onClick={() => { postmanInputRef.current?.click(); setShowFileMenu(false); }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors"
+                >
+                  <FileJson size={14} className="text-muted-foreground" />
+                  {t.common.importPostman}
+                </button>
+                <button
                   onClick={() => handleExport('yaml')}
                   className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors"
                 >
@@ -212,6 +357,35 @@ export function Toolbar() {
                   <Download size={14} className="text-muted-foreground" />
                   {t.common.downloadJson}
                 </button>
+                <div className="h-px bg-border my-1" />
+                <button
+                  onClick={handleExportMarkdown}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors"
+                >
+                  <FileText size={14} className="text-muted-foreground" />
+                  {t.common.downloadMarkdown}
+                </button>
+                <button
+                  onClick={handleExportHtml}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors"
+                >
+                  <FileText size={14} className="text-muted-foreground" />
+                  {t.common.downloadHtml}
+                </button>
+                <button
+                  onClick={handleExportWord}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors"
+                >
+                  <FileText size={14} className="text-muted-foreground" />
+                  {t.common.downloadWord}
+                </button>
+                <button
+                  onClick={handlePrintPdf}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors"
+                >
+                  <Printer size={14} className="text-muted-foreground" />
+                  {t.common.printPdf}
+                </button>
               </div>
             </>
           )}
@@ -222,6 +396,13 @@ export function Toolbar() {
           type="file"
           accept=".yaml,.yml,.json"
           onChange={handleImport}
+          className="hidden"
+        />
+        <input
+          ref={postmanInputRef}
+          type="file"
+          accept=".json"
+          onChange={handlePostmanImport}
           className="hidden"
         />
       </div>

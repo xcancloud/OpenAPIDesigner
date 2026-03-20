@@ -119,27 +119,54 @@ function PropertyEditor({
             )}
             <div>
               <label className="text-[10px] text-muted-foreground">{t.common.description}</label>
-              <input
+              <textarea
                 value={schema.description || ''}
                 onChange={(e) => onUpdate({ ...schema, description: e.target.value })}
-                className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                rows={3}
+                placeholder="Markdown supported..."
               />
             </div>
           </div>
 
-          {/* Enum values for string */}
+          {/* Enum values for string — tag-style editor */}
           {type === 'string' && (
             <div>
-              <label className="text-[10px] text-muted-foreground">{t.schemas.enumValues} (comma-separated)</label>
-              <input
-                value={(schema.enum || []).join(', ')}
-                onChange={(e) => {
-                  const vals = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
-                  onUpdate({ ...schema, enum: vals.length > 0 ? vals : undefined });
-                }}
-                className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
-                placeholder="val1, val2, val3"
-              />
+              <label className="text-[10px] text-muted-foreground block mb-1">{t.schemas.enumValues}</label>
+              <div className="flex flex-wrap gap-1 p-2 rounded border border-border bg-background min-h-[36px] focus-within:ring-2 focus-within:ring-primary/30 transition-all">
+                {(schema.enum || []).map((val, idx) => (
+                  <span key={idx} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-[11px] font-mono text-foreground">
+                    {String(val)}
+                    <button
+                      onClick={() => {
+                        const next = (schema.enum || []).filter((_, i) => i !== idx);
+                        onUpdate({ ...schema, enum: next.length > 0 ? next : undefined });
+                      }}
+                      className="text-muted-foreground hover:text-destructive transition-colors leading-none"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+                <input
+                  className="text-[11px] bg-transparent outline-none min-w-[80px] flex-1 font-mono placeholder:text-muted-foreground/50"
+                  placeholder={schema.enum?.length ? '' : t.schemas.addEnumValue + ' (Enter)'}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ',') {
+                      e.preventDefault();
+                      const val = (e.target as HTMLInputElement).value.trim();
+                      if (val) {
+                        onUpdate({ ...schema, enum: [...(schema.enum || []), val] });
+                        (e.target as HTMLInputElement).value = '';
+                      }
+                    }
+                    if (e.key === 'Backspace' && !(e.target as HTMLInputElement).value && schema.enum?.length) {
+                      const next = schema.enum.slice(0, -1);
+                      onUpdate({ ...schema, enum: next.length > 0 ? next : undefined });
+                    }
+                  }}
+                />
+              </div>
             </div>
           )}
 
@@ -664,10 +691,12 @@ export function SchemasPanel() {
                         </div>
                         <div className="col-span-2">
                           <label className="text-[10px] text-muted-foreground">{t.common.description}</label>
-                          <input
+                          <textarea
                             value={schema.description || ''}
                             onChange={(e) => updateSchema(name, { ...schema, description: e.target.value })}
-                            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                            rows={3}
+                            placeholder="Markdown supported..."
                           />
                         </div>
                       </div>

@@ -75,10 +75,15 @@ export interface I18nMessages {
     downloadYaml: string;
     downloadJson: string;
     importFile: string;
+    importPostman: string;
     newDocument: string;
     samplePetstore: string;
     undo: string;
     redo: string;
+    downloadMarkdown: string;
+    downloadHtml: string;
+    downloadWord: string;
+    printPdf: string;
   };
   // Info panel
   info: {
@@ -127,6 +132,7 @@ export interface I18nMessages {
     externalDocs: string;
     callbacks: string;
     noOperations: string;
+    allTags: string;
     parameterLocation: string;
     paramIn: {
       query: string;
@@ -347,11 +353,16 @@ export const en: I18nMessages = {
     darkTheme: 'Dark',
     downloadYaml: 'Download YAML',
     downloadJson: 'Download JSON',
-    importFile: 'Import File',
+    importFile: 'Import OpenAPI File',
+    importPostman: 'Import Postman Collection',
     newDocument: 'New Document',
     samplePetstore: 'Petstore Sample',
     undo: 'Undo',
     redo: 'Redo',
+    downloadMarkdown: 'Export as Markdown',
+    downloadHtml: 'Export as HTML',
+    downloadWord: 'Export as Word (.doc)',
+    printPdf: 'Print / Save as PDF',
   },
   info: {
     title: 'API Information',
@@ -397,6 +408,7 @@ export const en: I18nMessages = {
     externalDocs: 'External Docs',
     callbacks: 'Callbacks',
     noOperations: 'No operations. Add a method to this path.',
+    allTags: 'All',
     parameterLocation: 'Location',
     paramIn: {
       query: 'Query',
@@ -609,11 +621,16 @@ export const zh: I18nMessages = {
     darkTheme: '深色',
     downloadYaml: '下载 YAML',
     downloadJson: '下载 JSON',
-    importFile: '导入文件',
+    importFile: '导入 OpenAPI 文件',
+    importPostman: '导入 Postman 集合',
     newDocument: '新建文档',
     samplePetstore: '宠物商店示例',
     undo: '撤销',
     redo: '重做',
+    downloadMarkdown: '导出 Markdown',
+    downloadHtml: '导出 HTML',
+    downloadWord: '导出 Word (.doc)',
+    printPdf: '打印 / 导出 PDF',
   },
   info: {
     title: 'API 基本信息',
@@ -659,6 +676,7 @@ export const zh: I18nMessages = {
     externalDocs: '外部文档',
     callbacks: '回调',
     noOperations: '暂无操作，请为此路径添加 HTTP 方法。',
+    allTags: '全部',
     parameterLocation: '参数位置',
     paramIn: {
       query: '查询参数',

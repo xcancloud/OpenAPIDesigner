@@ -146,11 +146,12 @@ function ServerCard({
         </div>
         <div>
           <label className="text-[11px] text-muted-foreground uppercase tracking-wide">{t.servers.serverDescription}</label>
-          <input
+          <textarea
             value={server.description || ''}
             onChange={(e) => onUpdateField('description', e.target.value)}
-            className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-            placeholder="Production server"
+            className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none"
+            rows={3}
+            placeholder="Markdown supported..."
           />
         </div>
       </div>

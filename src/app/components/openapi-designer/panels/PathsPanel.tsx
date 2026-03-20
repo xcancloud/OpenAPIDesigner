@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useI18n, useDesigner } from '../context/DesignerContext';
 import {
   Plus, Trash2, Route, ChevronDown, ChevronRight, Search, X
@@ -145,7 +145,7 @@ function OperationEditor({
               value={operation.description || ''}
               onChange={(e) => onUpdate({ ...operation, description: e.target.value })}
               className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-background text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all resize-none"
-              rows={2}
+              rows={3}
               placeholder="Detailed description (Markdown supported)"
             />
           </div>
@@ -396,6 +396,19 @@ export function PathsPanel() {
   const [showAddPath, setShowAddPath] = useState(false);
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set());
   const [pathError, setPathError] = useState('');
+  const [activeTag, setActiveTag] = useState<string | null>(null);
+
+  // Collect all unique tags from operations
+  const allTags = useMemo(() => {
+    const tags = new Set<string>();
+    Object.values(paths).forEach(pathItem => {
+      HTTP_METHODS.forEach(m => {
+        const op = pathItem[m] as OperationObject | undefined;
+        op?.tags?.forEach(tag => tags.add(tag));
+      });
+    });
+    return Array.from(tags).sort();
+  }, [paths]);
 
   const togglePath = (path: string) => {
     const next = new Set(expandedPaths);
@@ -452,9 +465,17 @@ export function PathsPanel() {
     setDocument(newDoc);
   };
 
-  const filteredPaths = Object.entries(paths).filter(
-    ([path]) => !searchTerm || path.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPaths = Object.entries(paths).filter(([path, pathItem]) => {
+    if (searchTerm && !path.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+    if (activeTag !== null) {
+      const hasTag = HTTP_METHODS.some(m => {
+        const op = pathItem[m] as OperationObject | undefined;
+        return op?.tags?.includes(activeTag);
+      });
+      if (!hasTag) return false;
+    }
+    return true;
+  });
 
   const pathCount = Object.keys(paths).length;
   const opCount = Object.values(paths).reduce((acc, item) => {
@@ -495,6 +516,35 @@ export function PathsPanel() {
           className="w-full pl-9 pr-3 py-2 rounded-lg border border-border bg-background text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
         />
       </div>
+
+      {/* Tag tabs */}
+      {allTags.length > 0 && (
+        <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
+          <button
+            onClick={() => setActiveTag(null)}
+            className={`shrink-0 px-3 py-1 rounded-full text-[12px] font-medium transition-colors ${
+              activeTag === null
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
+            }`}
+          >
+            {t.paths.allTags}
+          </button>
+          {allTags.map(tag => (
+            <button
+              key={tag}
+              onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+              className={`shrink-0 px-3 py-1 rounded-full text-[12px] font-medium transition-colors ${
+                activeTag === tag
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
+              }`}
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Add path form */}
       {showAddPath && (
