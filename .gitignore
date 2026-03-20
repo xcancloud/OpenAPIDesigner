@@ -18,3 +18,4 @@ lib/packages/index.ts
 coverage/
 .idea
 .husky
+.npmrc
