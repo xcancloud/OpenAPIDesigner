@@ -75,6 +75,7 @@ export function CodeEditorPanel() {
   const [isEditing, setIsEditing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const preRef = useRef<HTMLPreElement>(null);
+  const lineNumbersRef = useRef<HTMLDivElement>(null);
 
   // Sync from document to code
   const syncFromDoc = useCallback(() => {
@@ -126,15 +127,22 @@ export function CodeEditorPanel() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `openapi.${format === 'yaml' ? 'yaml' : 'json'}`;
+    // UX-6: Use the API title as filename, matching the Toolbar export behavior.
+    const title = state.document?.info?.title?.replace(/\s+/g, '-').toLowerCase() || 'openapi';
+    a.download = `${title}.${format === 'yaml' ? 'yaml' : 'json'}`;
     a.click();
-    URL.revokeObjectURL(url);
+    // BUG-16: Defer revoke to allow the browser to initiate the download.
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
     if (preRef.current) {
       preRef.current.scrollTop = e.currentTarget.scrollTop;
       preRef.current.scrollLeft = e.currentTarget.scrollLeft;
+    }
+    // BUG-9: Keep line numbers in sync with the textarea scroll position.
+    if (lineNumbersRef.current) {
+      lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop;
     }
   };
 
@@ -191,18 +199,19 @@ export function CodeEditorPanel() {
         </div>
       </div>
 
-      {/* Error bar */}
+      {/* Error bar — BUG-10: show actual error message, not just a generic label */}
       {parseError && (
-        <div className="px-4 py-2 bg-destructive/10 border-b border-destructive/30 flex items-center gap-2 text-[12px] text-destructive shrink-0">
-          <AlertCircle size={14} />
-          {t.codeEditor.parseError}
+        <div className="px-4 py-2 bg-destructive/10 border-b border-destructive/30 flex items-center gap-2 text-[12px] text-destructive shrink-0 overflow-hidden">
+          <AlertCircle size={14} className="shrink-0" />
+          <span className="font-medium shrink-0">{t.codeEditor.parseError}:</span>
+          <span className="truncate">{parseError}</span>
         </div>
       )}
 
       {/* Editor */}
       <div className="flex-1 overflow-hidden relative bg-background">
         {/* Line numbers */}
-        <div className="absolute left-0 top-0 bottom-0 w-[50px] bg-muted/30 border-r border-border overflow-hidden z-10 pointer-events-none">
+        <div ref={lineNumbersRef} className="absolute left-0 top-0 bottom-0 w-[50px] bg-muted/30 border-r border-border overflow-hidden z-10 pointer-events-none">
           <div className="pt-4 pr-2 text-right">
             {lines.map((_, i) => (
               <div key={i} className="text-[11px] text-muted-foreground h-[20px] leading-[20px] px-2">{i + 1}</div>

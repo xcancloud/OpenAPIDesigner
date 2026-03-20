@@ -52,6 +52,8 @@ export interface PathsObject {
 }
 
 export interface PathItemObject {
+  /** OAS 3.1: allows referencing an external PathItem or a local components/pathItems entry */
+  $ref?: string;
   summary?: string;
   description?: string;
   get?: OperationObject;
@@ -197,6 +199,23 @@ export interface SchemaObject {
   writeOnly?: boolean;
   example?: unknown;
   deprecated?: boolean;
+  // JSON Schema 2020-12 / OAS 3.1 additions
+  $schema?: string;
+  $defs?: Record<string, SchemaObject>;
+  if?: SchemaObject;
+  then?: SchemaObject;
+  else?: SchemaObject;
+  prefixItems?: SchemaObject[];
+  contains?: SchemaObject;
+  minContains?: number;
+  maxContains?: number;
+  unevaluatedItems?: boolean | SchemaObject;
+  unevaluatedProperties?: boolean | SchemaObject;
+  dependentSchemas?: Record<string, SchemaObject>;
+  dependentRequired?: Record<string, string[]>;
+  contentEncoding?: string;
+  contentMediaType?: string;
+  contentSchema?: SchemaObject;
 }
 
 export interface ExampleObject {
@@ -226,7 +245,13 @@ export interface ComponentsObject {
   headers?: Record<string, HeaderObject>;
   securitySchemes?: Record<string, SecuritySchemeObject>;
   links?: Record<string, LinkObject>;
+  /**
+   * A Callback Object is `Record<runtimeExpression, PathItemObject>`, so the full
+   * type is `Record<callbackName, Record<runtimeExpression, PathItemObject>>`.
+   */
   callbacks?: Record<string, Record<string, PathItemObject>>;
+  /** OAS 3.1 new field: reusable PathItem objects. */
+  pathItems?: Record<string, PathItemObject>;
 }
 
 export interface SecuritySchemeObject {

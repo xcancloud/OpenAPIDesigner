@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import { useI18n, useDesigner } from '../context/DesignerContext';
 import { AlertTriangle, CheckCircle2, XCircle, Info, RefreshCw, Shield, ArrowRight } from 'lucide-react';
 import { validateDocument } from '../utils/validation';
@@ -8,14 +8,26 @@ export function ValidationPanel() {
   const { state, dispatch } = useDesigner();
   const errors = state.validationErrors;
 
+  // OPT-5: Debounce automatic re-validation so it doesn't run synchronously on every
+  // keystroke. Validation walks the entire document tree and can be expensive.
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      const results = validateDocument(state.document);
+      dispatch({ type: 'SET_VALIDATION_ERRORS', payload: results });
+    }, 350);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [state.document, dispatch]);
+
+  // Manual run — fires immediately, cancels any pending debounce.
   const runValidation = useCallback(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     const results = validateDocument(state.document);
     dispatch({ type: 'SET_VALIDATION_ERRORS', payload: results });
   }, [state.document, dispatch]);
-
-  useEffect(() => {
-    runValidation();
-  }, [runValidation]);
 
   const errorCount = errors.filter(e => e.severity === 'error').length;
   const warningCount = errors.filter(e => e.severity === 'warning').length;

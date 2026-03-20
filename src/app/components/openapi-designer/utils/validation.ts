@@ -55,9 +55,10 @@ export function validateDocument(doc: OpenAPIDocument): ValidationError[] {
     });
   }
 
-  // Paths validation
+  // Paths + webhooks validation (operationIds unique across both)
+  const operationIds = new Set<string>();
+
   if (doc.paths) {
-    const operationIds = new Set<string>();
     Object.entries(doc.paths).forEach(([path, pathItem]) => {
       if (!path.startsWith('/')) {
         errors.push({ path: `paths.${path}`, message: 'Path must start with /', severity: 'error' });
@@ -98,10 +99,24 @@ export function validateDocument(doc: OpenAPIDocument): ValidationError[] {
         // Check responses
         if (!operation.responses || Object.keys(operation.responses).length === 0) {
           errors.push({ path: `${opPath}.responses`, message: 'At least one response is required', severity: 'warning' });
+        } else {
+          Object.keys(operation.responses).forEach(code => {
+            if (!/^([1-5][0-9]{2}|[1-5]XX|default)$/i.test(code)) {
+              errors.push({ path: `${opPath}.responses.${code}`, message: `Invalid HTTP response code: "${code}"`, severity: 'error' });
+            }
+          });
         }
 
-        // Check parameters
+        // Check parameters (including duplicate detection)
+        const paramKeys = new Set<string>();
         operation.parameters?.forEach((param, pi) => {
+          if (param.name && param.in) {
+            const key = `${param.name}:${param.in}`;
+            if (paramKeys.has(key)) {
+              errors.push({ path: `${opPath}.parameters[${pi}]`, message: `Duplicate parameter: name="${param.name}", in="${param.in}"`, severity: 'error' });
+            }
+            paramKeys.add(key);
+          }
           if (!param.name) {
             errors.push({ path: `${opPath}.parameters[${pi}].name`, message: 'Parameter name is required', severity: 'error' });
           }
@@ -135,7 +150,74 @@ export function validateDocument(doc: OpenAPIDocument): ValidationError[] {
       });
     });
   }
+  // Webhooks validation (same operation rules as paths)
+  if (doc.webhooks) {
+    Object.entries(doc.webhooks).forEach(([webhookName, pathItem]) => {
+      HTTP_METHODS.forEach((method) => {
+        const operation = pathItem[method] as OperationObject | undefined;
+        if (!operation) return;
 
+        const opPath = `webhooks.${webhookName}.${method}`;
+
+        if (operation.operationId) {
+          if (operationIds.has(operation.operationId)) {
+            errors.push({ path: `${opPath}.operationId`, message: `Duplicate operationId: ${operation.operationId}`, severity: 'error' });
+          }
+          operationIds.add(operation.operationId);
+        } else {
+          errors.push({ path: `${opPath}.operationId`, message: 'operationId is recommended', severity: 'info' });
+        }
+
+        if (!operation.responses || Object.keys(operation.responses).length === 0) {
+          errors.push({ path: `${opPath}.responses`, message: 'At least one response is required', severity: 'warning' });
+        } else {
+          Object.keys(operation.responses).forEach(code => {
+            if (!/^([1-5][0-9]{2}|[1-5]XX|default)$/i.test(code)) {
+              errors.push({ path: `${opPath}.responses.${code}`, message: `Invalid HTTP response code: "${code}"`, severity: 'error' });
+            }
+          });
+        }
+
+        const paramKeys = new Set<string>();
+        operation.parameters?.forEach((param, pi) => {
+          if (param.name && param.in) {
+            const key = `${param.name}:${param.in}`;
+            if (paramKeys.has(key)) {
+              errors.push({ path: `${opPath}.parameters[${pi}]`, message: `Duplicate parameter: name="${param.name}", in="${param.in}"`, severity: 'error' });
+            }
+            paramKeys.add(key);
+          }
+          if (!param.name) {
+            errors.push({ path: `${opPath}.parameters[${pi}].name`, message: 'Parameter name is required', severity: 'error' });
+          }
+          if (param.in === 'path' && !param.required) {
+            errors.push({ path: `${opPath}.parameters[${pi}].required`, message: 'Path parameters must be required', severity: 'error' });
+          }
+        });
+
+        if (operation.requestBody) {
+          const content = operation.requestBody.content;
+          if (!content || Object.keys(content).length === 0) {
+            errors.push({ path: `${opPath}.requestBody.content`, message: 'Request body must have at least one media type', severity: 'error' });
+          }
+        }
+
+        if (operation.security) {
+          operation.security.forEach((requirement, si) => {
+            Object.keys(requirement).forEach(schemeName => {
+              if (!doc.components?.securitySchemes?.[schemeName]) {
+                errors.push({
+                  path: `${opPath}.security[${si}].${schemeName}`,
+                  message: `Security scheme "${schemeName}" is not defined in components.securitySchemes`,
+                  severity: 'error',
+                });
+              }
+            });
+          });
+        }
+      });
+    });
+  }
   // Schema validation
   if (doc.components?.schemas) {
     Object.entries(doc.components.schemas).forEach(([name, schema]) => {

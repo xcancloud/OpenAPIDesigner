@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useI18n, useDesigner } from '../context/DesignerContext';
 import { Shield, Plus, Trash2, ChevronDown, ChevronRight, Lock, Key } from 'lucide-react';
 import type { SecuritySchemeObject, OAuthFlowObject } from '../types/openapi';
+import { toast } from 'sonner';
 
 const SECURITY_TYPES: SecuritySchemeObject['type'][] = ['apiKey', 'http', 'oauth2', 'openIdConnect', 'mutualTLS'];
 
@@ -22,11 +23,17 @@ export function SecurityPanel() {
   };
 
   const addScheme = () => {
-    if (!newName) return;
+    const name = newName.trim();
+    if (!name) return;
+    // BUG-8: Prevent silently overwriting an existing scheme.
+    if (schemes[name]) {
+      toast.error(`Security scheme "${name}" already exists`);
+      return;
+    }
     const newDoc = JSON.parse(JSON.stringify(doc));
     if (!newDoc.components) newDoc.components = {};
     if (!newDoc.components.securitySchemes) newDoc.components.securitySchemes = {};
-    newDoc.components.securitySchemes[newName] = {
+    newDoc.components.securitySchemes[name] = {
       type: 'apiKey',
       in: 'header',
       name: 'X-API-Key',
@@ -34,12 +41,31 @@ export function SecurityPanel() {
     setDocument(newDoc);
     setNewName('');
     setShowAdd(false);
-    setExpandedSchemes(new Set([...expandedSchemes, newName]));
+    setExpandedSchemes(new Set([...expandedSchemes, name]));
   };
 
   const deleteScheme = (name: string) => {
     const newDoc = JSON.parse(JSON.stringify(doc));
     delete newDoc.components.securitySchemes[name];
+    // DATA-1: Cascade-remove dangling security references from all operations and global security.
+    const httpMethods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
+    if (newDoc.paths) {
+      Object.values(newDoc.paths).forEach((pathItem: any) => {
+        httpMethods.forEach(method => {
+          const op = pathItem?.[method];
+          if (op?.security) {
+            op.security = op.security.filter(
+              (req: Record<string, unknown>) => !Object.prototype.hasOwnProperty.call(req, name)
+            );
+          }
+        });
+      });
+    }
+    if (newDoc.security) {
+      newDoc.security = newDoc.security.filter(
+        (req: Record<string, unknown>) => !Object.prototype.hasOwnProperty.call(req, name)
+      );
+    }
     setDocument(newDoc);
   };
 

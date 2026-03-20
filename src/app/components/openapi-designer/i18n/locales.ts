@@ -8,6 +8,7 @@ export interface I18nMessages {
     info: string;
     servers: string;
     paths: string;
+    webhooks: string;
     schemas: string;
     security: string;
     tags: string;
@@ -215,6 +216,15 @@ export interface I18nMessages {
     tagName: string;
     noTags: string;
   };
+  // Webhooks
+  webhooks: {
+    title: string;
+    addWebhook: string;
+    webhookName: string;
+    noWebhooks: string;
+    addOperation: string;
+    noOperations: string;
+  };
   // Code Editor
   codeEditor: {
     title: string;
@@ -272,6 +282,7 @@ export const en: I18nMessages = {
     info: 'Info',
     servers: 'Servers',
     paths: 'Paths',
+    webhooks: 'Webhooks',
     schemas: 'Schemas',
     security: 'Security',
     tags: 'Tags',
@@ -472,6 +483,14 @@ export const en: I18nMessages = {
     tagName: 'Tag Name',
     noTags: 'No tags defined.',
   },
+  webhooks: {
+    title: 'Webhooks',
+    addWebhook: 'Add Webhook',
+    webhookName: 'Webhook Name (e.g. newPet)',
+    noWebhooks: 'No webhooks defined. Add a webhook to get started.',
+    addOperation: 'Add Operation',
+    noOperations: 'No operations. Add a method to this webhook.',
+  },
   codeEditor: {
     title: 'Code Editor',
     yaml: 'YAML',
@@ -525,6 +544,7 @@ export const zh: I18nMessages = {
     info: '基本信息',
     servers: '服务器',
     paths: '接口路径',
+    webhooks: 'Webhooks',
     schemas: '数据模型',
     security: '安全方案',
     tags: '标签',
@@ -724,6 +744,14 @@ export const zh: I18nMessages = {
     addTag: '添加标签',
     tagName: '标签名称',
     noTags: '暂未定义标签。',
+  },
+  webhooks: {
+    title: 'Webhooks',
+    addWebhook: '添加 Webhook',
+    webhookName: 'Webhook 名称（如 newPet）',
+    noWebhooks: '暂未定义 Webhook，点击添加开始配置。',
+    addOperation: '添加操作',
+    noOperations: '暂无操作，请为此 Webhook 添加 HTTP 方法。',
   },
   codeEditor: {
     title: '代码编辑器',

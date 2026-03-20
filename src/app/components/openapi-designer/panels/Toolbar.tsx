@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 
 export function Toolbar() {
   const { t } = useI18n();
-  const { state, setDocument, undo, redo, canUndo, canRedo } = useDesigner();
+  const { state, setDocument, undo, redo, canUndo, canRedo, saveNow } = useDesigner();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showFileMenu, setShowFileMenu] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
@@ -21,22 +21,32 @@ export function Toolbar() {
     const handler = (e: KeyboardEvent) => {
       const mod = e.metaKey || e.ctrlKey;
 
+      // BUG-14: Don't intercept native browser undo/redo when the user is typing in an input.
+      const target = e.target as HTMLElement;
+      const isTyping = target instanceof HTMLInputElement
+        || target instanceof HTMLTextAreaElement
+        || target.isContentEditable;
+
       if (mod && e.key === 'z' && !e.shiftKey) {
+        if (isTyping) return;
         e.preventDefault();
         undo();
       }
       if (mod && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        if (isTyping) return;
         e.preventDefault();
         redo();
       }
       if (mod && e.key === 's') {
         e.preventDefault();
+        // BUG-13: Actually save, then show success — don't just show a toast without saving.
+        saveNow();
         toast.success(t.common.save);
       }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [undo, redo, t]);
+  }, [undo, redo, saveNow, t]);
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -45,15 +55,20 @@ export function Toolbar() {
     reader.onload = (evt) => {
       try {
         const text = evt.target?.result as string;
-        let parsed: OpenAPIDocument;
+        let parsed: unknown;
         if (file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
-          parsed = yaml.load(text) as OpenAPIDocument;
+          parsed = yaml.load(text);
         } else {
           parsed = JSON.parse(text);
         }
-        if (parsed && typeof parsed === 'object') {
-          setDocument(parsed);
+        const p = parsed as Record<string, unknown>;
+        if (p && typeof p.openapi === 'string'
+          && p.info !== null && typeof p.info === 'object'
+          && typeof (p.info as Record<string, unknown>).title === 'string') {
+          setDocument(parsed as OpenAPIDocument);
           toast.success(`${t.common.import}: ${file.name}`);
+        } else {
+          toast.error('Invalid OpenAPI document: missing required "openapi" or "info.title" field');
         }
       } catch (err) {
         console.error('Import error:', err);
@@ -74,7 +89,8 @@ export function Toolbar() {
     a.href = url;
     a.download = `${state.document.info.title?.replace(/\s+/g, '-').toLowerCase() || 'openapi'}.${format === 'yaml' ? 'yaml' : 'json'}`;
     a.click();
-    URL.revokeObjectURL(url);
+    // BUG-16: Defer revoke to allow the browser to initiate the download first.
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
     setShowFileMenu(false);
     toast.success(format === 'yaml' ? t.common.downloadYaml : t.common.downloadJson);
   };

@@ -78,7 +78,7 @@ export function ServersPanel() {
         <div className="space-y-3">
           {servers.map((server, index) => (
             <ServerCard
-              key={index}
+              key={server.url || String(index)}
               server={server}
               index={index}
               t={t}

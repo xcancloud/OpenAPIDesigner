@@ -6,6 +6,7 @@ import { Toolbar } from './panels/Toolbar';
 import { InfoPanel } from './panels/InfoPanel';
 import { ServersPanel } from './panels/ServersPanel';
 import { PathsPanel } from './panels/PathsPanel';
+import { WebhooksPanel } from './panels/WebhooksPanel';
 import { SchemasPanel } from './panels/SchemasPanel';
 import { SecurityPanel } from './panels/SecurityPanel';
 import { TagsPanel } from './panels/TagsPanel';
@@ -58,6 +59,8 @@ function DesignerLayout({ onChange }: { onChange?: (doc: OpenAPIDocument) => voi
         return <ServersPanel />;
       case 'paths':
         return <PathsPanel />;
+      case 'webhooks':
+        return <WebhooksPanel />;
       case 'schemas':
         return <SchemasPanel />;
       case 'security':

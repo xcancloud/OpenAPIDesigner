@@ -80,7 +80,12 @@ export function InfoPanel() {
       if (!obj[keys[i]]) obj[keys[i]] = {};
       obj = obj[keys[i]] as Record<string, unknown>;
     }
-    obj[keys[keys.length - 1]] = value;
+    const lastKey = keys[keys.length - 1];
+    if (value === '') {
+      delete obj[lastKey];
+    } else {
+      obj[lastKey] = value;
+    }
     setDocument(newDoc);
   };
 

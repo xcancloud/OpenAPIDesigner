@@ -37,7 +37,7 @@ export function useTheme(): ThemeContextType {
 }
 
 // ==================== Document State ====================
-type ActivePanel = 'info' | 'servers' | 'paths' | 'schemas' | 'security' | 'tags' | 'code' | 'preview' | 'validation';
+type ActivePanel = 'info' | 'servers' | 'paths' | 'webhooks' | 'schemas' | 'security' | 'tags' | 'code' | 'preview' | 'validation';
 
 interface DesignerState {
   document: OpenAPIDocument;
@@ -91,6 +91,7 @@ interface DesignerContextType {
   redo: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  saveNow: () => void;
 }
 
 const DesignerContext = createContext<DesignerContextType | null>(null);
@@ -137,18 +138,22 @@ export function DesignerProvider({
   defaultLocale = 'zh',
   defaultTheme = 'light',
 }: DesignerProviderProps) {
-  // I18n
-  const storedLocale = (() => { try { return localStorage.getItem(STORAGE_LOCALE_KEY) as Locale | null; } catch { return null; } })();
-  const [locale, setLocaleState] = useState<Locale>(storedLocale || defaultLocale);
+  // I18n — lazy init reads localStorage only once, not on every render (OPT-1)
+  const [locale, setLocaleState] = useState<Locale>(() => {
+    try { return (localStorage.getItem(STORAGE_LOCALE_KEY) as Locale) || defaultLocale; }
+    catch { return defaultLocale; }
+  });
   const t = locales[locale];
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);
     try { localStorage.setItem(STORAGE_LOCALE_KEY, l); } catch {}
   }, []);
 
-  // Theme
-  const storedTheme = (() => { try { return localStorage.getItem(STORAGE_THEME_KEY) as Theme | null; } catch { return null; } })();
-  const [theme, setThemeState] = useState<Theme>(storedTheme || defaultTheme);
+  // Theme — lazy init reads localStorage only once (OPT-1)
+  const [theme, setThemeState] = useState<Theme>(() => {
+    try { return (localStorage.getItem(STORAGE_THEME_KEY) as Theme) || defaultTheme; }
+    catch { return defaultTheme; }
+  });
   const setTheme = useCallback((t: Theme) => {
     setThemeState(t);
     try { localStorage.setItem(STORAGE_THEME_KEY, t); } catch {}
@@ -164,27 +169,24 @@ export function DesignerProvider({
 
   // Initialize theme on mount
   React.useEffect(() => {
-    const effectiveTheme = storedTheme || defaultTheme;
-    if (effectiveTheme === 'dark') {
+    if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
   }, []);
 
-  // Document state with undo/redo
-  const storedDoc = loadFromStorage();
-  const initDoc = storedDoc || initialDocument || createPetStoreDocument();
-  const [state, dispatch] = useReducer(designerReducer, {
-    document: initDoc,
-    activePanel: 'info',
-    validationErrors: [],
-    isDirty: false,
+  // Document state with undo/redo — lazy init so loadFromStorage() only runs once (OPT-1)
+  const [state, dispatch] = useReducer(designerReducer, undefined, (): DesignerState => {
+    const doc = loadFromStorage() || initialDocument || createPetStoreDocument();
+    return { document: doc, activePanel: 'info', validationErrors: [], isDirty: false };
   });
 
-  const historyRef = useRef<OpenAPIDocument[]>([initDoc]);
+  const historyRef = useRef<OpenAPIDocument[]>([state.document]);
   const historyIndexRef = useRef(0);
   const isUndoRedoRef = useRef(false);
+  /** Tracks which history index was last persisted; used to detect return-to-clean on undo/redo (BUG-1). */
+  const savedHistoryIndexRef = useRef(0);
   // Mirrors historyIndexRef as React state so canUndo/canRedo cause re-renders.
   const [historyIndex, setHistoryIndex] = useState(0);
 
@@ -197,7 +199,7 @@ export function DesignerProvider({
   }, []);
 
   // Push to history whenever document changes (except during undo/redo)
-  const prevDocRef = useRef<string>(JSON.stringify(initDoc));
+  const prevDocRef = useRef<string>(JSON.stringify(state.document));
   React.useEffect(() => {
     if (isUndoRedoRef.current) {
       isUndoRedoRef.current = false;
@@ -223,6 +225,10 @@ export function DesignerProvider({
       setHistoryIndex(historyIndexRef.current);
       const doc = JSON.parse(JSON.stringify(historyRef.current[historyIndexRef.current]));
       dispatch({ type: 'SET_DOCUMENT', payload: doc });
+      // BUG-1: If we've undone back to the last-saved version, mark document as clean.
+      if (historyIndexRef.current === savedHistoryIndexRef.current) {
+        dispatch({ type: 'MARK_CLEAN' });
+      }
     }
   }, []);
 
@@ -233,22 +239,43 @@ export function DesignerProvider({
       setHistoryIndex(historyIndexRef.current);
       const doc = JSON.parse(JSON.stringify(historyRef.current[historyIndexRef.current]));
       dispatch({ type: 'SET_DOCUMENT', payload: doc });
+      // BUG-1: If we've redone forward to the last-saved version, mark document as clean.
+      if (historyIndexRef.current === savedHistoryIndexRef.current) {
+        dispatch({ type: 'MARK_CLEAN' });
+      }
     }
   }, []);
 
-  // Auto-save to localStorage
+  // Auto-save to localStorage, and mark document clean after save
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (state.isDirty) {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
       saveTimerRef.current = setTimeout(() => {
         saveToStorage(state.document);
+        savedHistoryIndexRef.current = historyIndexRef.current;
+        dispatch({ type: 'MARK_CLEAN' });
+        saveTimerRef.current = null;
       }, 500);
     }
     return () => {
-      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+        // BUG-2: Flush any pending save synchronously on unmount so the last edit is never lost.
+        if (state.isDirty) saveToStorage(state.document);
+        saveTimerRef.current = null;
+      }
     };
   }, [state.document, state.isDirty]);
+
+  /** Save immediately (e.g. Ctrl+S) and mark document clean. */
+  const saveNow = useCallback(() => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveToStorage(state.document);
+    savedHistoryIndexRef.current = historyIndexRef.current;
+    dispatch({ type: 'MARK_CLEAN' });
+    saveTimerRef.current = null;
+  }, [state.document]);
 
   const canUndo = historyIndex > 0;
   const canRedo = historyIndex < historyRef.current.length - 1;
@@ -257,7 +284,7 @@ export function DesignerProvider({
     <I18nContext.Provider value={{ locale, setLocale, t }}>
       <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
         <DesignerContext.Provider
-          value={{ state, dispatch, updateDocument, setDocument, undo, redo, canUndo, canRedo }}
+          value={{ state, dispatch, updateDocument, setDocument, undo, redo, canUndo, canRedo, saveNow }}
         >
           {children}
         </DesignerContext.Provider>

@@ -37,6 +37,12 @@ function OperationEditor({
   const [expanded, setExpanded] = useState(false);
   const { state } = useDesigner();
   const schemaNames = Object.keys(state.document.components?.schemas || {});
+  // BUG-5: Buffer tag edits as a local string; only parse + commit on blur to avoid
+  // flickering when the user types a comma to start a second tag.
+  const [tagInput, setTagInput] = useState(() => (operation.tags || []).join(', '));
+  React.useEffect(() => {
+    setTagInput((operation.tags || []).join(', '));
+  }, [operation.tags]);
 
   const addParameter = () => {
     const params = [...(operation.parameters || [])];
@@ -157,8 +163,12 @@ function OperationEditor({
             <div className="flex items-center gap-2">
               <label className="text-[11px] text-muted-foreground">{t.paths.tags}:</label>
               <input
-                value={(operation.tags || []).join(', ')}
-                onChange={(e) => onUpdate({ ...operation, tags: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onBlur={(e) => {
+                  const tags = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                  onUpdate({ ...operation, tags: tags.length ? tags : undefined });
+                }}
                 className="px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
                 placeholder="tag1, tag2"
               />
@@ -385,6 +395,7 @@ export function PathsPanel() {
   const [newPath, setNewPath] = useState('');
   const [showAddPath, setShowAddPath] = useState(false);
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set());
+  const [pathError, setPathError] = useState('');
 
   const togglePath = (path: string) => {
     const next = new Set(expandedPaths);
@@ -394,13 +405,21 @@ export function PathsPanel() {
   };
 
   const addPath = () => {
-    if (!newPath || !newPath.startsWith('/')) return;
+    if (!newPath || !newPath.startsWith('/')) {
+      setPathError('Path must start with /');
+      return;
+    }
     const newDoc = JSON.parse(JSON.stringify(doc));
     if (!newDoc.paths) newDoc.paths = {};
-    if (newDoc.paths[newPath]) return;
+    // UX-1: Show inline error when the path already exists instead of silently doing nothing.
+    if (newDoc.paths[newPath]) {
+      setPathError(`Path "${newPath}" already exists`);
+      return;
+    }
     newDoc.paths[newPath] = {};
     setDocument(newDoc);
     setNewPath('');
+    setPathError('');
     setShowAddPath(false);
     setExpandedPaths(new Set([...expandedPaths, newPath]));
   };
@@ -479,28 +498,35 @@ export function PathsPanel() {
 
       {/* Add path form */}
       {showAddPath && (
-        <div className="flex items-center gap-2 p-3 bg-card rounded-lg border border-primary/30">
-          <input
-            value={newPath}
-            onChange={(e) => setNewPath(e.target.value)}
-            placeholder={t.paths.pathUrl}
-            className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-[13px] font-mono focus:outline-none focus:ring-2 focus:ring-primary/30"
-            autoFocus
-            onKeyDown={(e) => e.key === 'Enter' && addPath()}
-          />
-          <button
-            onClick={addPath}
-            className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-[12px]"
-          >
-            {t.common.add}
-          </button>
-          <button
-            onClick={() => { setShowAddPath(false); setNewPath(''); }}
-            className="px-3 py-2 rounded-lg border border-border text-[12px] text-muted-foreground hover:bg-muted"
-          >
-            {t.common.cancel}
-          </button>
-        </div>
+        <>
+          <div className="flex items-center gap-2 p-3 bg-card rounded-lg border border-primary/30">
+            <input
+              value={newPath}
+              onChange={(e) => { setNewPath(e.target.value); setPathError(''); }}
+              placeholder={t.paths.pathUrl}
+              className={`flex-1 px-3 py-2 rounded-lg border bg-background text-[13px] font-mono focus:outline-none focus:ring-2 focus:ring-primary/30 ${
+                pathError ? 'border-destructive focus:ring-destructive/30' : 'border-border'
+              }`}
+              autoFocus
+              onKeyDown={(e) => e.key === 'Enter' && addPath()}
+            />
+            <button
+              onClick={addPath}
+              className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-[12px]"
+            >
+              {t.common.add}
+            </button>
+            <button
+              onClick={() => { setShowAddPath(false); setNewPath(''); setPathError(''); }}
+              className="px-3 py-2 rounded-lg border border-border text-[12px] text-muted-foreground hover:bg-muted"
+            >
+              {t.common.cancel}
+            </button>
+          </div>
+          {pathError && (
+            <p className="mt-1 text-[12px] text-destructive">{pathError}</p>
+          )}
+        </>
       )}
 
       {/* Paths list */}

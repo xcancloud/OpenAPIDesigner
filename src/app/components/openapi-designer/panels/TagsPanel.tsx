@@ -22,8 +22,21 @@ export function TagsPanel() {
   };
 
   const deleteTag = (index: number) => {
+    const removedName = doc.tags?.[index]?.name;
     const newDoc = JSON.parse(JSON.stringify(doc));
     newDoc.tags.splice(index, 1);
+    // BUG-8: cascade-remove the deleted tag name from all operations
+    if (removedName && newDoc.paths) {
+      const httpMethods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
+      Object.values(newDoc.paths).forEach((pathItem: any) => {
+        httpMethods.forEach(method => {
+          const op = pathItem?.[method];
+          if (op?.tags) {
+            op.tags = op.tags.filter((t: string) => t !== removedName);
+          }
+        });
+      });
+    }
     setDocument(newDoc);
   };
 

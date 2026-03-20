@@ -88,7 +88,7 @@ function PropertyEditor({
                 className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 {SCHEMA_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                <option value="$ref">$ref</option>
+                <option value="$ref" disabled={schemaNames.length === 0}>{schemaNames.length === 0 ? '$ref (no schemas)' : '$ref'}</option>
               </select>
             </div>
             {(type === 'string' || type === 'number' || type === 'integer') && (
@@ -335,13 +335,20 @@ function ObjectPropertiesEditor({
 }) {
   const { t } = useI18n();
   const [newPropName, setNewPropName] = useState('');
+  const [propError, setPropError] = useState('');
   const properties = schema.properties || {};
   const required = schema.required || [];
 
   const addProperty = () => {
-    if (!newPropName) return;
+    const trimmed = newPropName.trim();
+    if (!trimmed) return;
+    if (properties[trimmed]) {
+      setPropError(`Property "${trimmed}" already exists`);
+      return;
+    }
+    setPropError('');
     const newSchema = { ...schema };
-    newSchema.properties = { ...properties, [newPropName]: { type: 'string' } };
+    newSchema.properties = { ...properties, [trimmed]: { type: 'string' } };
     onUpdate(newSchema);
     setNewPropName('');
   };
@@ -374,19 +381,24 @@ function ObjectPropertiesEditor({
         />
       ))}
       <div className="flex items-center gap-2 mt-2">
-        <input
-          value={newPropName}
-          onChange={(e) => setNewPropName(e.target.value)}
-          placeholder={t.schemas.propertyName}
-          className="px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
-          onKeyDown={(e) => e.key === 'Enter' && addProperty()}
-        />
-        <button
-          onClick={addProperty}
-          className="text-[11px] text-primary hover:underline flex items-center gap-1"
-        >
-          <Plus size={11} /> {t.schemas.addProperty}
-        </button>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <input
+              value={newPropName}
+              onChange={(e) => { setNewPropName(e.target.value); if (propError) setPropError(''); }}
+              placeholder={t.schemas.propertyName}
+              className={`px-2 py-1 rounded border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono ${propError ? 'border-destructive' : 'border-border'}`}
+              onKeyDown={(e) => e.key === 'Enter' && addProperty()}
+            />
+            <button
+              onClick={addProperty}
+              className="text-[11px] text-primary hover:underline flex items-center gap-1"
+            >
+              <Plus size={11} /> {t.schemas.addProperty}
+            </button>
+          </div>
+          {propError && <p className="text-[10px] text-destructive">{propError}</p>}
+        </div>
       </div>
     </div>
   );
@@ -530,8 +542,12 @@ export function SchemasPanel() {
 
   const duplicateSchema = (name: string) => {
     const newDoc = JSON.parse(JSON.stringify(doc));
-    const newName = `${name}Copy`;
-    newDoc.components.schemas[newName] = JSON.parse(JSON.stringify(schemas[name]));
+    let copyName = `${name}Copy`;
+    let counter = 2;
+    while (newDoc.components.schemas[copyName]) {
+      copyName = `${name}Copy${counter++}`;
+    }
+    newDoc.components.schemas[copyName] = JSON.parse(JSON.stringify(schemas[name]));
     setDocument(newDoc);
   };
 

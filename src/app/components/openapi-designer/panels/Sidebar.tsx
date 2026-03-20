@@ -2,17 +2,18 @@ import React, { useState } from 'react';
 import { useI18n, useTheme, useDesigner } from '../context/DesignerContext';
 import {
   Info, Server, Route, Box, Shield, Tag, Code, Eye, AlertTriangle,
-  Sun, Moon, Languages, BookOpen, PanelLeftClose, PanelLeft, Search
+  Sun, Moon, Languages, BookOpen, PanelLeftClose, PanelLeft, Search, Webhook
 } from 'lucide-react';
 import { HTTP_METHODS } from '../types/openapi';
 import type { OperationObject } from '../types/openapi';
 
-type PanelKey = 'info' | 'servers' | 'paths' | 'schemas' | 'security' | 'tags' | 'code' | 'preview' | 'validation';
+type PanelKey = 'info' | 'servers' | 'paths' | 'webhooks' | 'schemas' | 'security' | 'tags' | 'code' | 'preview' | 'validation';
 
 const navItems: { key: PanelKey; icon: React.ReactNode; color: string }[] = [
   { key: 'info', icon: <Info size={18} />, color: 'text-blue-500' },
   { key: 'servers', icon: <Server size={18} />, color: 'text-green-500' },
   { key: 'paths', icon: <Route size={18} />, color: 'text-purple-500' },
+  { key: 'webhooks', icon: <Webhook size={18} />, color: 'text-rose-500' },
   { key: 'schemas', icon: <Box size={18} />, color: 'text-pink-500' },
   { key: 'security', icon: <Shield size={18} />, color: 'text-orange-500' },
   { key: 'tags', icon: <Tag size={18} />, color: 'text-teal-500' },
@@ -25,6 +26,7 @@ const navLabelKey: Record<PanelKey, string> = {
   info: 'info',
   servers: 'servers',
   paths: 'paths',
+  webhooks: 'webhooks',
   schemas: 'schemas',
   security: 'security',
   tags: 'tags',
@@ -50,9 +52,12 @@ export function Sidebar() {
   const serverCount = (doc.servers || []).length;
   const tagCount = (doc.tags || []).length;
 
+  const webhookCount = Object.keys(doc.webhooks || {}).length;
+
   const getBadge = (key: PanelKey): string | number | null => {
     switch (key) {
       case 'paths': return opCount > 0 ? opCount : null;
+      case 'webhooks': return webhookCount > 0 ? webhookCount : null;
       case 'schemas': return schemaCount > 0 ? schemaCount : null;
       case 'security': return securityCount > 0 ? securityCount : null;
       case 'servers': return serverCount > 0 ? serverCount : null;
