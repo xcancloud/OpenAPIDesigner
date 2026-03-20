@@ -16,9 +16,9 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["../src/*"],
+      "@components/*": ["../src/app/components/*"]
     }
   },
-  "include": ["src"],
-  "exclude": ["dist", "node_modules", "example", "website"]
+  "include": ["src", "../src"]
 }
