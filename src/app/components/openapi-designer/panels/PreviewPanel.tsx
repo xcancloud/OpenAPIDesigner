@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useI18n, useDesigner } from '../context/DesignerContext';
 import {
   Eye, ChevronDown, ChevronRight, ExternalLink, Lock, Copy, Terminal,
-  Play, Loader2, AlertCircle, Server, Settings2, ChevronsUpDown
+  Play, Loader2, AlertCircle, Server, Settings2, ChevronsUpDown, Route, Boxes
 } from 'lucide-react';
 import type { HttpMethod, OperationObject, SchemaObject } from '../types/openapi';
 import { HTTP_METHODS, METHOD_COLORS } from '../types/openapi';
@@ -629,9 +629,10 @@ export function PreviewPanel() {
         </div>
       )}
 
-      {/* Expand/Collapse all toggle */}
+      {/* Endpoints header with expand/collapse toggle */}
       {tagNames.length > 0 && (
-        <div className="flex items-center justify-start">
+        <div className="flex items-center justify-between">
+          <h3 className="text-[14px] text-foreground flex items-center gap-2" style={{ fontWeight: 600 }}><Route size={16} className="text-blue-500" />{t.paths.endpoints}</h3>
           <button
             onClick={handleToggleAll}
             className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-border text-[12px] text-muted-foreground hover:bg-muted transition-colors"
@@ -712,7 +713,7 @@ export function PreviewPanel() {
         return (
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-[14px] text-foreground" style={{ fontWeight: 600 }}>{t.schemas.title}</h3>
+            <h3 className="text-[14px] text-foreground flex items-center gap-2" style={{ fontWeight: 600 }}><Boxes size={16} className="text-pink-500" />{t.schemas.title}</h3>
             <button
               onClick={handleToggleAllSchemas}
               className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-border text-[12px] text-muted-foreground hover:bg-muted transition-colors"

@@ -273,7 +273,7 @@ export function Toolbar() {
       {/* Left: Doc info */}
       <div className="flex items-center gap-3 min-w-0">
         <div className="flex items-center gap-2 text-[13px] min-w-0">
-          <span className="text-foreground truncate max-w-[360px]" style={{ fontWeight: 600 }}>{doc.info.title}</span>
+          <span className="text-[16px] text-foreground truncate max-w-[360px]" style={{ fontWeight: 700 }}>{doc.info.title}</span>
           <span className="text-[12px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0">v{doc.info.version}</span>
           <span className="text-[12px] px-1.5 py-0.5 rounded bg-primary/10 text-primary shrink-0">OAS {doc.openapi}</span>
           {state.isDirty && !savedFeedback && (
@@ -355,7 +355,7 @@ export function Toolbar() {
           {showFileMenu && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowFileMenu(false)} />
-              <div className="absolute right-0 top-full mt-1 w-52 bg-popover border border-border rounded-xl shadow-lg z-50 py-1 overflow-hidden">
+              <div className="absolute right-0 top-full mt-1 w-[250px] bg-popover border border-border rounded-xl shadow-lg z-50 py-1 overflow-hidden">
                 <button
                   onClick={() => { setDocument(createDefaultDocument()); setShowFileMenu(false); toast.success(t.common.newDocument); }}
                   className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors"
