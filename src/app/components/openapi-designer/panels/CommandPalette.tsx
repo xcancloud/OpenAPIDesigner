@@ -193,22 +193,34 @@ export function CommandPalette() {
     }
   }, [open]);
 
+  // P1-7: Pre-flatten grouped items into a stable indexed array so keyboard
+  // selection doesn't depend on a mutable closure counter (which was fragile
+  // if Object.entries ordering changed between renders).
+  const flatItems = useMemo(() => {
+    const result: Array<{ item: CommandItem; globalIndex: number }> = [];
+    Object.values(grouped).forEach(items => {
+      items.forEach(item => result.push({ item, globalIndex: result.length }));
+    });
+    return result;
+  }, [grouped]);
+
   // Navigate with arrow keys
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setSelectedIndex(i => Math.min(i + 1, filtered.length - 1));
+      setSelectedIndex(i => Math.min(i + 1, flatItems.length - 1));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       setSelectedIndex(i => Math.max(i - 1, 0));
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      if (filtered[selectedIndex]) {
-        filtered[selectedIndex].action();
+      const entry = flatItems[selectedIndex];
+      if (entry) {
+        entry.item.action();
         setOpen(false);
       }
     }
-  }, [filtered, selectedIndex]);
+  }, [flatItems, selectedIndex]);
 
   // Scroll selected into view
   useEffect(() => {
@@ -221,9 +233,6 @@ export function CommandPalette() {
   }, [query]);
 
   if (!open) return null;
-
-  let flatIndex = -1;
-
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh]">
       {/* Backdrop */}
@@ -249,7 +258,7 @@ export function CommandPalette() {
 
         {/* Results */}
         <div ref={listRef} className="max-h-[360px] overflow-y-auto p-1.5">
-          {filtered.length === 0 ? (
+          {flatItems.length === 0 ? (
             <div className="py-8 text-center text-[13px] text-muted-foreground">
               {t.common.noData}
             </div>
@@ -260,8 +269,9 @@ export function CommandPalette() {
                   {category}
                 </div>
                 {items.map(item => {
-                  flatIndex++;
-                  const idx = flatIndex;
+                  // P1-7: look up pre-computed stable index from flatItems
+                  const flatEntry = flatItems.find(e => e.item.id === item.id);
+                  const idx = flatEntry?.globalIndex ?? -1;
                   const isSelected = idx === selectedIndex;
                   return (
                     <button

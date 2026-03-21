@@ -188,4 +188,16 @@ html {
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
   }
+
+  /*
+   * P0-5: WCAG AA focus-visible — all interactive elements must have a ≥3:1 contrast
+   * focus indicator. Tailwind's `focus:ring-primary/30` only achieves ~1.8:1 on white.
+   * This rule overrides it with a solid double-ring (inner white gap + solid primary).
+   * Using !important because `focus:outline-none` (a utility class) would otherwise win.
+   */
+  *:focus-visible {
+    outline: 2px solid var(--primary) !important;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 15%, transparent) !important;
+  }
 }

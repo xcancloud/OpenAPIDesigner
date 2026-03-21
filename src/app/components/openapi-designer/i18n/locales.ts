@@ -84,6 +84,8 @@ export interface I18nMessages {
     downloadHtml: string;
     downloadWord: string;
     printPdf: string;
+    unsaved: string;
+    saved: string;
   };
   // Info panel
   info: {
@@ -392,6 +394,8 @@ export const en: I18nMessages = {
     downloadHtml: 'Export as HTML',
     downloadWord: 'Export as Word (.doc)',
     printPdf: 'Print / Save as PDF',
+    unsaved: 'Unsaved',
+    saved: 'Saved',
   },
   info: {
     title: 'API Information',
@@ -687,6 +691,8 @@ export const zh: I18nMessages = {
     downloadHtml: '导出 HTML',
     downloadWord: '导出 Word (.doc)',
     printPdf: '打印 / 导出 PDF',
+    unsaved: '未保存',
+    saved: '已保存',
   },
   info: {
     title: 'API 基本信息',

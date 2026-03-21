@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useI18n, useDesigner } from '../context/DesignerContext';
 import {
-  Eye, ChevronDown, ChevronRight, ExternalLink, Lock, Copy, Send, Loader2
+  Eye, ChevronDown, ChevronRight, ExternalLink, Lock, Copy, Terminal
 } from 'lucide-react';
 import type { HttpMethod, OperationObject, SchemaObject } from '../types/openapi';
 import { HTTP_METHODS, METHOD_COLORS } from '../types/openapi';
@@ -50,8 +50,7 @@ function EndpointPreview({
 }) {
   const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
-  const [mockResponse, setMockResponse] = useState<string | null>(null);
-  const [mockLoading, setMockLoading] = useState(false);
+  const [curlCopied, setCurlCopied] = useState(false);
   const color = METHOD_COLORS[method];
 
   const responseEntries = Object.entries(operation.responses || {});
@@ -60,34 +59,24 @@ function EndpointPreview({
     ? operation.requestBody?.content?.['application/json']?.schema
     : undefined;
 
-  const handleTryIt = () => {
-    setMockLoading(true);
-    setMockResponse(null);
-    // Simulate API call with mock data
-    setTimeout(() => {
-      const firstResponse = responseEntries[0];
-      if (firstResponse) {
-        const [code, resp] = firstResponse;
-        const respSchema = resp.content?.['application/json']?.schema;
-        const body = respSchema ? resolveSchemaDisplay(respSchema, schemas) : '{}';
-        let parsedBody: unknown;
-        try {
-          parsedBody = JSON.parse(body.replace(/\n/g, '').replace(/,\s*}/g, '}').replace(/,\s*]/g, ']'));
-        } catch {
-          parsedBody = body;
-        }
-        setMockResponse(JSON.stringify({
-          status: parseInt(code),
-          statusText: resp.description,
-          headers: {
-            'content-type': 'application/json',
-            'x-request-id': Math.random().toString(36).substring(2, 15),
-          },
-          body: parsedBody,
-        }, null, 2));
-      }
-      setMockLoading(false);
-    }, 800);
+  /** Build a cURL command string from the operation definition */
+  const buildCurlCommand = () => {
+    const url = `${serverUrl}${path}`;
+    const lines: string[] = [`curl -X ${method.toUpperCase()} '${url}'`];
+    lines.push(`  -H 'Accept: application/json'`);
+    if (operation.security) lines.push(`  -H 'Authorization: Bearer <token>'`);
+    if (requestSchema) {
+      lines.push(`  -H 'Content-Type: application/json'`);
+      lines.push(`  -d '${resolveSchemaDisplay(requestSchema, schemas)}'`);
+    }
+    return lines.join(' \\\n');
+  };
+
+  const handleCopyCurl = () => {
+    navigator.clipboard.writeText(buildCurlCommand()).then(() => {
+      setCurlCopied(true);
+      setTimeout(() => setCurlCopied(false), 2000);
+    });
   };
 
   return (
@@ -201,11 +190,12 @@ function EndpointPreview({
             </div>
           </div>
 
-          {/* Try it out */}
+          {/* Try-it area: copy cURL */}
           <div className="px-4 py-3 border-t border-border bg-muted/10">
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-3">
+              <Terminal size={12} className="text-muted-foreground shrink-0" />
               <span className="text-[11px] text-muted-foreground font-mono flex-1 truncate">
-                {serverUrl}{path}
+                {method.toUpperCase()} {serverUrl}{path}
               </span>
               <button
                 onClick={() => navigator.clipboard.writeText(`${serverUrl}${path}`)}
@@ -215,30 +205,18 @@ function EndpointPreview({
                 <Copy size={11} />
               </button>
               <button
-                onClick={handleTryIt}
-                disabled={mockLoading}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-primary text-primary-foreground text-[11px] hover:opacity-90 transition-opacity disabled:opacity-50 shrink-0"
+                onClick={handleCopyCurl}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] transition-all shrink-0 ${
+                  curlCopied
+                    ? 'bg-green-600/10 text-green-600 border border-green-600/20'
+                    : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border border-border'
+                }`}
+                title="Copy as cURL command"
               >
-                {mockLoading ? <Loader2 size={11} className="animate-spin" /> : <Send size={11} />}
-                {t.preview.tryItOut}
+                <Copy size={11} />
+                {curlCopied ? t.common.copied : 'cURL'}
               </button>
             </div>
-            {mockResponse && (
-              <div className="mt-2">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Mock Response</span>
-                  <button
-                    onClick={() => { navigator.clipboard.writeText(mockResponse); }}
-                    className="p-0.5 text-muted-foreground hover:text-foreground"
-                  >
-                    <Copy size={10} />
-                  </button>
-                </div>
-                <pre className="text-[11px] bg-[#0d1117] dark:bg-[#0d1117] text-[#c9d1d9] rounded-lg p-3 font-mono overflow-x-auto max-h-[200px] overflow-y-auto">
-                  {mockResponse}
-                </pre>
-              </div>
-            )}
           </div>
         </div>
       )}

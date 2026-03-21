@@ -9,8 +9,23 @@ import type {
 import { HTTP_METHODS, METHOD_COLORS } from '../types/openapi';
 import { MarkdownEditor } from './MarkdownEditor';
 
+/** P1-1: Render path string with {param} segments highlighted. */
+function HighlightedPath({ path }: { path: string }) {
+  const parts = path.split(/(\{[^}]+\})/);
+  return (
+    <span className="text-[13px] font-mono text-foreground flex-1">
+      {parts.map((part, i) =>
+        part.startsWith('{') ? (
+          <span key={i} className="bg-orange-500/10 text-orange-600 rounded px-0.5">{part}</span>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </span>
+  );
+}
+
 function FieldHint({ text }: { text: string }) {
-  const [show, setShow] = React.useState(false);
   return (
     <span className="relative inline-flex items-center ml-1 align-middle">
       <HelpCircle
@@ -125,7 +140,7 @@ function OperationEditor({
         style={{ borderLeft: `3px solid ${METHOD_COLORS[method]}` }}
       >
         <MethodBadge method={method} />
-        <span className="text-[13px] text-foreground font-mono flex-1">{path}</span>
+        <HighlightedPath path={path} />
         {operation.summary && (
           <span className="text-[12px] text-muted-foreground truncate max-w-[200px]">{operation.summary}</span>
         )}

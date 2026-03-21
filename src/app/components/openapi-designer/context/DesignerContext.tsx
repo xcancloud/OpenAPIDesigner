@@ -44,9 +44,6 @@ interface DesignerState {
   activePanel: ActivePanel;
   validationErrors: ValidationError[];
   isDirty: boolean;
-  selectedPath?: string;
-  selectedMethod?: string;
-  selectedSchema?: string;
 }
 
 type DesignerAction =
@@ -54,9 +51,6 @@ type DesignerAction =
   | { type: 'UPDATE_DOCUMENT'; payload: Partial<OpenAPIDocument> }
   | { type: 'SET_ACTIVE_PANEL'; payload: ActivePanel }
   | { type: 'SET_VALIDATION_ERRORS'; payload: ValidationError[] }
-  | { type: 'SET_SELECTED_PATH'; payload: string | undefined }
-  | { type: 'SET_SELECTED_METHOD'; payload: string | undefined }
-  | { type: 'SET_SELECTED_SCHEMA'; payload: string | undefined }
   | { type: 'MARK_CLEAN' };
 
 function designerReducer(state: DesignerState, action: DesignerAction): DesignerState {
@@ -69,12 +63,6 @@ function designerReducer(state: DesignerState, action: DesignerAction): Designer
       return { ...state, activePanel: action.payload };
     case 'SET_VALIDATION_ERRORS':
       return { ...state, validationErrors: action.payload };
-    case 'SET_SELECTED_PATH':
-      return { ...state, selectedPath: action.payload };
-    case 'SET_SELECTED_METHOD':
-      return { ...state, selectedMethod: action.payload };
-    case 'SET_SELECTED_SCHEMA':
-      return { ...state, selectedSchema: action.payload };
     case 'MARK_CLEAN':
       return { ...state, isDirty: false };
     default:
@@ -140,8 +128,12 @@ export function DesignerProvider({
 }: DesignerProviderProps) {
   // I18n — lazy init reads localStorage only once, not on every render (OPT-1)
   const [locale, setLocaleState] = useState<Locale>(() => {
-    try { return (localStorage.getItem(STORAGE_LOCALE_KEY) as Locale) || defaultLocale; }
-    catch { return defaultLocale; }
+    try {
+      const stored = localStorage.getItem(STORAGE_LOCALE_KEY) as Locale | null;
+      // P1-6: fall back to browser language when no stored preference exists
+      return stored || defaultLocale || (navigator.language.startsWith('zh') ? 'zh' : 'en');
+    }
+    catch { return defaultLocale || 'en'; }
   });
   const t = locales[locale];
   const setLocale = useCallback((l: Locale) => {
@@ -223,7 +215,8 @@ export function DesignerProvider({
       isUndoRedoRef.current = true;
       historyIndexRef.current--;
       setHistoryIndex(historyIndexRef.current);
-      const doc = JSON.parse(JSON.stringify(historyRef.current[historyIndexRef.current]));
+      // P1-4: structuredClone is ~2-5x faster than JSON.parse/stringify for deep clones
+      const doc = structuredClone(historyRef.current[historyIndexRef.current]);
       dispatch({ type: 'SET_DOCUMENT', payload: doc });
       // BUG-1: If we've undone back to the last-saved version, mark document as clean.
       if (historyIndexRef.current === savedHistoryIndexRef.current) {
@@ -237,7 +230,7 @@ export function DesignerProvider({
       isUndoRedoRef.current = true;
       historyIndexRef.current++;
       setHistoryIndex(historyIndexRef.current);
-      const doc = JSON.parse(JSON.stringify(historyRef.current[historyIndexRef.current]));
+      const doc = structuredClone(historyRef.current[historyIndexRef.current]);
       dispatch({ type: 'SET_DOCUMENT', payload: doc });
       // BUG-1: If we've redone forward to the last-saved version, mark document as clean.
       if (historyIndexRef.current === savedHistoryIndexRef.current) {

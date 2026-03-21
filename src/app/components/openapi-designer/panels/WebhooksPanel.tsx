@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import type { PathItemObject, OperationObject, HttpMethod, ResponseObject } from '../types/openapi';
 import { HTTP_METHODS, METHOD_COLORS } from '../types/openapi';
+import { MarkdownEditor } from './MarkdownEditor';
 
 function MethodBadge({ method }: { method: HttpMethod }) {
   return (
@@ -84,29 +85,21 @@ function WebhookOperationEditor({
                 value={operation.summary || ''}
                 onChange={(e) => onUpdate({ ...operation, summary: e.target.value })}
                 placeholder={t.common.inputPlaceholder}
-                className="w-full mt-1 px-3 py-1.5 bg-background border border-border rounded-md text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-            </div>
-            <div>
-              <label className="text-[11px] text-muted-foreground uppercase tracking-wide">{t.common.operationId}</label>
-              <input
-                value={operation.operationId || ''}
-                onChange={(e) => onUpdate({ ...operation, operationId: e.target.value })}
-                placeholder="myWebhookHandler"
-                className="w-full mt-1 px-3 py-1.5 bg-background border border-border rounded-md text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full mt-1 px-3 py-1.5 bg-background border border-border rounded-md text-[13px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all font-mono"
               />
             </div>
           </div>
 
           <div>
             <label className="text-[11px] text-muted-foreground uppercase tracking-wide">{t.common.description}</label>
-            <textarea
-              value={operation.description || ''}
-              onChange={(e) => onUpdate({ ...operation, description: e.target.value })}
-              rows={2}
-              placeholder={t.common.inputPlaceholder}
-              className="w-full mt-1 px-3 py-1.5 bg-background border border-border rounded-md text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none"
-            />
+            <div className="mt-1">
+              <MarkdownEditor
+                value={operation.description || ''}
+                onChange={(v) => onUpdate({ ...operation, description: v })}
+                placeholder="Describe what this webhook does. **Markdown** supported."
+                rows={2}
+              />
+            </div>
           </div>
 
           {/* Request Body */}
@@ -120,7 +113,7 @@ function WebhookOperationEditor({
                 <select
                   value={activeContentType}
                   onChange={(e) => setActiveContentType(e.target.value)}
-                  className="flex-1 px-2 py-1 bg-muted border border-border rounded text-[12px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="flex-1 px-2 py-1 bg-muted border border-border rounded text-[12px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
                 >
                   <option value="application/json">application/json</option>
                   <option value="application/xml">application/xml</option>
@@ -146,9 +139,9 @@ function WebhookOperationEditor({
                     };
                     onUpdate({ ...operation, requestBody });
                   }}
-                  className="flex-1 px-2 py-1 bg-muted border border-border rounded text-[12px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="flex-1 px-2 py-1 bg-muted border border-border rounded text-[12px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
                 >
-                  <option value="">{t.common.selectPlaceholder}</option>
+                  <option value="">— {t.common.none} —</option>
                   {schemaNames.map(name => (
                     <option key={name} value={`#/components/schemas/${name}`}>{name}</option>
                   ))}
@@ -176,11 +169,11 @@ function WebhookOperationEditor({
                     <span
                       className={`text-[11px] font-bold px-2 py-0.5 rounded ${
                         code.startsWith('2')
-                          ? 'bg-green-500/20 text-green-600'
+                          ? 'bg-green-500/10 text-green-600'
                           : code.startsWith('4')
-                          ? 'bg-orange-500/20 text-orange-600'
+                          ? 'bg-yellow-500/10 text-yellow-600'
                           : code.startsWith('5')
-                          ? 'bg-red-500/20 text-red-600'
+                          ? 'bg-red-500/10 text-red-600'
                           : 'bg-muted text-muted-foreground'
                       }`}
                     >
@@ -190,7 +183,7 @@ function WebhookOperationEditor({
                       value={resp.description || ''}
                       onChange={(e) => updateResponse(code, { ...resp, description: e.target.value })}
                       placeholder="Response description"
-                      className="flex-1 px-2 py-1 bg-muted border border-border rounded text-[12px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="flex-1 px-2 py-1 bg-muted border border-border rounded text-[12px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
                     />
                     <button
                       onClick={() => removeResponse(code)}
@@ -243,7 +236,7 @@ export function WebhooksPanel() {
   const addWebhook = () => {
     const name = newName.trim();
     if (!name || webhooks[name]) return;
-    const newDoc = JSON.parse(JSON.stringify(doc));
+    const newDoc = structuredClone(doc);
     if (!newDoc.webhooks) newDoc.webhooks = {};
     newDoc.webhooks[name] = {};
     setDocument(newDoc);
@@ -253,14 +246,16 @@ export function WebhooksPanel() {
   };
 
   const deleteWebhook = (name: string) => {
-    const newDoc = JSON.parse(JSON.stringify(doc));
+    const newDoc = structuredClone(doc);
+    if (!newDoc.webhooks) return;
     delete newDoc.webhooks[name];
     if (Object.keys(newDoc.webhooks).length === 0) delete newDoc.webhooks;
     setDocument(newDoc);
   };
 
   const addOperation = (webhookName: string, method: HttpMethod) => {
-    const newDoc = JSON.parse(JSON.stringify(doc));
+    const newDoc = structuredClone(doc);
+    if (!newDoc.webhooks) return;
     if (!newDoc.webhooks[webhookName][method]) {
       newDoc.webhooks[webhookName][method] = {
         summary: '',
@@ -273,13 +268,15 @@ export function WebhooksPanel() {
   };
 
   const updateOperation = (webhookName: string, method: HttpMethod, op: OperationObject) => {
-    const newDoc = JSON.parse(JSON.stringify(doc));
+    const newDoc = structuredClone(doc);
+    if (!newDoc.webhooks) return;
     newDoc.webhooks[webhookName][method] = op;
     setDocument(newDoc);
   };
 
   const deleteOperation = (webhookName: string, method: HttpMethod) => {
-    const newDoc = JSON.parse(JSON.stringify(doc));
+    const newDoc = structuredClone(doc);
+    if (!newDoc.webhooks) return;
     delete newDoc.webhooks[webhookName][method];
     setDocument(newDoc);
   };

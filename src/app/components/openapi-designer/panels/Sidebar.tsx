@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useI18n, useTheme, useDesigner } from '../context/DesignerContext';
 import {
   Info, Server, Route, Box, Shield, Tag, Code, Eye, AlertTriangle,
@@ -40,6 +40,20 @@ export function Sidebar() {
   const { theme, toggleTheme } = useTheme();
   const { state, dispatch } = useDesigner();
   const [collapsed, setCollapsed] = useState(false);
+  // P0-2: Auto-collapse when the parent container is narrower than 1024 px.
+  // We observe the Sidebar's parent element (the full designer container) via ResizeObserver.
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const [autoCollapsed, setAutoCollapsed] = useState(false);
+  useEffect(() => {
+    const parent = sidebarRef.current?.parentElement;
+    if (!parent) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setAutoCollapsed(entry.contentRect.width < 1024);
+    });
+    observer.observe(parent);
+    return () => observer.disconnect();
+  }, []);
+  const isCollapsed = collapsed || autoCollapsed;
 
   const doc = state.document;
   const errorCount = state.validationErrors.filter(e => e.severity === 'error').length;
@@ -67,9 +81,9 @@ export function Sidebar() {
     }
   };
 
-  if (collapsed) {
+  if (isCollapsed) {
     return (
-      <div className="w-[56px] h-full flex flex-col bg-card border-r border-border shrink-0">
+      <div ref={sidebarRef} className="w-[56px] h-full flex flex-col bg-card border-r border-border shrink-0">
         {/* Logo */}
         <div className="p-2 border-b border-border flex items-center justify-center h-[57px]">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center cursor-pointer" onClick={() => setCollapsed(false)}>
@@ -140,7 +154,7 @@ export function Sidebar() {
   }
 
   return (
-    <div className="w-[220px] h-full flex flex-col bg-card border-r border-border shrink-0">
+    <div ref={sidebarRef} className="w-[220px] h-full flex flex-col bg-card border-r border-border shrink-0">
       {/* Logo */}
       <div className="px-4 py-3 border-b border-border flex items-center gap-2 h-[57px]">
         <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">

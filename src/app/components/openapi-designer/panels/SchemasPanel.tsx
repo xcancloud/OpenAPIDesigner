@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useI18n, useDesigner } from '../context/DesignerContext';
 import {
-  Plus, Trash2, Box, ChevronDown, ChevronRight, Search, X, Copy
+  Plus, Trash2, Box, ChevronDown, ChevronRight, Search, X, Copy, ExternalLink
 } from 'lucide-react';
 import type { SchemaObject } from '../types/openapi';
 import { MarkdownEditor } from './MarkdownEditor';
@@ -30,6 +30,7 @@ function PropertyEditor({
   depth?: number;
 }) {
   const { t } = useI18n();
+  const { dispatch } = useDesigner();
   const [expanded, setExpanded] = useState(depth < 1);
   const type = (schema.$ref ? '$ref' : (typeof schema.type === 'string' ? schema.type : 'object')) || 'string';
   const hasChildren = type === 'object' || type === 'array';
@@ -109,13 +110,23 @@ function PropertyEditor({
             {schema.$ref && (
               <div>
                 <label className="text-[10px] text-muted-foreground">$ref</label>
-                <select
-                  value={schema.$ref.replace('#/components/schemas/', '')}
-                  onChange={(e) => onUpdate({ $ref: `#/components/schemas/${e.target.value}` })}
-                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
-                >
-                  {schemaNames.map(n => <option key={n} value={n}>{n}</option>)}
-                </select>
+                <div className="flex items-center gap-1 mt-0.5">
+                  <select
+                    value={schema.$ref.replace('#/components/schemas/', '')}
+                    onChange={(e) => onUpdate({ $ref: `#/components/schemas/${e.target.value}` })}
+                    className="flex-1 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    {schemaNames.map(n => <option key={n} value={n}>{n}</option>)}
+                  </select>
+                  {/* P1-2: jump to the referenced schema definition */}
+                  <button
+                    onClick={() => dispatch({ type: 'SET_ACTIVE_PANEL', payload: 'schemas' })}
+                    className="p-1 text-muted-foreground hover:text-primary transition-colors"
+                    title="Jump to schema definition"
+                  >
+                    <ExternalLink size={12} />
+                  </button>
+                </div>
               </div>
             )}
           </div>

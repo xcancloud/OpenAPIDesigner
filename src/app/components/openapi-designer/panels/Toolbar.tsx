@@ -107,6 +107,8 @@ export function Toolbar() {
   const postmanInputRef = useRef<HTMLInputElement>(null);
   const [showFileMenu, setShowFileMenu] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  // P1-5: track brief "Saved" feedback after Ctrl+S
+  const [savedFeedback, setSavedFeedback] = useState(false);
 
   // Global keyboard shortcuts
   useEffect(() => {
@@ -134,6 +136,9 @@ export function Toolbar() {
         // BUG-13: Actually save, then show success — don't just show a toast without saving.
         saveNow();
         toast.success(t.common.save);
+        // P1-5: show "Saved" badge in toolbar then fade it after 2 s
+        setSavedFeedback(true);
+        setTimeout(() => setSavedFeedback(false), 2000);
       }
     };
     window.addEventListener('keydown', handler);
@@ -243,8 +248,17 @@ export function Toolbar() {
           <span className="text-foreground truncate max-w-[360px]" style={{ fontWeight: 600 }}>{doc.info.title}</span>
           <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0">v{doc.info.version}</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary shrink-0">OAS {doc.openapi}</span>
-          {state.isDirty && (
-            <span className="w-2 h-2 rounded-full bg-orange-400 shrink-0" title="Unsaved changes" />
+          {state.isDirty && !savedFeedback && (
+            <span className="flex items-center gap-1 text-[11px] text-orange-500 shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
+              {t.common.unsaved}
+            </span>
+          )}
+          {savedFeedback && (
+            <span className="flex items-center gap-1 text-[11px] text-green-600 shrink-0 animate-in fade-in">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+              {t.common.saved}
+            </span>
           )}
         </div>
       </div>
