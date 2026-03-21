@@ -2,8 +2,9 @@
 
 # OpenAPIDesigner
 
-[![构建状态](https://img.shields.io/github/actions/workflow/status/xcancloud/OpenAPIDesigner/ci.yml?branch=main&style=flat-square)](https://github.com/xcancloud/OpenAPIDesigner/actions)
 [![npm 版本](https://img.shields.io/npm/v/@xcan-cloud/open-api-designer?style=flat-square)](https://www.npmjs.com/package/@xcan-cloud/open-api-designer)
+[![React 版本](https://img.shields.io/badge/React-18.3.1-61DAFB?style=flat-square&logo=react)](https://react.dev/)
+[![Tailwind CSS 版本](https://img.shields.io/badge/Tailwind%20CSS-4.1.12-06B6D4?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
 [![许可证: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](./LICENSE)
 
 基于 React 构建的可视化 OpenAPI 3.1 规范设计器。在一个组件中完成 API 文档的设计、编辑和预览。

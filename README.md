@@ -2,8 +2,9 @@
 
 # OpenAPIDesigner
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/xcancloud/OpenAPIDesigner/ci.yml?branch=main&style=flat-square)](https://github.com/xcancloud/OpenAPIDesigner/actions)
 [![npm version](https://img.shields.io/npm/v/@xcan-cloud/open-api-designer?style=flat-square)](https://www.npmjs.com/package/@xcan-cloud/open-api-designer)
+[![React](https://img.shields.io/badge/React-18.3.1-61DAFB?style=flat-square&logo=react)](https://react.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-4.1.12-06B6D4?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](./LICENSE)
 
 A visual OpenAPI 3.1 specification designer built with React. Design, edit, and preview your API documentation — all in one component.
