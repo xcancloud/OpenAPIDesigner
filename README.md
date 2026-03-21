@@ -11,7 +11,11 @@ A visual OpenAPI 3.1 specification designer built with React. Design, edit, and 
 
 [English](./README.md) · [简体中文](./README.zh-CN.md) · [Live Demo](https://xcancloud.github.io/OpenAPIDesigner/) · [Documentation](./website/)
 
-<!-- screenshot -->
+<br />
+
+<img src="./preview.png" width="920" />
+
+<br />
 
 </div>
 

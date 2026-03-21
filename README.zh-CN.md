@@ -11,7 +11,11 @@
 
 [English](./README.md) · [简体中文](./README.zh-CN.md) · [在线演示](https://xcancloud.github.io/OpenAPIDesigner/) · [文档](./website/)
 
-<!-- screenshot -->
+<br />
+
+<img src="./preview_zh-CN.png" width="920" />
+
+<br />
 
 </div>
 
