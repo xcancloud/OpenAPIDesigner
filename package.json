@@ -30,10 +30,22 @@
     "build:lib": "vite build --config vite.lib.config.ts && tsc --project tsconfig.build.json"
   },
   "dependencies": {
+    "@codemirror/commands": "^6.8.1",
+    "@codemirror/lang-markdown": "^6.3.2",
+    "@codemirror/lang-yaml": "^6.1.2",
+    "@codemirror/lang-json": "^6.0.1",
+    "@codemirror/state": "^6.5.2",
+    "@codemirror/theme-one-dark": "^6.1.2",
+    "@codemirror/view": "^6.36.3",
     "@radix-ui/react-scroll-area": "1.2.3",
     "clsx": "2.1.1",
     "js-yaml": "^4.1.1",
+    "katex": "^0.16.22",
     "lucide-react": "0.487.0",
+    "marked": "^15.0.7",
+    "marked-gfm-heading-id": "^4.1.0",
+    "mermaid": "^11.4.1",
+    "shiki": "^3.2.2",
     "sonner": "2.0.3",
     "tailwind-merge": "3.2.0"
   },
