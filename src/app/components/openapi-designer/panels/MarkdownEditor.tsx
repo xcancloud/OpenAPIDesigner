@@ -207,7 +207,7 @@ export function MarkdownEditor({
       {mode === 'preview' && (
         <div
           ref={previewRef}
-          className="md-preview px-3 py-2 text-[13px] text-foreground overflow-auto"
+          className="md-preview px-3 py-2 text-[15px] text-foreground overflow-auto"
           style={{ minHeight }}
           dangerouslySetInnerHTML={{
             __html: html

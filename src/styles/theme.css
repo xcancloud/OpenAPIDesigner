@@ -206,6 +206,7 @@ html {
 
 .md-preview {
   color: var(--foreground);
+  font-size: 15px;
   line-height: 1.7;
   word-break: break-word;
 }

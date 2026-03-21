@@ -197,7 +197,7 @@ function EndpointPreview({
           {/* Description */}
           {operation.description && (
             <div
-              className="px-4 py-3 text-[13px] text-muted-foreground border-b border-border md-preview"
+              className="px-4 py-3 text-[15px] text-muted-foreground border-b border-border md-preview"
               dangerouslySetInnerHTML={{ __html: renderMarkdown(operation.description) }}
             />
           )}
@@ -517,7 +517,7 @@ export function PreviewPanel() {
             <h1 className="text-foreground">{doc.info.title}</h1>
             {doc.info.description && (
               <div
-                className="text-[13px] text-muted-foreground mt-2 md-preview"
+                className="text-[15px] text-muted-foreground mt-2 md-preview"
                 dangerouslySetInnerHTML={{ __html: renderMarkdown(doc.info.description, isDark) }}
               />
             )}
