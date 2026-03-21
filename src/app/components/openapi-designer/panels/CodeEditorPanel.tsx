@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useI18n, useDesigner } from '../context/DesignerContext';
-import { Code, Copy, Check, RefreshCw, Download, AlertCircle, XCircle, AlertTriangle, Info, CheckCircle2, ArrowRight, Shield } from 'lucide-react';
+import { Code, Copy, Check, RefreshCw, Download, AlertCircle, XCircle, AlertTriangle, Info, CheckCircle2, ArrowRight, Shield, Loader2 } from 'lucide-react';
 import yaml from 'js-yaml';
 import type { OpenAPIDocument } from '../types/openapi';
 import { validateDocument } from '../utils/validation';
@@ -74,6 +74,7 @@ export function CodeEditorPanel() {
   const [copied, setCopied] = useState(false);
   const [parseError, setParseError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [codeReady, setCodeReady] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const preRef = useRef<HTMLPreElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
@@ -87,8 +88,10 @@ export function CodeEditorPanel() {
         setCode(JSON.stringify(state.document, null, 2));
       }
       setParseError(null);
+      setCodeReady(true);
     } catch (e) {
       setParseError(String(e));
+      setCodeReady(true);
     }
   }, [state.document, format]);
 
@@ -225,7 +228,7 @@ export function CodeEditorPanel() {
           {isEditing && (
             <button
               onClick={applyToDocument}
-              className="flex items-center gap-1 px-3 py-1 rounded-lg bg-green-600 text-white text-[11px] hover:bg-green-700 transition-colors"
+              className="flex items-center gap-1 px-3 py-1 rounded-lg bg-green-600 text-white text-[12px] hover:bg-green-700 transition-colors"
             >
               <RefreshCw size={12} />
               {t.codeEditor.syncToVisual}
@@ -233,16 +236,16 @@ export function CodeEditorPanel() {
           )}
           <button
             onClick={() => { setIsEditing(false); syncFromDoc(); }}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg border border-border text-[11px] text-muted-foreground hover:bg-muted transition-colors"
+            className="flex items-center gap-1 px-2 py-1 rounded-lg border border-border text-[12px] text-muted-foreground hover:bg-muted transition-colors"
           >
             <RefreshCw size={12} />
             {t.codeEditor.syncFromVisual}
           </button>
-          <button onClick={copyCode} className="flex items-center gap-1 px-2 py-1 rounded-lg border border-border text-[11px] text-muted-foreground hover:bg-muted transition-colors">
+          <button onClick={copyCode} className="flex items-center gap-1 px-2 py-1 rounded-lg border border-border text-[12px] text-muted-foreground hover:bg-muted transition-colors">
             {copied ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
             {copied ? t.common.copied : t.codeEditor.copyCode}
           </button>
-          <button onClick={downloadCode} className="flex items-center gap-1 px-2 py-1 rounded-lg border border-border text-[11px] text-muted-foreground hover:bg-muted transition-colors">
+          <button onClick={downloadCode} className="flex items-center gap-1 px-2 py-1 rounded-lg border border-border text-[12px] text-muted-foreground hover:bg-muted transition-colors">
             <Download size={12} />
           </button>
         </div>
@@ -259,11 +262,20 @@ export function CodeEditorPanel() {
 
       {/* Editor */}
       <div className="flex-1 overflow-hidden relative bg-background">
+        {/* Loading overlay */}
+        {!codeReady && (
+          <div className="absolute inset-0 flex items-center justify-center z-20 bg-background/80">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 size={20} className="animate-spin" />
+              <span className="text-[13px]">{t.common.loading}</span>
+            </div>
+          </div>
+        )}
         {/* Line numbers */}
         <div ref={lineNumbersRef} className="absolute left-0 top-0 bottom-0 w-[50px] bg-muted/30 border-r border-border overflow-hidden z-10 pointer-events-none">
           <div className="pt-4 pr-2 text-right">
             {lines.map((_, i) => (
-              <div key={i} className="text-[11px] text-muted-foreground h-[20px] leading-[20px] px-2">{i + 1}</div>
+              <div key={i} className="text-[12px] text-muted-foreground h-[20px] leading-[20px] px-2">{i + 1}</div>
             ))}
           </div>
         </div>
@@ -302,15 +314,15 @@ export function CodeEditorPanel() {
           <div className="grid grid-cols-3 gap-1.5">
             <div className={`rounded-lg border p-2 text-center ${errorCount > 0 ? 'border-destructive/30 bg-destructive/5' : 'border-border bg-background'}`}>
               <div className={`text-[16px] ${errorCount > 0 ? 'text-destructive' : 'text-green-500'}`} style={{ fontWeight: 700 }}>{errorCount}</div>
-              <div className="text-[10px] text-muted-foreground">{t.validation.errors}</div>
+              <div className="text-[12px] text-muted-foreground">{t.validation.errors}</div>
             </div>
             <div className={`rounded-lg border p-2 text-center ${warningCount > 0 ? 'border-yellow-500/30 bg-yellow-500/5' : 'border-border bg-background'}`}>
               <div className={`text-[16px] ${warningCount > 0 ? 'text-yellow-500' : 'text-green-500'}`} style={{ fontWeight: 700 }}>{warningCount}</div>
-              <div className="text-[10px] text-muted-foreground">{t.validation.warnings}</div>
+              <div className="text-[12px] text-muted-foreground">{t.validation.warnings}</div>
             </div>
             <div className="rounded-lg border p-2 text-center border-border bg-background">
               <div className="text-[16px] text-blue-500" style={{ fontWeight: 700 }}>{infoCount}</div>
-              <div className="text-[10px] text-muted-foreground">{t.validation.infos}</div>
+              <div className="text-[12px] text-muted-foreground">{t.validation.infos}</div>
             </div>
           </div>
 
@@ -321,7 +333,7 @@ export function CodeEditorPanel() {
             ) : (
               <XCircle size={14} className="text-destructive shrink-0" />
             )}
-            <div className="text-[11px] text-foreground" style={{ fontWeight: 500 }}>
+            <div className="text-[12px] text-foreground" style={{ fontWeight: 500 }}>
               {errorCount === 0 ? t.validation.valid : t.validation.invalid}
             </div>
           </div>
@@ -337,8 +349,8 @@ export function CodeEditorPanel() {
                 >
                   {severityIcon[error.severity]}
                   <div className="flex-1 min-w-0">
-                    <div className="text-[11px] text-foreground leading-tight">{error.message}</div>
-                    <div className="text-[10px] text-muted-foreground font-mono mt-0.5 truncate">{error.path}</div>
+                    <div className="text-[12px] text-foreground leading-tight">{error.message}</div>
+                    <div className="text-[12px] text-muted-foreground font-mono mt-0.5 truncate">{error.path}</div>
                   </div>
                   <ArrowRight size={10} className="text-muted-foreground shrink-0 mt-0.5" />
                 </div>

@@ -14,7 +14,7 @@ function FieldHint({ text }: { text: string }) {
         onMouseLeave={() => setShow(false)}
       />
       {show && (
-        <span className="absolute bottom-full left-0 mb-1.5 w-64 p-2.5 rounded-lg bg-popover border border-border shadow-xl text-[11px] text-muted-foreground leading-relaxed z-50 whitespace-normal pointer-events-none">
+        <span className="absolute bottom-full left-0 mb-1.5 w-64 p-2.5 rounded-lg bg-popover border border-border shadow-xl text-[12px] text-muted-foreground leading-relaxed z-50 whitespace-normal pointer-events-none">
           {text}
         </span>
       )}
@@ -135,15 +135,15 @@ export function InfoPanel() {
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-card rounded-xl border border-border p-3 text-center">
           <div className="text-[20px] text-foreground" style={{ fontWeight: 700 }}>{pathCount}</div>
-          <div className="text-[11px] text-muted-foreground">{t.paths.endpoints}</div>
+          <div className="text-[12px] text-muted-foreground">{t.paths.endpoints}</div>
         </div>
         <div className="bg-card rounded-xl border border-border p-3 text-center">
           <div className="text-[20px] text-foreground" style={{ fontWeight: 700 }}>{schemaCount}</div>
-          <div className="text-[11px] text-muted-foreground">{t.schemas.title}</div>
+          <div className="text-[12px] text-muted-foreground">{t.schemas.title}</div>
         </div>
         <div className="bg-card rounded-xl border border-border p-3 text-center">
           <div className="text-[20px] text-foreground" style={{ fontWeight: 700 }}>{securityCount}</div>
-          <div className="text-[11px] text-muted-foreground">{t.security.title}</div>
+          <div className="text-[12px] text-muted-foreground">{t.security.title}</div>
         </div>
       </div>
 

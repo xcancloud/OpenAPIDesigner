@@ -10,7 +10,7 @@ import { MarkdownEditor } from './MarkdownEditor';
 function MethodBadge({ method }: { method: HttpMethod }) {
   return (
     <span
-      className="inline-flex items-center justify-center rounded-md text-white uppercase tracking-wide px-2 py-0.5 text-[10px] min-w-[52px]"
+      className="inline-flex items-center justify-center rounded-md text-white uppercase tracking-wide px-2 py-0.5 text-[12px] min-w-[52px]"
       style={{ backgroundColor: METHOD_COLORS[method], fontWeight: 700 }}
     >
       {method}
@@ -70,7 +70,7 @@ function WebhookOperationEditor({
           <span className="text-[12px] text-muted-foreground truncate max-w-[200px]">{operation.summary}</span>
         )}
         {operation.deprecated && (
-          <span className="text-[10px] bg-yellow-500/20 text-yellow-600 px-1.5 py-0.5 rounded">{t.common.deprecated}</span>
+          <span className="text-[12px] bg-yellow-500/20 text-yellow-600 px-1.5 py-0.5 rounded">{t.common.deprecated}</span>
         )}
         {expanded ? <ChevronDown size={14} className="text-muted-foreground" /> : <ChevronRight size={14} className="text-muted-foreground" />}
       </div>
@@ -80,7 +80,7 @@ function WebhookOperationEditor({
           {/* Basic fields */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] text-muted-foreground uppercase tracking-wide">{t.common.summary}</label>
+              <label className="text-[12px] text-muted-foreground uppercase tracking-wide">{t.common.summary}</label>
               <input
                 value={operation.summary || ''}
                 onChange={(e) => onUpdate({ ...operation, summary: e.target.value })}
@@ -91,7 +91,7 @@ function WebhookOperationEditor({
           </div>
 
           <div>
-            <label className="text-[11px] text-muted-foreground uppercase tracking-wide">{t.common.description}</label>
+            <label className="text-[12px] text-muted-foreground uppercase tracking-wide">{t.common.description}</label>
             <div className="mt-1">
               <MarkdownEditor
                 value={operation.description || ''}
@@ -105,11 +105,11 @@ function WebhookOperationEditor({
           {/* Request Body */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-[11px] text-muted-foreground uppercase tracking-wide">{t.common.requestBody}</label>
+              <label className="text-[12px] text-muted-foreground uppercase tracking-wide">{t.common.requestBody}</label>
             </div>
             <div className="border border-border rounded-lg p-3 space-y-2 bg-background">
               <div className="flex items-center gap-2">
-                <label className="text-[11px] text-muted-foreground w-24">{t.common.contentType}</label>
+                <label className="text-[12px] text-muted-foreground w-24">{t.common.contentType}</label>
                 <select
                   value={activeContentType}
                   onChange={(e) => setActiveContentType(e.target.value)}
@@ -123,7 +123,7 @@ function WebhookOperationEditor({
                 </select>
               </div>
               <div className="flex items-center gap-2">
-                <label className="text-[11px] text-muted-foreground w-24">{t.common.schema}</label>
+                <label className="text-[12px] text-muted-foreground w-24">{t.common.schema}</label>
                 <select
                   value={operation.requestBody?.content?.[activeContentType]?.schema?.['$ref'] || ''}
                   onChange={(e) => {
@@ -153,10 +153,10 @@ function WebhookOperationEditor({
           {/* Responses */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-[11px] text-muted-foreground uppercase tracking-wide">{t.common.responses}</label>
+              <label className="text-[12px] text-muted-foreground uppercase tracking-wide">{t.common.responses}</label>
               <button
                 onClick={addResponse}
-                className="flex items-center gap-1 px-2 py-1 rounded-md bg-primary/10 text-primary text-[11px] hover:bg-primary/20 transition-colors"
+                className="flex items-center gap-1 px-2 py-1 rounded-md bg-primary/10 text-primary text-[12px] hover:bg-primary/20 transition-colors"
               >
                 <Plus size={11} />
                 {t.common.add}
@@ -167,7 +167,7 @@ function WebhookOperationEditor({
                 <div key={code} className="border border-border rounded-lg p-3 space-y-2 bg-background">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`text-[11px] font-bold px-2 py-0.5 rounded ${
+                      className={`text-[12px] font-bold px-2 py-0.5 rounded ${
                         code.startsWith('2')
                           ? 'bg-green-500/10 text-green-600'
                           : code.startsWith('4')
@@ -415,12 +415,12 @@ export function WebhooksPanel() {
                   {/* Add operation */}
                   {availableMethods.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 pt-1">
-                      <span className="text-[11px] text-muted-foreground self-center">{t.webhooks.addOperation}:</span>
+                      <span className="text-[12px] text-muted-foreground self-center">{t.webhooks.addOperation}:</span>
                       {availableMethods.map(method => (
                         <button
                           key={method}
                           onClick={() => addOperation(name, method)}
-                          className="flex items-center gap-1 px-2 py-0.5 rounded-md border border-dashed border-border text-[11px] text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                          className="flex items-center gap-1 px-2 py-0.5 rounded-md border border-dashed border-border text-[12px] text-muted-foreground hover:border-primary hover:text-primary transition-colors"
                         >
                           <Plus size={10} />
                           <span className="uppercase font-bold">{method}</span>

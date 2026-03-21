@@ -46,7 +46,7 @@ function PropertyEditor({
           <span className="w-3" />
         )}
         <span className="text-[12px] font-mono text-foreground" style={{ fontWeight: 500 }}>{name}</span>
-        <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+        <span className={`text-[12px] px-1.5 py-0.5 rounded ${
           type === 'string' ? 'bg-green-500/10 text-green-600' :
           type === 'number' || type === 'integer' ? 'bg-blue-500/10 text-blue-600' :
           type === 'boolean' ? 'bg-orange-500/10 text-orange-600' :
@@ -57,13 +57,13 @@ function PropertyEditor({
         }`}>
           {schema.$ref ? schema.$ref.split('/').pop() : type}
         </span>
-        {isRequired && <span className="text-[9px] text-destructive">*</span>}
-        {schema.format && <span className="text-[10px] text-muted-foreground">({schema.format})</span>}
+        {isRequired && <span className="text-[12px] text-destructive">*</span>}
+        {schema.format && <span className="text-[12px] text-muted-foreground">({schema.format})</span>}
         {schema.description && (
-          <span className="text-[11px] text-muted-foreground truncate max-w-[200px]">{schema.description}</span>
+          <span className="text-[12px] text-muted-foreground truncate max-w-[200px]">{schema.description}</span>
         )}
         <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button onClick={onToggleRequired} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">
+          <button onClick={onToggleRequired} className="text-[12px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">
             {isRequired ? t.common.optional : t.common.required}
           </button>
           <button onClick={onDelete} className="p-1 text-muted-foreground hover:text-destructive"><X size={11} /></button>
@@ -74,7 +74,7 @@ function PropertyEditor({
         <div className="ml-3 space-y-2 py-2">
           <div className="grid grid-cols-3 gap-2">
             <div>
-              <label className="text-[10px] text-muted-foreground">{t.common.type}</label>
+              <label className="text-[12px] text-muted-foreground">{t.common.type}</label>
               <select
                 value={schema.$ref ? '$ref' : type}
                 onChange={(e) => {
@@ -87,7 +87,7 @@ function PropertyEditor({
                     onUpdate({ ...newSchema, description: schema.description });
                   }
                 }}
-                className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 {SCHEMA_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                 <option value="$ref" disabled={schemaNames.length === 0}>{schemaNames.length === 0 ? '$ref (no schemas)' : '$ref'}</option>
@@ -95,11 +95,11 @@ function PropertyEditor({
             </div>
             {(type === 'string' || type === 'number' || type === 'integer') && (
               <div>
-                <label className="text-[10px] text-muted-foreground">{t.common.format}</label>
+                <label className="text-[12px] text-muted-foreground">{t.common.format}</label>
                 <select
                   value={schema.format || ''}
                   onChange={(e) => onUpdate({ ...schema, format: e.target.value || undefined })}
-                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
                 >
                   {(type === 'string' ? STRING_FORMATS : NUMBER_FORMATS).map(f => (
                     <option key={f} value={f}>{f || '—'}</option>
@@ -109,12 +109,12 @@ function PropertyEditor({
             )}
             {schema.$ref && (
               <div>
-                <label className="text-[10px] text-muted-foreground">$ref</label>
+                <label className="text-[12px] text-muted-foreground">$ref</label>
                 <div className="flex items-center gap-1 mt-0.5">
                   <select
                     value={schema.$ref.replace('#/components/schemas/', '')}
                     onChange={(e) => onUpdate({ $ref: `#/components/schemas/${e.target.value}` })}
-                    className="flex-1 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    className="flex-1 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
                   >
                     {schemaNames.map(n => <option key={n} value={n}>{n}</option>)}
                   </select>
@@ -132,7 +132,7 @@ function PropertyEditor({
           </div>
           {/* Description — always on its own full-width row */}
           <div>
-            <label className="text-[10px] text-muted-foreground">{t.common.description}</label>
+            <label className="text-[12px] text-muted-foreground">{t.common.description}</label>
             <div className="mt-0.5">
               <MarkdownEditor
                 value={schema.description || ''}
@@ -146,10 +146,10 @@ function PropertyEditor({
           {/* Enum values for string — tag-style editor */}
           {type === 'string' && (
             <div>
-              <label className="text-[10px] text-muted-foreground block mb-1">{t.schemas.enumValues}</label>
+              <label className="text-[12px] text-muted-foreground block mb-1">{t.schemas.enumValues}</label>
               <div className="flex flex-wrap gap-1 p-2 rounded border border-border bg-background min-h-[36px] focus-within:ring-2 focus-within:ring-primary/30 transition-all">
                 {(schema.enum || []).map((val, idx) => (
-                  <span key={idx} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-[11px] font-mono text-foreground">
+                  <span key={idx} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-[12px] font-mono text-foreground">
                     {String(val)}
                     <button
                       onClick={() => {
@@ -163,7 +163,7 @@ function PropertyEditor({
                   </span>
                 ))}
                 <input
-                  className="text-[11px] bg-transparent outline-none min-w-[80px] flex-1 font-mono placeholder:text-muted-foreground/50"
+                  className="text-[12px] bg-transparent outline-none min-w-[80px] flex-1 font-mono placeholder:text-muted-foreground/50"
                   placeholder={schema.enum?.length ? '' : t.schemas.addEnumValue + ' (Enter)'}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ',') {
@@ -188,31 +188,31 @@ function PropertyEditor({
           {type === 'string' && (
             <div className="grid grid-cols-3 gap-2">
               <div>
-                <label className="text-[10px] text-muted-foreground">{t.schemas.minLength}</label>
+                <label className="text-[12px] text-muted-foreground">{t.schemas.minLength}</label>
                 <input
                   type="number"
                   value={schema.minLength ?? ''}
                   onChange={(e) => onUpdate({ ...schema, minLength: e.target.value ? Number(e.target.value) : undefined })}
-                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
                   min={0}
                 />
               </div>
               <div>
-                <label className="text-[10px] text-muted-foreground">{t.schemas.maxLength}</label>
+                <label className="text-[12px] text-muted-foreground">{t.schemas.maxLength}</label>
                 <input
                   type="number"
                   value={schema.maxLength ?? ''}
                   onChange={(e) => onUpdate({ ...schema, maxLength: e.target.value ? Number(e.target.value) : undefined })}
-                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
                   min={0}
                 />
               </div>
               <div>
-                <label className="text-[10px] text-muted-foreground">{t.schemas.pattern}</label>
+                <label className="text-[12px] text-muted-foreground">{t.schemas.pattern}</label>
                 <input
                   value={schema.pattern || ''}
                   onChange={(e) => onUpdate({ ...schema, pattern: e.target.value || undefined })}
-                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
                   placeholder="^[a-z]+$"
                 />
               </div>
@@ -223,21 +223,21 @@ function PropertyEditor({
           {(type === 'number' || type === 'integer') && (
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-[10px] text-muted-foreground">{t.schemas.minimum}</label>
+                <label className="text-[12px] text-muted-foreground">{t.schemas.minimum}</label>
                 <input
                   type="number"
                   value={schema.minimum ?? ''}
                   onChange={(e) => onUpdate({ ...schema, minimum: e.target.value ? Number(e.target.value) : undefined })}
-                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
               </div>
               <div>
-                <label className="text-[10px] text-muted-foreground">{t.schemas.maximum}</label>
+                <label className="text-[12px] text-muted-foreground">{t.schemas.maximum}</label>
                 <input
                   type="number"
                   value={schema.maximum ?? ''}
                   onChange={(e) => onUpdate({ ...schema, maximum: e.target.value ? Number(e.target.value) : undefined })}
-                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
               </div>
             </div>
@@ -247,26 +247,26 @@ function PropertyEditor({
           {type === 'array' && (
             <div className="grid grid-cols-3 gap-2">
               <div>
-                <label className="text-[10px] text-muted-foreground">{t.schemas.minItems}</label>
+                <label className="text-[12px] text-muted-foreground">{t.schemas.minItems}</label>
                 <input
                   type="number"
                   value={schema.minItems ?? ''}
                   onChange={(e) => onUpdate({ ...schema, minItems: e.target.value ? Number(e.target.value) : undefined })}
-                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
                   min={0}
                 />
               </div>
               <div>
-                <label className="text-[10px] text-muted-foreground">{t.schemas.maxItems}</label>
+                <label className="text-[12px] text-muted-foreground">{t.schemas.maxItems}</label>
                 <input
                   type="number"
                   value={schema.maxItems ?? ''}
                   onChange={(e) => onUpdate({ ...schema, maxItems: e.target.value ? Number(e.target.value) : undefined })}
-                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
                   min={0}
                 />
               </div>
-              <label className="flex items-center gap-1.5 text-[10px] text-muted-foreground cursor-pointer mt-4">
+              <label className="flex items-center gap-1.5 text-[12px] text-muted-foreground cursor-pointer mt-4">
                 <input
                   type="checkbox"
                   checked={schema.uniqueItems || false}
@@ -282,7 +282,7 @@ function PropertyEditor({
           {!schema.$ref && (
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-[10px] text-muted-foreground">{t.common.default}</label>
+                <label className="text-[12px] text-muted-foreground">{t.common.default}</label>
                 <input
                   value={schema.default !== undefined ? JSON.stringify(schema.default) : ''}
                   onChange={(e) => {
@@ -297,20 +297,20 @@ function PropertyEditor({
                       onUpdate({ ...schema, default: val });
                     }
                   }}
-                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
                   placeholder={t.common.default}
                 />
               </div>
               <div className="flex items-center gap-3 mt-4">
-                <label className="flex items-center gap-1 text-[10px] text-muted-foreground cursor-pointer">
+                <label className="flex items-center gap-1 text-[12px] text-muted-foreground cursor-pointer">
                   <input type="checkbox" checked={schema.nullable || false} onChange={(e) => onUpdate({ ...schema, nullable: e.target.checked || undefined })} className="rounded" />
                   {t.schemas.nullable}
                 </label>
-                <label className="flex items-center gap-1 text-[10px] text-muted-foreground cursor-pointer">
+                <label className="flex items-center gap-1 text-[12px] text-muted-foreground cursor-pointer">
                   <input type="checkbox" checked={schema.readOnly || false} onChange={(e) => onUpdate({ ...schema, readOnly: e.target.checked || undefined })} className="rounded" />
                   {t.schemas.readOnly}
                 </label>
-                <label className="flex items-center gap-1 text-[10px] text-muted-foreground cursor-pointer">
+                <label className="flex items-center gap-1 text-[12px] text-muted-foreground cursor-pointer">
                   <input type="checkbox" checked={schema.writeOnly || false} onChange={(e) => onUpdate({ ...schema, writeOnly: e.target.checked || undefined })} className="rounded" />
                   {t.schemas.writeOnly}
                 </label>
@@ -320,7 +320,7 @@ function PropertyEditor({
 
           {/* Object: additionalProperties toggle */}
           {type === 'object' && (
-            <label className="flex items-center gap-1.5 text-[10px] text-muted-foreground cursor-pointer">
+            <label className="flex items-center gap-1.5 text-[12px] text-muted-foreground cursor-pointer">
               <input
                 type="checkbox"
                 checked={schema.additionalProperties !== false}
@@ -344,7 +344,7 @@ function PropertyEditor({
           {/* Array items */}
           {type === 'array' && schema.items && (
             <div>
-              <label className="text-[10px] text-muted-foreground">{t.schemas.arrayItems}</label>
+              <label className="text-[12px] text-muted-foreground">{t.schemas.arrayItems}</label>
               <PropertyEditor
                 name="items"
                 schema={schema.items}
@@ -428,17 +428,17 @@ function ObjectPropertiesEditor({
               value={newPropName}
               onChange={(e) => { setNewPropName(e.target.value); if (propError) setPropError(''); }}
               placeholder={t.schemas.propertyName}
-              className={`px-2 py-1 rounded border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono ${propError ? 'border-destructive' : 'border-border'}`}
+              className={`px-2 py-1 rounded border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono ${propError ? 'border-destructive' : 'border-border'}`}
               onKeyDown={(e) => e.key === 'Enter' && addProperty()}
             />
             <button
               onClick={addProperty}
-              className="text-[11px] text-primary hover:underline flex items-center gap-1"
+              className="text-[12px] text-primary hover:underline flex items-center gap-1"
             >
               <Plus size={11} /> {t.schemas.addProperty}
             </button>
           </div>
-          {propError && <p className="text-[10px] text-destructive">{propError}</p>}
+          {propError && <p className="text-[12px] text-destructive">{propError}</p>}
         </div>
       </div>
     </div>
@@ -478,13 +478,13 @@ function CompositionEditor({
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <span className="text-[10px] text-muted-foreground uppercase tracking-wide">{t.schemas.composition}</span>
+        <span className="text-[12px] text-muted-foreground uppercase tracking-wide">{t.schemas.composition}</span>
         <div className="flex gap-1 ml-auto">
           {COMPOSITION_KEYWORDS.map((kw) => (
             <button
               key={kw}
               onClick={() => addComposition(kw)}
-              className="text-[10px] px-2 py-0.5 rounded border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              className="text-[12px] px-2 py-0.5 rounded border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
             >
               + {kw}
             </button>
@@ -496,7 +496,7 @@ function CompositionEditor({
         if (!items || items.length === 0) return null;
         return (
           <div key={keyword} className="p-2 rounded-lg bg-muted/30 border border-border space-y-2">
-            <div className="text-[11px] text-foreground" style={{ fontWeight: 600 }}>{keyword}</div>
+            <div className="text-[12px] text-foreground" style={{ fontWeight: 600 }}>{keyword}</div>
             {items.map((item, idx) => (
               <div key={idx} className="flex items-center gap-2 pl-2 border-l-2 border-primary/30">
                 <select
@@ -508,7 +508,7 @@ function CompositionEditor({
                       updateCompositionItem(keyword, idx, { type: 'object' });
                     }
                   }}
-                  className="px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
                 >
                   <option value="inline">Inline</option>
                   <option value="$ref">$ref</option>
@@ -517,12 +517,12 @@ function CompositionEditor({
                   <select
                     value={item.$ref.replace('#/components/schemas/', '')}
                     onChange={(e) => updateCompositionItem(keyword, idx, { $ref: `#/components/schemas/${e.target.value}` })}
-                    className="flex-1 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                    className="flex-1 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
                   >
                     {schemaNames.map(n => <option key={n} value={n}>{n}</option>)}
                   </select>
                 ) : (
-                  <span className="text-[11px] text-muted-foreground flex-1">{item.type || 'object'}</span>
+                  <span className="text-[12px] text-muted-foreground flex-1">{item.type || 'object'}</span>
                 )}
                 <button
                   onClick={() => removeCompositionItem(keyword, idx)}
@@ -662,12 +662,12 @@ export function SchemasPanel() {
                 >
                   {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                   <span className="text-[13px] font-mono text-foreground" style={{ fontWeight: 500 }}>{name}</span>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                  <span className={`text-[12px] px-1.5 py-0.5 rounded ${
                     type === 'object' ? 'bg-pink-500/10 text-pink-600' :
                     type === 'array' ? 'bg-purple-500/10 text-purple-600' :
                     'bg-muted text-muted-foreground'
                   }`}>{type}</span>
-                  {propCount > 0 && <span className="text-[11px] text-muted-foreground">{propCount} props</span>}
+                  {propCount > 0 && <span className="text-[12px] text-muted-foreground">{propCount} props</span>}
                   <div className="ml-auto flex items-center gap-1">
                     <button
                       onClick={(e) => { e.stopPropagation(); duplicateSchema(name); }}
@@ -688,7 +688,7 @@ export function SchemasPanel() {
                   <div className="border-t border-border p-4">
                     <div className="space-y-3 mb-3">
                       <div>
-                        <label className="text-[10px] text-muted-foreground">{t.common.type}</label>
+                        <label className="text-[12px] text-muted-foreground">{t.common.type}</label>
                         <select
                           value={type}
                           onChange={(e) => {
@@ -703,7 +703,7 @@ export function SchemasPanel() {
                         </select>
                       </div>
                       <div>
-                        <label className="text-[10px] text-muted-foreground">{t.common.description}</label>
+                        <label className="text-[12px] text-muted-foreground">{t.common.description}</label>
                         <div className="mt-0.5">
                           <MarkdownEditor
                             value={schema.description || ''}
@@ -725,7 +725,7 @@ export function SchemasPanel() {
 
                     {type === 'array' && schema.items && (
                       <div>
-                        <label className="text-[10px] text-muted-foreground">{t.schemas.arrayItems}</label>
+                        <label className="text-[12px] text-muted-foreground">{t.schemas.arrayItems}</label>
                         <PropertyEditor
                           name="items"
                           schema={schema.items}
@@ -741,7 +741,7 @@ export function SchemasPanel() {
                     {type === 'string' && (
                       <div className="space-y-2">
                         <div>
-                          <label className="text-[10px] text-muted-foreground">{t.schemas.enumValues}</label>
+                          <label className="text-[12px] text-muted-foreground">{t.schemas.enumValues}</label>
                           <input
                             value={(schema.enum || []).join(', ')}
                             onChange={(e) => {
@@ -754,19 +754,19 @@ export function SchemasPanel() {
                         </div>
                         <div className="grid grid-cols-3 gap-2">
                           <div>
-                            <label className="text-[10px] text-muted-foreground">{t.schemas.minLength}</label>
+                            <label className="text-[12px] text-muted-foreground">{t.schemas.minLength}</label>
                             <input type="number" value={schema.minLength ?? ''} min={0}
                               onChange={(e) => updateSchema(name, { ...schema, minLength: e.target.value ? Number(e.target.value) : undefined })}
                               className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30" />
                           </div>
                           <div>
-                            <label className="text-[10px] text-muted-foreground">{t.schemas.maxLength}</label>
+                            <label className="text-[12px] text-muted-foreground">{t.schemas.maxLength}</label>
                             <input type="number" value={schema.maxLength ?? ''} min={0}
                               onChange={(e) => updateSchema(name, { ...schema, maxLength: e.target.value ? Number(e.target.value) : undefined })}
                               className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30" />
                           </div>
                           <div>
-                            <label className="text-[10px] text-muted-foreground">{t.schemas.pattern}</label>
+                            <label className="text-[12px] text-muted-foreground">{t.schemas.pattern}</label>
                             <input value={schema.pattern || ''} placeholder="^[a-z]+$"
                               onChange={(e) => updateSchema(name, { ...schema, pattern: e.target.value || undefined })}
                               className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono" />

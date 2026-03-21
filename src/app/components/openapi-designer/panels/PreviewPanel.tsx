@@ -178,7 +178,7 @@ function EndpointPreview({
         className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-muted/20 transition-colors"
       >
         <span
-          className="inline-flex items-center justify-center rounded-md text-white px-2.5 py-0.5 text-[11px] uppercase min-w-[56px]"
+          className="inline-flex items-center justify-center rounded-md text-white px-2.5 py-0.5 text-[12px] uppercase min-w-[56px]"
           style={{ backgroundColor: color, fontWeight: 700 }}
         >
           {method}
@@ -186,7 +186,7 @@ function EndpointPreview({
         <span className="text-[13px] font-mono text-foreground flex-1" style={{ fontWeight: 500 }}>{path}</span>
         <span className="text-[12px] text-muted-foreground truncate max-w-[300px]">{operation.summary}</span>
         {operation.deprecated && (
-          <span className="text-[10px] line-through text-muted-foreground">{t.common.deprecated}</span>
+          <span className="text-[12px] line-through text-muted-foreground">{t.common.deprecated}</span>
         )}
         {operation.security && <Lock size={12} className="text-orange-500" />}
         {expanded ? <ChevronDown size={14} className="text-muted-foreground" /> : <ChevronRight size={14} className="text-muted-foreground" />}
@@ -223,14 +223,14 @@ function EndpointPreview({
                       <tr key={i} className="border-b border-border last:border-b-0">
                         <td className="py-1.5 pr-4 font-mono text-foreground">{param.name}</td>
                         <td className="py-1.5 pr-4">
-                          <span className="px-1.5 py-0.5 rounded bg-muted text-[10px]">{param.in}</span>
+                          <span className="px-1.5 py-0.5 rounded bg-muted text-[12px]">{param.in}</span>
                         </td>
                         <td className="py-1.5 pr-4 text-muted-foreground">{param.schema?.type as string || '—'}</td>
                         <td className="py-1.5 pr-4">
                           {param.required ? (
-                            <span className="text-destructive text-[10px]">{t.common.required}</span>
+                            <span className="text-destructive text-[12px]">{t.common.required}</span>
                           ) : (
-                            <span className="text-muted-foreground text-[10px]">{t.common.optional}</span>
+                            <span className="text-muted-foreground text-[12px]">{t.common.optional}</span>
                           )}
                         </td>
                         <td className="py-1.5 text-muted-foreground">{param.description || '—'}</td>
@@ -246,7 +246,7 @@ function EndpointPreview({
                                 }
                               }}
                               placeholder={param.schema?.default != null ? String(param.schema.default) : ''}
-                              className="w-full min-w-[100px] px-2 py-0.5 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                              className="w-full min-w-[100px] px-2 py-0.5 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
                               onClick={(e) => e.stopPropagation()}
                             />
                           </td>
@@ -267,11 +267,11 @@ function EndpointPreview({
                 <textarea
                   value={bodyValue}
                   onChange={(e) => setBodyValue(e.target.value)}
-                  className="w-full h-32 text-[11px] bg-muted/50 rounded-lg p-3 font-mono text-foreground border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y"
+                  className="w-full h-32 text-[12px] bg-muted/50 rounded-lg p-3 font-mono text-foreground border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y"
                   spellCheck={false}
                 />
               ) : (
-                <pre className="text-[11px] bg-muted/50 rounded-lg p-3 font-mono text-foreground overflow-x-auto">
+                <pre className="text-[12px] bg-muted/50 rounded-lg p-3 font-mono text-foreground overflow-x-auto">
                   {resolveSchemaDisplay(requestSchema, schemas)}
                 </pre>
               )}
@@ -299,7 +299,7 @@ function EndpointPreview({
                       <span className="text-muted-foreground">{resp.description}</span>
                     </div>
                     {respSchema && (
-                      <pre className="text-[11px] bg-muted/20 p-3 font-mono text-foreground overflow-x-auto border-t border-border">
+                      <pre className="text-[12px] bg-muted/20 p-3 font-mono text-foreground overflow-x-auto border-t border-border">
                         {resolveSchemaDisplay(respSchema, schemas)}
                       </pre>
                     )}
@@ -313,7 +313,7 @@ function EndpointPreview({
           <div className="px-4 py-3 border-t border-border bg-muted/10">
             <div className="flex items-center gap-3">
               <Terminal size={12} className="text-muted-foreground shrink-0" />
-              <span className="text-[11px] text-muted-foreground font-mono flex-1 truncate">
+              <span className="text-[12px] text-muted-foreground font-mono flex-1 truncate">
                 {method.toUpperCase()} {buildUrl()}
               </span>
               <button
@@ -325,7 +325,7 @@ function EndpointPreview({
               </button>
               <button
                 onClick={handleCopyCurl}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] transition-all shrink-0 ${
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[12px] transition-all shrink-0 ${
                   curlCopied
                     ? 'bg-green-600/10 text-green-600 border border-green-600/20'
                     : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border border-border'
@@ -337,7 +337,7 @@ function EndpointPreview({
               </button>
               <button
                 onClick={() => setDebugMode(!debugMode)}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] transition-all shrink-0 ${
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[12px] transition-all shrink-0 ${
                   debugMode
                     ? 'bg-primary/10 text-primary border border-primary/20'
                     : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border border-border'
@@ -368,7 +368,7 @@ function EndpointPreview({
                     <AlertCircle size={14} className="text-destructive shrink-0 mt-0.5" />
                     <div>
                       <div className="text-[12px] text-destructive" style={{ fontWeight: 600 }}>{t.preview.debugError}</div>
-                      <div className="text-[11px] text-destructive/80 mt-0.5 font-mono">{debugError}</div>
+                      <div className="text-[12px] text-destructive/80 mt-0.5 font-mono">{debugError}</div>
                     </div>
                   </div>
                 )}
@@ -387,14 +387,14 @@ function EndpointPreview({
                       }`} style={{ fontWeight: 700 }}>
                         {debugResult.status} {debugResult.statusText}
                       </span>
-                      <span className="text-muted-foreground text-[11px]">
+                      <span className="text-muted-foreground text-[12px]">
                         {t.preview.responseTime}: {debugResult.time}ms
                       </span>
                     </div>
                     {/* Response headers */}
                     <div className="px-3 py-2 border-t border-border">
-                      <h5 className="text-[11px] text-muted-foreground mb-1" style={{ fontWeight: 600 }}>{t.preview.responseHeaders}</h5>
-                      <div className="text-[10px] font-mono text-foreground/80 space-y-0.5 max-h-[100px] overflow-y-auto">
+                      <h5 className="text-[12px] text-muted-foreground mb-1" style={{ fontWeight: 600 }}>{t.preview.responseHeaders}</h5>
+                      <div className="text-[12px] font-mono text-foreground/80 space-y-0.5 max-h-[100px] overflow-y-auto">
                         {Object.entries(debugResult.headers).map(([k, v]) => (
                           <div key={k}><span className="text-primary">{k}</span>: {v}</div>
                         ))}
@@ -402,8 +402,8 @@ function EndpointPreview({
                     </div>
                     {/* Response body */}
                     <div className="px-3 py-2 border-t border-border">
-                      <h5 className="text-[11px] text-muted-foreground mb-1" style={{ fontWeight: 600 }}>{t.preview.responseBody}</h5>
-                      <pre className="text-[11px] bg-muted/50 rounded-lg p-3 font-mono text-foreground overflow-x-auto max-h-[300px] overflow-y-auto">
+                      <h5 className="text-[12px] text-muted-foreground mb-1" style={{ fontWeight: 600 }}>{t.preview.responseBody}</h5>
+                      <pre className="text-[12px] bg-muted/50 rounded-lg p-3 font-mono text-foreground overflow-x-auto max-h-[300px] overflow-y-auto">
                         {debugResult.body}
                       </pre>
                     </div>
@@ -462,6 +462,7 @@ export function PreviewPanel() {
 
   // --- Tag collapse/expand state ---
   const [expandedTags, setExpandedTags] = useState<Set<string>>(new Set());
+  const [expandedSchemas, setExpandedSchemas] = useState<Set<string>>(new Set());
 
   const toggleTag = (tagName: string) => {
     setExpandedTags(prev => {
@@ -526,75 +527,6 @@ export function PreviewPanel() {
           </span>
         </div>
 
-        {/* Server switcher */}
-        {servers.length > 0 && (
-          <div className="mt-4 space-y-3">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Server size={14} className="text-green-500 shrink-0" />
-              {servers.length === 1 ? (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/50 text-[12px]">
-                  <div className="w-2 h-2 rounded-full bg-green-500" />
-                  <span className="font-mono text-foreground">{serverUrl}</span>
-                  {selectedServer?.description && <span className="text-muted-foreground">({selectedServer.description})</span>}
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 flex-wrap">
-                  {servers.map((server, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setSelectedServerIndex(i)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] transition-all ${
-                        i === selectedServerIndex
-                          ? 'bg-primary/10 border border-primary/30 text-primary'
-                          : 'bg-muted/50 border border-transparent text-muted-foreground hover:bg-muted'
-                      }`}
-                    >
-                      <div className={`w-2 h-2 rounded-full ${i === selectedServerIndex ? 'bg-green-500' : 'bg-muted-foreground/30'}`} />
-                      <span className="font-mono">{server.url}</span>
-                      {server.description && <span className="text-[11px] opacity-70">({server.description})</span>}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Server variables editing */}
-            {selectedServer?.variables && Object.keys(selectedServer.variables).length > 0 && (
-              <div className="rounded-lg border border-border bg-muted/20 p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Settings2 size={12} className="text-muted-foreground" />
-                  <span className="text-[11px] text-muted-foreground" style={{ fontWeight: 600 }}>{t.preview.serverVariables}</span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {Object.entries(selectedServer.variables).map(([varName, varObj]) => (
-                    <div key={varName} className="flex items-center gap-2">
-                      <label className="text-[11px] font-mono text-foreground shrink-0 min-w-[60px]">{varName}</label>
-                      {varObj.enum && varObj.enum.length > 0 ? (
-                        <select
-                          value={serverVarValues[varName] || varObj.default || ''}
-                          onChange={(e) => setServerVarValues(prev => ({ ...prev, [varName]: e.target.value }))}
-                          className="flex-1 px-2 py-1 rounded border border-border bg-background text-[11px] font-mono focus:outline-none focus:ring-2 focus:ring-primary/30"
-                        >
-                          {varObj.enum.map(v => (
-                            <option key={v} value={v}>{v}</option>
-                          ))}
-                        </select>
-                      ) : (
-                        <input
-                          value={serverVarValues[varName] || ''}
-                          onChange={(e) => setServerVarValues(prev => ({ ...prev, [varName]: e.target.value }))}
-                          placeholder={varObj.default || ''}
-                          className="flex-1 px-2 py-1 rounded border border-border bg-background text-[11px] font-mono focus:outline-none focus:ring-2 focus:ring-primary/30"
-                        />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
         {doc.info.contact && (
           <div className="mt-3 flex items-center gap-4 text-[12px] text-muted-foreground">
             {doc.info.contact.name && <span>{doc.info.contact.name}</span>}
@@ -607,6 +539,76 @@ export function PreviewPanel() {
           </div>
         )}
       </div>
+
+      {/* Server info panel */}
+      {servers.length > 0 && (
+        <div className="bg-card rounded-xl border border-border p-4 space-y-3">
+          <h3 className="text-[13px] text-foreground flex items-center gap-2" style={{ fontWeight: 600 }}>
+            <Server size={14} className="text-green-500" />
+            {t.servers.title}
+          </h3>
+          {servers.length === 1 ? (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/50 text-[12px]">
+              <div className="w-2 h-2 rounded-full bg-green-500" />
+              <span className="font-mono text-foreground">{serverUrl}</span>
+              {selectedServer?.description && <span className="text-muted-foreground">({selectedServer.description})</span>}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 flex-wrap">
+              {servers.map((server, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedServerIndex(i)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] transition-all ${
+                    i === selectedServerIndex
+                      ? 'bg-primary/10 border border-primary/30 text-primary'
+                      : 'bg-muted/50 border border-transparent text-muted-foreground hover:bg-muted'
+                  }`}
+                >
+                  <div className={`w-2 h-2 rounded-full ${i === selectedServerIndex ? 'bg-green-500' : 'bg-muted-foreground/30'}`} />
+                  <span className="font-mono">{server.url}</span>
+                  {server.description && <span className="text-[12px] opacity-70">({server.description})</span>}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Server variables editing */}
+          {selectedServer?.variables && Object.keys(selectedServer.variables).length > 0 && (
+            <div className="rounded-lg border border-border bg-muted/20 p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Settings2 size={12} className="text-muted-foreground" />
+                <span className="text-[12px] text-muted-foreground" style={{ fontWeight: 600 }}>{t.preview.serverVariables}</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                {Object.entries(selectedServer.variables).map(([varName, varObj]) => (
+                  <div key={varName} className="flex items-center gap-2">
+                    <label className="text-[12px] font-mono text-foreground shrink-0 min-w-[60px]">{varName}</label>
+                    {varObj.enum && varObj.enum.length > 0 ? (
+                      <select
+                        value={serverVarValues[varName] || varObj.default || ''}
+                        onChange={(e) => setServerVarValues(prev => ({ ...prev, [varName]: e.target.value }))}
+                        className="flex-1 px-2 py-1 rounded border border-border bg-background text-[12px] font-mono focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      >
+                        {varObj.enum.map(v => (
+                          <option key={v} value={v}>{v}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        value={serverVarValues[varName] || ''}
+                        onChange={(e) => setServerVarValues(prev => ({ ...prev, [varName]: e.target.value }))}
+                        placeholder={varObj.default || ''}
+                        className="flex-1 px-2 py-1 rounded border border-border bg-background text-[12px] font-mono focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Authentication info */}
       {doc.components?.securitySchemes && Object.keys(doc.components.securitySchemes).length > 0 && (
@@ -629,10 +631,10 @@ export function PreviewPanel() {
 
       {/* Expand/Collapse all toggle */}
       {tagNames.length > 0 && (
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-start">
           <button
             onClick={handleToggleAll}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-border text-[11px] text-muted-foreground hover:bg-muted transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-border text-[12px] text-muted-foreground hover:bg-muted transition-colors"
           >
             <ChevronsUpDown size={12} />
             {allExpanded ? t.preview.collapseAll : t.preview.expandAll}
@@ -659,7 +661,7 @@ export function PreviewPanel() {
               {tagInfo?.description && (
                 <span className="text-[12px] text-muted-foreground">— {tagInfo.description}</span>
               )}
-              <span className="text-[11px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+              <span className="text-[12px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
                 {ops.length}
               </span>
             </div>
@@ -689,31 +691,73 @@ export function PreviewPanel() {
       )}
 
       {/* Schemas section */}
-      {Object.keys(schemas).length > 0 && (
+      {Object.keys(schemas).length > 0 && (() => {
+        const schemaNames = Object.keys(schemas);
+        const allSchemasExpanded = schemaNames.length > 0 && schemaNames.every(n => expandedSchemas.has(n));
+        const handleToggleAllSchemas = () => {
+          if (allSchemasExpanded) {
+            setExpandedSchemas(new Set());
+          } else {
+            setExpandedSchemas(new Set(schemaNames));
+          }
+        };
+        const toggleSchema = (name: string) => {
+          setExpandedSchemas(prev => {
+            const next = new Set(prev);
+            if (next.has(name)) next.delete(name);
+            else next.add(name);
+            return next;
+          });
+        };
+        return (
         <div>
-          <h3 className="text-[14px] text-foreground mb-3" style={{ fontWeight: 600 }}>{t.schemas.title}</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-[14px] text-foreground" style={{ fontWeight: 600 }}>{t.schemas.title}</h3>
+            <button
+              onClick={handleToggleAllSchemas}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-border text-[12px] text-muted-foreground hover:bg-muted transition-colors"
+            >
+              <ChevronsUpDown size={12} />
+              {allSchemasExpanded ? t.preview.collapseAll : t.preview.expandAll}
+            </button>
+          </div>
           <div className="space-y-3">
-            {Object.entries(schemas).map(([name, schema]) => (
+            {Object.entries(schemas).map(([name, schema]) => {
+              const isSchemaExpanded = expandedSchemas.has(name);
+              return (
               <div key={name} className="bg-card rounded-xl border border-border overflow-hidden">
-                <div className="px-4 py-2.5 bg-muted/30 border-b border-border flex items-center gap-2">
-                  <span className="text-[13px] font-mono text-foreground" style={{ fontWeight: 500 }}>{name}</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-pink-500/10 text-pink-600">
+                <div
+                  className="px-4 py-2.5 bg-muted/30 border-b border-border flex items-center gap-2 cursor-pointer select-none group"
+                  onClick={() => toggleSchema(name)}
+                >
+                  {isSchemaExpanded
+                    ? <ChevronDown size={14} className="text-muted-foreground" />
+                    : <ChevronRight size={14} className="text-muted-foreground" />
+                  }
+                  <span className="text-[13px] font-mono text-foreground group-hover:text-primary transition-colors" style={{ fontWeight: 500 }}>{name}</span>
+                  <span className="text-[12px] px-1.5 py-0.5 rounded bg-pink-500/10 text-pink-600">
                     {typeof schema.type === 'string' ? schema.type : 'object'}
                   </span>
                 </div>
-                {schema.description && (
-                  <div className="px-4 py-2 text-[12px] text-muted-foreground border-b border-border">
-                    {schema.description}
-                  </div>
+                {isSchemaExpanded && (
+                  <>
+                    {schema.description && (
+                      <div className="px-4 py-2 text-[12px] text-muted-foreground border-b border-border">
+                        {schema.description}
+                      </div>
+                    )}
+                    <pre className="px-4 py-3 text-[12px] font-mono text-foreground overflow-x-auto">
+                      {resolveSchemaDisplay(schema, schemas)}
+                    </pre>
+                  </>
                 )}
-                <pre className="px-4 py-3 text-[11px] font-mono text-foreground overflow-x-auto">
-                  {resolveSchemaDisplay(schema, schemas)}
-                </pre>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

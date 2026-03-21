@@ -109,6 +109,8 @@ export function Toolbar() {
   const [showShortcuts, setShowShortcuts] = useState(false);
   // P1-5: track brief "Saved" feedback after Ctrl+S
   const [savedFeedback, setSavedFeedback] = useState(false);
+  // Prevent duplicate import/export submissions
+  const [busy, setBusy] = useState(false);
 
   // Global keyboard shortcuts
   useEffect(() => {
@@ -147,7 +149,8 @@ export function Toolbar() {
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || busy) return;
+    setBusy(true);
     const reader = new FileReader();
     reader.onload = (evt) => {
       try {
@@ -170,6 +173,8 @@ export function Toolbar() {
       } catch (err) {
         console.error('Import error:', err);
         toast.error(`Import failed: ${String(err)}`);
+      } finally {
+        setBusy(false);
       }
     };
     reader.readAsText(file);
@@ -178,7 +183,8 @@ export function Toolbar() {
 
   const handlePostmanImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || busy) return;
+    setBusy(true);
     const reader = new FileReader();
     reader.onload = (evt) => {
       try {
@@ -192,6 +198,8 @@ export function Toolbar() {
         toast.success(`Postman collection imported: ${collection.info.name || file.name}`);
       } catch (err) {
         toast.error(`Import failed: ${String(err)}`);
+      } finally {
+        setBusy(false);
       }
     };
     reader.readAsText(file);
@@ -199,6 +207,9 @@ export function Toolbar() {
   };
 
   const handleExport = (format: 'yaml' | 'json') => {
+    if (busy) return;
+    setBusy(true);
+    try {
     const content = format === 'yaml'
       ? yaml.dump(state.document, { indent: 2, lineWidth: -1, noRefs: true })
       : JSON.stringify(state.document, null, 2);
@@ -212,30 +223,47 @@ export function Toolbar() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     setShowFileMenu(false);
     toast.success(format === 'yaml' ? t.common.downloadYaml : t.common.downloadJson);
+    } finally { setBusy(false); }
   };
 
   const handleExportMarkdown = () => {
-    downloadMarkdown(state.document, locale);
-    setShowFileMenu(false);
-    toast.success(t.common.downloadMarkdown);
+    if (busy) return;
+    setBusy(true);
+    try {
+      downloadMarkdown(state.document, locale);
+      setShowFileMenu(false);
+      toast.success(t.common.downloadMarkdown);
+    } finally { setBusy(false); }
   };
 
   const handleExportHtml = () => {
-    downloadHtml(state.document, locale);
-    setShowFileMenu(false);
-    toast.success(t.common.downloadHtml);
+    if (busy) return;
+    setBusy(true);
+    try {
+      downloadHtml(state.document, locale);
+      setShowFileMenu(false);
+      toast.success(t.common.downloadHtml);
+    } finally { setBusy(false); }
   };
 
   const handleExportWord = () => {
-    downloadWord(state.document, locale);
-    setShowFileMenu(false);
-    toast.success(t.common.downloadWord);
+    if (busy) return;
+    setBusy(true);
+    try {
+      downloadWord(state.document, locale);
+      setShowFileMenu(false);
+      toast.success(t.common.downloadWord);
+    } finally { setBusy(false); }
   };
 
   const handlePrintPdf = () => {
-    printPdf(state.document, locale);
-    setShowFileMenu(false);
-    toast.success(t.common.printPdf);
+    if (busy) return;
+    setBusy(true);
+    try {
+      printPdf(state.document, locale);
+      setShowFileMenu(false);
+      toast.success(t.common.printPdf);
+    } finally { setBusy(false); }
   };
 
   const doc = state.document;
@@ -246,16 +274,16 @@ export function Toolbar() {
       <div className="flex items-center gap-3 min-w-0">
         <div className="flex items-center gap-2 text-[13px] min-w-0">
           <span className="text-foreground truncate max-w-[360px]" style={{ fontWeight: 600 }}>{doc.info.title}</span>
-          <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0">v{doc.info.version}</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary shrink-0">OAS {doc.openapi}</span>
+          <span className="text-[12px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0">v{doc.info.version}</span>
+          <span className="text-[12px] px-1.5 py-0.5 rounded bg-primary/10 text-primary shrink-0">OAS {doc.openapi}</span>
           {state.isDirty && !savedFeedback && (
-            <span className="flex items-center gap-1 text-[11px] text-orange-500 shrink-0">
+            <span className="flex items-center gap-1 text-[12px] text-orange-500 shrink-0">
               <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
               {t.common.unsaved}
             </span>
           )}
           {savedFeedback && (
-            <span className="flex items-center gap-1 text-[11px] text-green-600 shrink-0 animate-in fade-in">
+            <span className="flex items-center gap-1 text-[12px] text-green-600 shrink-0 animate-in fade-in">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
               {t.common.saved}
             </span>
@@ -298,7 +326,7 @@ export function Toolbar() {
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowShortcuts(false)} />
               <div className="absolute right-0 top-full mt-1 w-64 bg-popover border border-border rounded-xl shadow-lg z-50 py-2 overflow-hidden">
-                <div className="px-3 py-1.5 text-[11px] text-muted-foreground uppercase tracking-wide">Keyboard Shortcuts</div>
+                <div className="px-3 py-1.5 text-[12px] text-muted-foreground uppercase tracking-wide">Keyboard Shortcuts</div>
                 {[
                   { keys: '⌘ K', label: 'Command palette' },
                   { keys: '⌘ Z', label: t.common.undo },
@@ -307,7 +335,7 @@ export function Toolbar() {
                 ].map(({ keys, label }) => (
                   <div key={keys} className="flex items-center justify-between px-3 py-1.5">
                     <span className="text-[12px] text-foreground">{label}</span>
-                    <kbd className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">{keys}</kbd>
+                    <kbd className="text-[12px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">{keys}</kbd>
                   </div>
                 ))}
               </div>
@@ -345,28 +373,32 @@ export function Toolbar() {
                 <div className="h-px bg-border my-1" />
                 <button
                   onClick={() => { fileInputRef.current?.click(); setShowFileMenu(false); }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors"
+                  disabled={busy}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors disabled:opacity-50 disabled:pointer-events-none"
                 >
                   <Upload size={14} className="text-muted-foreground" />
                   {t.common.importFile}
                 </button>
                 <button
                   onClick={() => { postmanInputRef.current?.click(); setShowFileMenu(false); }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors"
+                  disabled={busy}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors disabled:opacity-50 disabled:pointer-events-none"
                 >
                   <FileJson size={14} className="text-muted-foreground" />
                   {t.common.importPostman}
                 </button>
                 <button
                   onClick={() => handleExport('yaml')}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors"
+                  disabled={busy}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors disabled:opacity-50 disabled:pointer-events-none"
                 >
                   <Download size={14} className="text-muted-foreground" />
                   {t.common.downloadYaml}
                 </button>
                 <button
                   onClick={() => handleExport('json')}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors"
+                  disabled={busy}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors disabled:opacity-50 disabled:pointer-events-none"
                 >
                   <Download size={14} className="text-muted-foreground" />
                   {t.common.downloadJson}
@@ -374,28 +406,32 @@ export function Toolbar() {
                 <div className="h-px bg-border my-1" />
                 <button
                   onClick={handleExportMarkdown}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors"
+                  disabled={busy}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors disabled:opacity-50 disabled:pointer-events-none"
                 >
                   <FileText size={14} className="text-muted-foreground" />
                   {t.common.downloadMarkdown}
                 </button>
                 <button
                   onClick={handleExportHtml}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors"
+                  disabled={busy}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors disabled:opacity-50 disabled:pointer-events-none"
                 >
                   <FileText size={14} className="text-muted-foreground" />
                   {t.common.downloadHtml}
                 </button>
                 <button
                   onClick={handleExportWord}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors"
+                  disabled={busy}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors disabled:opacity-50 disabled:pointer-events-none"
                 >
                   <FileText size={14} className="text-muted-foreground" />
                   {t.common.downloadWord}
                 </button>
                 <button
                   onClick={handlePrintPdf}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors"
+                  disabled={busy}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-foreground hover:bg-muted transition-colors disabled:opacity-50 disabled:pointer-events-none"
                 >
                   <Printer size={14} className="text-muted-foreground" />
                   {t.common.printPdf}

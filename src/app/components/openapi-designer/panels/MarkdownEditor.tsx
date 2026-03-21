@@ -173,7 +173,7 @@ export function MarkdownEditor({
         <button
           type="button"
           onClick={switchToEdit}
-          className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium transition-colors ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium transition-colors ${
             mode === 'edit'
               ? 'text-primary border-b-2 border-primary -mb-px bg-background'
               : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
@@ -185,7 +185,7 @@ export function MarkdownEditor({
         <button
           type="button"
           onClick={() => setMode('preview')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium transition-colors ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium transition-colors ${
             mode === 'preview'
               ? 'text-primary border-b-2 border-primary -mb-px bg-background'
               : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
@@ -194,7 +194,7 @@ export function MarkdownEditor({
           <Eye size={11} />
           {t.markdown.preview}
         </button>
-        <span className="ml-auto px-3 text-[10px] text-muted-foreground/60 select-none">Markdown</span>
+        <span className="ml-auto px-3 text-[12px] text-muted-foreground/60 select-none">Markdown</span>
       </div>
 
       {/* CodeMirror editor — always mounted, hidden when in preview */}

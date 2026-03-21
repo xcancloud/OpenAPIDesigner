@@ -26,6 +26,7 @@ function HighlightedPath({ path }: { path: string }) {
 }
 
 function FieldHint({ text }: { text: string }) {
+  const [show, setShow] = useState(false);
   return (
     <span className="relative inline-flex items-center ml-1 align-middle">
       <HelpCircle
@@ -35,7 +36,7 @@ function FieldHint({ text }: { text: string }) {
         onMouseLeave={() => setShow(false)}
       />
       {show && (
-        <span className="absolute bottom-full left-0 mb-1.5 w-60 p-2 rounded-lg bg-popover border border-border shadow-xl text-[11px] text-muted-foreground leading-relaxed z-50 whitespace-normal pointer-events-none">
+        <span className="absolute bottom-full left-0 mb-1.5 w-60 p-2 rounded-lg bg-popover border border-border shadow-xl text-[12px] text-muted-foreground leading-relaxed z-50 whitespace-normal pointer-events-none">
           {text}
         </span>
       )}
@@ -47,7 +48,7 @@ function MethodBadge({ method, size = 'sm' }: { method: HttpMethod; size?: 'sm' 
   const color = METHOD_COLORS[method];
   return (
     <span
-      className={`inline-flex items-center justify-center rounded-md text-white uppercase tracking-wide ${size === 'sm' ? 'px-2 py-0.5 text-[10px] min-w-[52px]' : 'px-3 py-1 text-[11px] min-w-[60px]'}`}
+      className={`inline-flex items-center justify-center rounded-md text-white uppercase tracking-wide ${size === 'sm' ? 'px-2 py-0.5 text-[12px] min-w-[52px]' : 'px-3 py-1 text-[12px] min-w-[60px]'}`}
       style={{ backgroundColor: color, fontWeight: 700 }}
     >
       {method}
@@ -69,6 +70,7 @@ function OperationEditor({
   onDelete: () => void;
 }) {
   const { t } = useI18n();
+  const p = t.placeholders;
   const [expanded, setExpanded] = useState(false);
   const { state } = useDesigner();
   const schemaNames = Object.keys(state.document.components?.schemas || {});
@@ -145,7 +147,7 @@ function OperationEditor({
           <span className="text-[12px] text-muted-foreground truncate max-w-[200px]">{operation.summary}</span>
         )}
         {operation.deprecated && (
-          <span className="text-[10px] bg-yellow-500/20 text-yellow-600 px-1.5 py-0.5 rounded">{t.common.deprecated}</span>
+          <span className="text-[12px] bg-yellow-500/20 text-yellow-600 px-1.5 py-0.5 rounded">{t.common.deprecated}</span>
         )}
         {expanded ? <ChevronDown size={14} className="text-muted-foreground" /> : <ChevronRight size={14} className="text-muted-foreground" />}
       </div>
@@ -155,7 +157,7 @@ function OperationEditor({
           {/* Basic fields */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] text-muted-foreground uppercase tracking-wide flex items-center">
+              <label className="text-[12px] text-muted-foreground uppercase tracking-wide flex items-center">
                 {t.common.summary}
                 <FieldHint text={t.hints.operationSummary} />
               </label>
@@ -167,7 +169,7 @@ function OperationEditor({
               />
             </div>
             <div>
-              <label className="text-[11px] text-muted-foreground uppercase tracking-wide flex items-center">
+              <label className="text-[12px] text-muted-foreground uppercase tracking-wide flex items-center">
                 {t.common.operationId}
                 <FieldHint text={t.hints.operationId} />
               </label>
@@ -181,7 +183,7 @@ function OperationEditor({
           </div>
 
           <div>
-            <label className="text-[11px] text-muted-foreground uppercase tracking-wide flex items-center">
+            <label className="text-[12px] text-muted-foreground uppercase tracking-wide flex items-center">
               {t.common.description}
               <FieldHint text={t.hints.operationDescription} />
             </label>
@@ -206,7 +208,7 @@ function OperationEditor({
               {t.paths.deprecated}
             </label>
             <div className="flex items-center gap-2">
-              <label className="text-[11px] text-muted-foreground flex items-center">
+              <label className="text-[12px] text-muted-foreground flex items-center">
                 {t.paths.tags}:
                 <FieldHint text={t.hints.operationTags} />
               </label>
@@ -229,14 +231,14 @@ function OperationEditor({
               <h4 className="text-[12px] text-foreground" style={{ fontWeight: 600 }}>{t.common.parameters}</h4>
               <button
                 onClick={addParameter}
-                className="text-[11px] text-primary hover:underline flex items-center gap-1"
+                className="text-[12px] text-primary hover:underline flex items-center gap-1"
               >
                 <Plus size={12} /> {t.common.add}
               </button>
             </div>
             {(operation.parameters || []).length > 0 && (
               <div className="space-y-2">
-                <div className="grid grid-cols-12 gap-2 text-[10px] text-muted-foreground uppercase tracking-wide px-1">
+                <div className="grid grid-cols-12 gap-2 text-[12px] text-muted-foreground uppercase tracking-wide px-1">
                   <span className="col-span-3">{t.common.name}</span>
                   <span className="col-span-2">{t.paths.parameterLocation}</span>
                   <span className="col-span-2">{t.common.type}</span>
@@ -369,7 +371,7 @@ function OperationEditor({
               <h4 className="text-[12px] text-foreground" style={{ fontWeight: 600 }}>{t.common.responses}</h4>
               <button
                 onClick={addResponse}
-                className="text-[11px] text-primary hover:underline flex items-center gap-1"
+                className="text-[12px] text-primary hover:underline flex items-center gap-1"
               >
                 <Plus size={12} /> {t.common.add}
               </button>
@@ -423,7 +425,7 @@ function OperationEditor({
           <div className="pt-2 border-t border-border">
             <button
               onClick={onDelete}
-              className="text-[11px] text-destructive hover:underline flex items-center gap-1"
+              className="text-[12px] text-destructive hover:underline flex items-center gap-1"
             >
               <Trash2 size={12} /> {t.common.delete} {method.toUpperCase()}
             </button>
@@ -568,7 +570,7 @@ export function PathsPanel() {
 
       {/* Tag tabs */}
       {allTags.length > 0 && (
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
+        <div className="flex items-center gap-1 flex-wrap">
           <button
             onClick={() => setActiveTag(null)}
             className={`shrink-0 px-3 py-1 rounded-full text-[12px] font-medium transition-colors ${
@@ -667,12 +669,12 @@ export function PathsPanel() {
                     {/* Add method */}
                     {unusedMethods.length > 0 && (
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[11px] text-muted-foreground">{t.paths.addOperation}:</span>
+                        <span className="text-[12px] text-muted-foreground">{t.paths.addOperation}:</span>
                         {unusedMethods.map(m => (
                           <button
                             key={m}
                             onClick={() => addOperation(path, m)}
-                            className="px-2 py-0.5 rounded text-[10px] border border-border text-muted-foreground hover:border-primary hover:text-primary transition-colors uppercase"
+                            className="px-2 py-0.5 rounded text-[12px] border border-border text-muted-foreground hover:border-primary hover:text-primary transition-colors uppercase"
                             style={{ fontWeight: 600 }}
                           >
                             + {m}

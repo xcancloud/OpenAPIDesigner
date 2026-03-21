@@ -128,7 +128,7 @@ export function SecurityPanel() {
                   {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                   <Key size={14} className="text-orange-500" />
                   <span className="text-[13px] font-mono text-foreground" style={{ fontWeight: 500 }}>{name}</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-600">{typeLabel}</span>
+                  <span className="text-[12px] px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-600">{typeLabel}</span>
                   <div className="ml-auto">
                     <button
                       onClick={(e) => { e.stopPropagation(); deleteScheme(name); }}
@@ -142,7 +142,7 @@ export function SecurityPanel() {
                 {isExpanded && (
                   <div className="border-t border-border p-4 space-y-3">
                     <div>
-                      <label className="text-[10px] text-muted-foreground uppercase tracking-wide">{t.security.schemeType}</label>
+                      <label className="text-[12px] text-muted-foreground uppercase tracking-wide">{t.security.schemeType}</label>
                       <select
                         value={scheme.type}
                         onChange={(e) => {
@@ -162,7 +162,7 @@ export function SecurityPanel() {
                       </select>
                     </div>
                     <div>
-                      <label className="text-[10px] text-muted-foreground uppercase tracking-wide">{t.common.description}</label>
+                      <label className="text-[12px] text-muted-foreground uppercase tracking-wide">{t.common.description}</label>
                       <textarea
                         value={scheme.description || ''}
                         onChange={(e) => updateScheme(name, { ...scheme, description: e.target.value })}
@@ -176,7 +176,7 @@ export function SecurityPanel() {
                     {scheme.type === 'apiKey' && (
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="text-[10px] text-muted-foreground uppercase tracking-wide">{t.security.apiKeyName}</label>
+                          <label className="text-[12px] text-muted-foreground uppercase tracking-wide">{t.security.apiKeyName}</label>
                           <input
                             value={scheme.name || ''}
                             onChange={(e) => updateScheme(name, { ...scheme, name: e.target.value })}
@@ -184,7 +184,7 @@ export function SecurityPanel() {
                           />
                         </div>
                         <div>
-                          <label className="text-[10px] text-muted-foreground uppercase tracking-wide">{t.security.apiKeyIn}</label>
+                          <label className="text-[12px] text-muted-foreground uppercase tracking-wide">{t.security.apiKeyIn}</label>
                           <select
                             value={scheme.in || 'header'}
                             onChange={(e) => updateScheme(name, { ...scheme, in: e.target.value as 'query' | 'header' | 'cookie' })}
@@ -202,7 +202,7 @@ export function SecurityPanel() {
                     {scheme.type === 'http' && (
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="text-[10px] text-muted-foreground uppercase tracking-wide">{t.security.httpScheme}</label>
+                          <label className="text-[12px] text-muted-foreground uppercase tracking-wide">{t.security.httpScheme}</label>
                           <select
                             value={scheme.scheme || 'bearer'}
                             onChange={(e) => updateScheme(name, { ...scheme, scheme: e.target.value })}
@@ -215,7 +215,7 @@ export function SecurityPanel() {
                         </div>
                         {scheme.scheme === 'bearer' && (
                           <div>
-                            <label className="text-[10px] text-muted-foreground uppercase tracking-wide">{t.security.bearerFormat}</label>
+                            <label className="text-[12px] text-muted-foreground uppercase tracking-wide">{t.security.bearerFormat}</label>
                             <input
                               value={scheme.bearerFormat || ''}
                               onChange={(e) => updateScheme(name, { ...scheme, bearerFormat: e.target.value })}
@@ -235,12 +235,12 @@ export function SecurityPanel() {
                           .filter(([, flow]) => flow)
                           .map(([flowType, flow]) => (
                             <div key={flowType} className="p-3 rounded-lg bg-muted/30 border border-border space-y-2">
-                              <div className="text-[11px] text-foreground" style={{ fontWeight: 600 }}>
+                              <div className="text-[12px] text-foreground" style={{ fontWeight: 600 }}>
                                 {(t.security.flows as Record<string, string>)[flowType] || flowType}
                               </div>
                               {(flowType === 'implicit' || flowType === 'authorizationCode') && (
                                 <div>
-                                  <label className="text-[10px] text-muted-foreground">{t.security.authorizationUrl}</label>
+                                  <label className="text-[12px] text-muted-foreground">{t.security.authorizationUrl}</label>
                                   <input
                                     value={flow!.authorizationUrl || ''}
                                     onChange={(e) => {
@@ -248,13 +248,13 @@ export function SecurityPanel() {
                                       (newFlows as Record<string, OAuthFlowObject>)[flowType] = { ...flow!, authorizationUrl: e.target.value };
                                       updateScheme(name, { ...scheme, flows: newFlows });
                                     }}
-                                    className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                                    className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
                                   />
                                 </div>
                               )}
                               {(flowType !== 'implicit') && (
                                 <div>
-                                  <label className="text-[10px] text-muted-foreground">{t.security.tokenUrl}</label>
+                                  <label className="text-[12px] text-muted-foreground">{t.security.tokenUrl}</label>
                                   <input
                                     value={flow!.tokenUrl || ''}
                                     onChange={(e) => {
@@ -262,12 +262,12 @@ export function SecurityPanel() {
                                       (newFlows as Record<string, OAuthFlowObject>)[flowType] = { ...flow!, tokenUrl: e.target.value };
                                       updateScheme(name, { ...scheme, flows: newFlows });
                                     }}
-                                    className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                                    className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
                                   />
                                 </div>
                               )}
                               <div>
-                                <label className="text-[10px] text-muted-foreground">{t.security.refreshUrl}</label>
+                                <label className="text-[12px] text-muted-foreground">{t.security.refreshUrl}</label>
                                 <input
                                   value={flow!.refreshUrl || ''}
                                   onChange={(e) => {
@@ -275,14 +275,14 @@ export function SecurityPanel() {
                                     (newFlows as Record<string, OAuthFlowObject>)[flowType] = { ...flow!, refreshUrl: e.target.value || undefined };
                                     updateScheme(name, { ...scheme, flows: newFlows });
                                   }}
-                                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                                  className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
                                   placeholder="https://..."
                                 />
                               </div>
                               {/* Scopes editor */}
                               <div className="space-y-1.5">
                                 <div className="flex items-center justify-between">
-                                  <label className="text-[10px] text-muted-foreground">{t.security.scopes}</label>
+                                  <label className="text-[12px] text-muted-foreground">{t.security.scopes}</label>
                                   <button
                                     onClick={() => {
                                       const newFlows = JSON.parse(JSON.stringify(scheme.flows));
@@ -290,7 +290,7 @@ export function SecurityPanel() {
                                       (newFlows as Record<string, OAuthFlowObject>)[flowType].scopes[scopeName] = '';
                                       updateScheme(name, { ...scheme, flows: newFlows });
                                     }}
-                                    className="text-[10px] text-primary hover:underline flex items-center gap-0.5"
+                                    className="text-[12px] text-primary hover:underline flex items-center gap-0.5"
                                   >
                                     <Plus size={10} /> {t.security.addScope}
                                   </button>
@@ -310,7 +310,7 @@ export function SecurityPanel() {
                                         scopes[newName] = desc;
                                         updateScheme(name, { ...scheme, flows: newFlows });
                                       }}
-                                      className="flex-1 px-2 py-1 rounded border border-border bg-background text-[10px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                                      className="flex-1 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
                                       placeholder={t.security.scopeName}
                                     />
                                     <input
@@ -320,7 +320,7 @@ export function SecurityPanel() {
                                         (newFlows as Record<string, OAuthFlowObject>)[flowType].scopes[scopeName] = e.target.value;
                                         updateScheme(name, { ...scheme, flows: newFlows });
                                       }}
-                                      className="flex-1 px-2 py-1 rounded border border-border bg-background text-[10px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                      className="flex-1 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
                                       placeholder={t.security.scopeDescription}
                                     />
                                     <button
@@ -336,7 +336,7 @@ export function SecurityPanel() {
                                   </div>
                                 ))}
                                 {Object.keys(flow!.scopes).length === 0 && (
-                                  <p className="text-[10px] text-muted-foreground">{t.common.noData}</p>
+                                  <p className="text-[12px] text-muted-foreground">{t.common.noData}</p>
                                 )}
                               </div>
                             </div>
@@ -347,7 +347,7 @@ export function SecurityPanel() {
                     {/* OpenID Connect */}
                     {scheme.type === 'openIdConnect' && (
                       <div>
-                        <label className="text-[10px] text-muted-foreground uppercase tracking-wide">{t.security.openIdConnectUrl}</label>
+                        <label className="text-[12px] text-muted-foreground uppercase tracking-wide">{t.security.openIdConnectUrl}</label>
                         <input
                           value={scheme.openIdConnectUrl || ''}
                           onChange={(e) => updateScheme(name, { ...scheme, openIdConnectUrl: e.target.value })}

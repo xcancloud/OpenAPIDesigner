@@ -125,7 +125,7 @@ function ServerCard({
     <div className="bg-card rounded-xl border border-border p-4 space-y-3 group">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md bg-green-500/10 flex items-center justify-center text-[11px] text-green-600" style={{ fontWeight: 600 }}>
+          <div className="w-6 h-6 rounded-md bg-green-500/10 flex items-center justify-center text-[12px] text-green-600" style={{ fontWeight: 600 }}>
             {index + 1}
           </div>
           <span className="text-[13px] text-foreground" style={{ fontWeight: 500 }}>{server.url || 'Untitled'}</span>
@@ -139,7 +139,7 @@ function ServerCard({
       </div>
       <div className="space-y-2">
         <div>
-          <label className="text-[11px] text-muted-foreground uppercase tracking-wide">{t.servers.serverUrl}</label>
+          <label className="text-[12px] text-muted-foreground uppercase tracking-wide">{t.servers.serverUrl}</label>
           <input
             value={server.url}
             onChange={(e) => onUpdateField('url', e.target.value)}
@@ -148,7 +148,7 @@ function ServerCard({
           />
         </div>
         <div>
-          <label className="text-[11px] text-muted-foreground uppercase tracking-wide">{t.servers.serverDescription}</label>
+          <label className="text-[12px] text-muted-foreground uppercase tracking-wide">{t.servers.serverDescription}</label>
           <div className="mt-1">
             <MarkdownEditor
               value={server.description || ''}
@@ -161,15 +161,15 @@ function ServerCard({
         <div className="flex items-center justify-between">
           <button
             onClick={() => setVarsExpanded(!varsExpanded)}
-            className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1"
+            className="text-[12px] text-muted-foreground hover:text-foreground flex items-center gap-1"
           >
             {varsExpanded ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
             {t.servers.variables}
-            {varCount > 0 && <span className="text-[10px] text-muted-foreground">({varCount})</span>}
+            {varCount > 0 && <span className="text-[12px] text-muted-foreground">({varCount})</span>}
           </button>
           <button
             onClick={onAddVariable}
-            className="text-[11px] text-primary hover:underline flex items-center gap-1"
+            className="text-[12px] text-primary hover:underline flex items-center gap-1"
           >
             <Plus size={11} /> {t.servers.addVariable}
           </button>
@@ -186,40 +186,40 @@ function ServerCard({
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="text-[10px] text-muted-foreground">{t.servers.variableDefault}</label>
+                    <label className="text-[12px] text-muted-foreground">{t.servers.variableDefault}</label>
                     <input
                       value={variable.default}
                       onChange={(e) => onUpdateVariable(varName, { ...variable, default: e.target.value })}
-                      className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                      className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
                       placeholder={p.variableDefault}
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] text-muted-foreground">{t.servers.variableEnum}</label>
+                    <label className="text-[12px] text-muted-foreground">{t.servers.variableEnum}</label>
                     <input
                       value={(variable.enum || []).join(', ')}
                       onChange={(e) => {
                         const vals = e.target.value.split(',').map(s => s.trim()).filter(s => s !== '');
                         onUpdateVariable(varName, { ...variable, enum: vals.length > 0 ? vals : undefined });
                       }}
-                      className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                      className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
                       placeholder={p.variableEnum}
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="text-[10px] text-muted-foreground">{t.common.description}</label>
+                  <label className="text-[12px] text-muted-foreground">{t.common.description}</label>
                   <input
                     value={variable.description || ''}
                     onChange={(e) => onUpdateVariable(varName, { ...variable, description: e.target.value || undefined })}
-                    className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[12px] focus:outline-none focus:ring-2 focus:ring-primary/30"
                     placeholder={p.variableDescription}
                   />
                 </div>
               </div>
             ))}
             {varCount === 0 && (
-              <p className="text-[11px] text-muted-foreground py-2 text-center">{t.common.noData}</p>
+              <p className="text-[12px] text-muted-foreground py-2 text-center">{t.common.noData}</p>
             )}
           </div>
         )}

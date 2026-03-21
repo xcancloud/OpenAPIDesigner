@@ -108,7 +108,7 @@ export function Sidebar() {
                 )}
                 {icon}
                 {badge !== null && (
-                  <span className="absolute -top-0.5 -right-0.5 text-[8px] min-w-[14px] h-[14px] flex items-center justify-center rounded-full px-0.5 bg-muted text-muted-foreground">
+                  <span className="absolute -top-0.5 -right-0.5 text-[12px] min-w-[14px] h-[14px] flex items-center justify-center rounded-full px-0.5 bg-muted text-muted-foreground">
                     {badge}
                   </span>
                 )}
@@ -154,7 +154,7 @@ export function Sidebar() {
         </div>
         <div className="flex-1 min-w-0">
           <div className="text-[13px] text-foreground" style={{ fontWeight: 600 }}>OpenAPI</div>
-          <div className="text-[10px] text-muted-foreground">Designer 3.1</div>
+          <div className="text-[12px] text-muted-foreground">Designer 3.1</div>
         </div>
         <button
           onClick={() => setCollapsed(true)}
@@ -171,11 +171,11 @@ export function Sidebar() {
           onClick={() => {
             window.dispatchEvent(new CustomEvent('open-command-palette'));
           }}
-          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-border text-[11px] text-muted-foreground hover:bg-muted/50 transition-colors"
+          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-border text-[12px] text-muted-foreground hover:bg-muted/50 transition-colors"
         >
           <Search size={12} />
           <span className="flex-1 text-left">{t.common.search}</span>
-          <kbd className="text-[9px] px-1 py-0.5 rounded bg-muted border border-border">⌘K</kbd>
+          <kbd className="text-[12px] px-1 py-0.5 rounded bg-muted border border-border">⌘K</kbd>
         </button>
       </div>
 
@@ -201,7 +201,7 @@ export function Sidebar() {
               {icon}
               <span className="flex-1 text-left">{label}</span>
               {badge !== null && (
-                <span className="text-[10px] min-w-[18px] text-center px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
+                <span className="text-[12px] min-w-[18px] text-center px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
                   {badge}
                 </span>
               )}

@@ -128,7 +128,7 @@ export function ValidationPanel() {
               {severityIcon[error.severity]}
               <div className="flex-1 min-w-0">
                 <div className="text-[12px] text-foreground">{error.message}</div>
-                <div className="text-[11px] text-muted-foreground font-mono mt-0.5">{error.path}</div>
+                <div className="text-[12px] text-muted-foreground font-mono mt-0.5">{error.path}</div>
               </div>
               <ArrowRight size={12} className="text-muted-foreground shrink-0 mt-0.5" />
             </div>

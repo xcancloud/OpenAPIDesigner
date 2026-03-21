@@ -66,7 +66,7 @@ export function CommandPalette() {
               subtitle: op.summary || op.operationId || '',
               icon: (
                 <span
-                  className="inline-flex items-center justify-center rounded text-white px-1.5 py-0.5 text-[9px] uppercase min-w-[36px]"
+                  className="inline-flex items-center justify-center rounded text-white px-1.5 py-0.5 text-[12px] uppercase min-w-[36px]"
                   style={{ backgroundColor: METHOD_COLORS[method], fontWeight: 700 }}
                 >
                   {method}
@@ -250,7 +250,7 @@ export function CommandPalette() {
             placeholder={t.common.search}
             className="flex-1 bg-transparent text-foreground text-[14px] outline-none placeholder:text-muted-foreground"
           />
-          <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded bg-muted text-[10px] text-muted-foreground border border-border">
+          <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded bg-muted text-[12px] text-muted-foreground border border-border">
             ESC
           </kbd>
         </div>
@@ -264,7 +264,7 @@ export function CommandPalette() {
           ) : (
             Object.entries(grouped).map(([category, items]) => (
               <div key={category}>
-                <div className="px-3 py-1.5 text-[10px] text-muted-foreground uppercase tracking-wider">
+                <div className="px-3 py-1.5 text-[12px] text-muted-foreground uppercase tracking-wider">
                   {category}
                 </div>
                 {items.map(item => {
@@ -289,7 +289,7 @@ export function CommandPalette() {
                       <div className="flex-1 min-w-0">
                         <div className="text-[13px] truncate">{item.label}</div>
                         {item.subtitle && (
-                          <div className="text-[11px] text-muted-foreground truncate">{item.subtitle}</div>
+                          <div className="text-[12px] text-muted-foreground truncate">{item.subtitle}</div>
                         )}
                       </div>
                       {isSelected && <ArrowRight size={12} className="text-muted-foreground shrink-0" />}
@@ -302,7 +302,7 @@ export function CommandPalette() {
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-2 border-t border-border flex items-center gap-4 text-[10px] text-muted-foreground">
+        <div className="px-4 py-2 border-t border-border flex items-center gap-4 text-[12px] text-muted-foreground">
           <span className="flex items-center gap-1">
             <kbd className="px-1 py-0.5 rounded bg-muted border border-border">↑↓</kbd> navigate
           </span>

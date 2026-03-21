@@ -486,7 +486,7 @@ const HTML_CSS = `
 html { scroll-behavior: smooth; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  font-size: 13.5px; color: #111827; line-height: 1.7; background: #fff;
+  font-size: 14px; color: #111827; line-height: 1.7; background: #fff;
 }
 a { color: #2563eb; text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -503,7 +503,7 @@ code { background: #f3f4f6; border-radius: 4px; padding: 1px 6px; font-size: 12p
 .toc-sidebar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
 .main { flex: 1; min-width: 0; padding: 48px 56px 80px; max-width: 900px; }
 .toc-title {
-  font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
   color: #9ca3af; padding: 0 20px 10px; border-bottom: 1px solid #e5e7eb; margin-bottom: 10px;
 }
 .toc-section {
@@ -512,7 +512,7 @@ code { background: #f3f4f6; border-radius: 4px; padding: 1px 6px; font-size: 12p
 }
 .toc-section:hover { background: #f3f4f6; color: #111827; border-left-color: #6b7280; }
 .toc-item {
-  display: flex; align-items: center; gap: 6px; padding: 4px 20px 4px 26px; font-size: 11.5px;
+  display: flex; align-items: center; gap: 6px; padding: 4px 20px 4px 26px; font-size: 12px;
   color: #6b7280; text-decoration: none; border-left: 2px solid transparent;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
@@ -540,7 +540,7 @@ h3 { font-size: 15px; font-weight: 700; color: #1f2937; margin: 32px 0 12px; scr
 
 /* Info badges */
 .info-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
-.badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; gap: 4px; }
+.badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; gap: 4px; }
 .badge-version { background: #dbeafe; color: #1e40af; }
 .badge-oas     { background: #d1fae5; color: #065f46; }
 
@@ -562,7 +562,7 @@ h3 { font-size: 15px; font-weight: 700; color: #1f2937; margin: 32px 0 12px; scr
 }
 .method-badge {
   display: inline-flex; align-items: center; justify-content: center;
-  padding: 3px 10px; border-radius: 5px; font-size: 11px; font-weight: 800;
+  padding: 3px 10px; border-radius: 5px; font-size: 12px; font-weight: 800;
   letter-spacing: 0.6px; min-width: 62px; flex-shrink: 0;
 }
 .op-path { font-size: 13.5px; font-weight: 700; font-family: ui-monospace, monospace; }
@@ -571,37 +571,37 @@ h3 { font-size: 15px; font-weight: 700; color: #1f2937; margin: 32px 0 12px; scr
 .op-meta { font-size: 12px; color: #6b7280; padding: 4px 16px 8px; }
 .op-section { padding: 0 16px 14px; }
 .section-label {
-  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+  font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
   color: #9ca3af; margin: 14px 0 8px; padding-top: 2px; border-top: 1px solid #f3f4f6;
 }
 
 /* In-location badges */
-.in-badge { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; vertical-align: middle; }
+.in-badge { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 12px; font-weight: 700; vertical-align: middle; }
 .in-path   { background: #fce7f3; color: #be185d; }
 .in-query  { background: #dbeafe; color: #1d4ed8; }
 .in-header { background: #d1fae5; color: #047857; }
 .in-cookie { background: #fef3c7; color: #92400e; }
-.badge-webhook { background: #ede9fe; color: #6d28d9; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
-.badge-depr { background: #fef9c3; color: #92400e; padding: 1px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; }
+.badge-webhook { background: #ede9fe; color: #6d28d9; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; }
+.badge-depr { background: #fef9c3; color: #92400e; padding: 1px 7px; border-radius: 4px; font-size: 12px; font-weight: 700; }
 
 /* Security chips */
 .sec-chip {
   display: inline-flex; align-items: center; gap: 4px; background: #f0f9ff;
   border: 1px solid #bae6fd; color: #0369a1; padding: 2px 8px; border-radius: 20px;
-  font-size: 11px; font-weight: 600; margin: 2px 3px 2px 0;
+  font-size: 12px; font-weight: 600; margin: 2px 3px 2px 0;
 }
 
 /* Data tables */
 .data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 6px 0; }
 .data-table th {
   background: #f9fafb; text-align: left; padding: 7px 12px; border-bottom: 2px solid #e5e7eb;
-  color: #374151; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+  color: #374151; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
 }
 .data-table td { padding: 7px 12px; border-bottom: 1px solid #f3f4f6; vertical-align: top; }
 .data-table tr:last-child td { border-bottom: none; }
 .data-table tr:hover td { background: #fafafa; }
 .td-req { text-align: center; color: #ef4444; font-weight: 700; }
-.constr { font-size: 11px; color: #6b7280; }
+.constr { font-size: 12px; color: #6b7280; }
 code.status { padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; }
 .s2xx { background: #dcfce7; color: #166534; }
 .s3xx { background: #dbeafe; color: #1e40af; }
@@ -619,7 +619,7 @@ code.status { padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size:
 }
 .schema-name { font-weight: 700; font-size: 14px; color: #4c1d95; }
 .schema-body { padding: 12px 16px; }
-.compose-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: #8b5cf6; margin: 10px 0 6px; }
+.compose-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: #8b5cf6; margin: 10px 0 6px; }
 .nested-schema { margin-left: 16px; border-left: 3px solid #ede9fe; padding-left: 12px; margin-top: 6px; }
 
 /* Security scheme card */
@@ -628,23 +628,23 @@ code.status { padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size:
 .scheme-name { font-weight: 700; font-size: 14px; color: #065f46; }
 .scheme-body { padding: 12px 16px; }
 .flow-card { border: 1px solid #d1fae5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; background: #fafffe; }
-.flow-name { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #047857; margin-bottom: 6px; }
+.flow-name { font-size: 12px; font-weight: 700; text-transform: uppercase; color: #047857; margin-bottom: 6px; }
 .scope-row { display: flex; gap: 8px; margin: 3px 0; font-size: 12px; }
-.scope-name { background: #d1fae5; color: #065f46; padding: 1px 7px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+.scope-name { background: #d1fae5; color: #065f46; padding: 1px 7px; border-radius: 4px; font-weight: 600; font-size: 12px; }
 
 /* Print */
 @media print {
   .toc-sidebar { display: none; }
   .layout { display: block; }
   .main { padding: 0; max-width: 100%; }
-  body { font-size: 11px; color: #000; }
+  body { font-size: 14px; color: #000; }
   h1 { font-size: 22px; page-break-after: avoid; }
   h2 { font-size: 15px; page-break-inside: avoid; margin-top: 28px; }
   h3 { font-size: 13px; page-break-inside: avoid; }
   .operation { page-break-inside: avoid; border: 1px solid #ccc; margin: 8px 0; box-shadow: none; }
   .schema-card { page-break-inside: avoid; }
   a { color: #000; }
-  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 10px; color: #666; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 12px; color: #666; }
   @page { margin: 20mm 15mm; }
 }
 `;
@@ -683,7 +683,7 @@ function generateHTML(doc: OpenAPIDocument, locale: Locale = 'en'): string {
       Object.entries(req).map(([name, scopes]) =>
         `<span class="sec-chip">🔒 ${esc(name)}${scopes.length ? ` <span style="opacity:.7;font-weight:400">[${scopes.map(esc).join(', ')}]</span>` : ''}</span>`
       ).join('')
-    ).join('<span style="color:#9ca3af;margin:0 4px;font-size:11px">or</span>');
+    ).join('<span style="color:#9ca3af;margin:0 4px;font-size:12px">or</span>');
   }
 
   // ── Schema renderer (recursive) ──────────────────────────────────────────────
@@ -700,14 +700,14 @@ function generateHTML(doc: OpenAPIDocument, locale: Locale = 'en'): string {
       if (schema.description) html += `<div class="md-rendered" style="color:#6b7280;font-size:12px;margin:2px 0">${renderMarkdown(schema.description)}</div>`;
     }
     if (schema.example !== undefined) {
-      html += `<div style="font-size:11px;color:#6b7280;margin:4px 0">Example: <code>${esc(JSON.stringify(schema.example))}</code></div>`;
+      html += `<div style="font-size:12px;color:#6b7280;margin:4px 0">Example: <code>${esc(JSON.stringify(schema.example))}</code></div>`;
     }
     // Composition: allOf / oneOf / anyOf / not
     for (const [kw, items] of [['allOf', schema.allOf], ['oneOf', schema.oneOf], ['anyOf', schema.anyOf]] as [string, SchemaObject[] | undefined][]) {
       if (!items?.length) continue;
       html += `<div class="compose-label">${kw}</div>`;
       items.forEach((s, i) => {
-        html += `<div class="nested-schema"><div style="font-size:11px;color:#8b5cf6;font-weight:600;margin-bottom:4px">${t.export.option} ${i + 1}</div>${renderSchemaHtml(s, depth + 1)}</div>`;
+        html += `<div class="nested-schema"><div style="font-size:12px;color:#8b5cf6;font-weight:600;margin-bottom:4px">${t.export.option} ${i + 1}</div>${renderSchemaHtml(s, depth + 1)}</div>`;
       });
     }
     if (schema.not) html += `<div class="compose-label">not</div><div class="nested-schema">${renderSchemaHtml(schema.not, depth + 1)}</div>`;
@@ -723,7 +723,7 @@ function generateHTML(doc: OpenAPIDocument, locale: Locale = 'en'): string {
         const nested = hasNested ? `<div class="nested-schema" style="margin-top:6px">${renderSchemaHtml(pSchema, depth + 1)}</div>` : '';
         const depBadge = pSchema.deprecated ? `<span class="badge-depr">depr</span>` : '';
         return `<tr>
-          <td><code>${esc(pName)}</code>${req.includes(pName) ? '<span style="color:#ef4444;font-size:10px;margin-left:2px">*</span>' : ''} ${depBadge}</td>
+          <td><code>${esc(pName)}</code>${req.includes(pName) ? '<span style="color:#ef4444;font-size:12px;margin-left:2px">*</span>' : ''} ${depBadge}</td>
           <td>${schemaTypeHtml(pSchema)}</td>
           <td>${constraintsHtml(pSchema)}</td>
           <td>${esc(pSchema.description || '')}${nested}</td>
@@ -779,7 +779,7 @@ function generateHTML(doc: OpenAPIDocument, locale: Locale = 'en'): string {
     if (rb.description) html += `<div class="md-rendered" style="font-size:13px;color:#4b5563;margin-bottom:8px">${renderMarkdown(rb.description)}</div>`;
     for (const [ct, media] of Object.entries(rb.content || {})) {
       html += `<div style="margin-bottom:12px">
-        <span style="font-size:11px;font-weight:700;padding:2px 8px;background:#f3f4f6;border-radius:4px;color:#374151">${esc(ct)}</span>`;
+        <span style="font-size:12px;font-weight:700;padding:2px 8px;background:#f3f4f6;border-radius:4px;color:#374151">${esc(ct)}</span>`;
       if (media.schema) html += `<div style="margin-top:8px">${renderSchemaHtml(media.schema)}</div>`;
       html += `</div>`;
     }
@@ -801,7 +801,7 @@ function generateHTML(doc: OpenAPIDocument, locale: Locale = 'en'): string {
           `<tr><td><code>${esc(hName)}</code></td><td>${hObj.schema ? schemaTypeHtml(hObj.schema) : ''}</td><td>${esc(hObj.description || '')}</td></tr>`
         ).join('');
         html += `<div style="padding:8px 12px;border-bottom:1px solid #f9fafb">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#9ca3af;margin-bottom:6px">${t.export.headers}</div>
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#9ca3af;margin-bottom:6px">${t.export.headers}</div>
           <table class="data-table"><thead><tr><th>${t.export.name}</th><th>${t.export.type}</th><th>${t.export.description}</th></tr></thead><tbody>${hRows}</tbody></table>
         </div>`;
       }
@@ -809,7 +809,7 @@ function generateHTML(doc: OpenAPIDocument, locale: Locale = 'en'): string {
         html += `<div style="padding:8px 12px">`;
         for (const [ct, media] of Object.entries(resp.content)) {
           html += `<div style="margin-bottom:8px">
-            <span style="font-size:11px;font-weight:700;padding:2px 7px;background:#f3f4f6;border-radius:4px;color:#374151">${esc(ct)}</span>`;
+            <span style="font-size:12px;font-weight:700;padding:2px 7px;background:#f3f4f6;border-radius:4px;color:#374151">${esc(ct)}</span>`;
           if (media.schema) html += `<div style="margin-top:6px">${renderSchemaHtml(media.schema)}</div>`;
           html += `</div>`;
         }
@@ -836,7 +836,7 @@ function generateHTML(doc: OpenAPIDocument, locale: Locale = 'en'): string {
         <span class="op-path">${pathLabel}</span>
         ${op.summary ? `<span class="op-summary">${esc(op.summary)}</span>` : ''}
         ${op.deprecated ? `<span class="badge-depr">${t.export.deprecated}</span>` : ''}
-        ${op.operationId ? `<code style="font-size:10px;color:#9ca3af;margin-left:auto">${esc(op.operationId)}</code>` : ''}
+        ${op.operationId ? `<code style="font-size:12px;color:#9ca3af;margin-left:auto">${esc(op.operationId)}</code>` : ''}
       </div>`;
 
     if (op.description) html += `<div class="op-description">${renderMarkdown(op.description)}</div>`;
@@ -866,7 +866,7 @@ function generateHTML(doc: OpenAPIDocument, locale: Locale = 'en'): string {
           const color = METHOD_COLORS[method]?.bg ?? '#6b7280';
           html += `<a class="toc-item" href="#op-${slug(method + '-' + path)}" style="padding-left:36px">
             <span class="toc-method-dot" style="background:${color}"></span>
-            <span style="color:#374151;font-size:11px;overflow:hidden;text-overflow:ellipsis">${esc(op.summary || path)}</span>
+            <span style="color:#374151;font-size:12px;overflow:hidden;text-overflow:ellipsis">${esc(op.summary || path)}</span>
           </a>`;
         }
       }
@@ -980,7 +980,7 @@ function generateHTML(doc: OpenAPIDocument, locale: Locale = 'en'): string {
       html += `<div class="schema-card" id="schema-${slug(name)}">
         <div class="schema-header">
           <span class="schema-name">${esc(name)}</span>
-          ${typeLabel !== 'any' ? `<code style="font-size:11px;background:#ede9fe;color:#6d28d9;padding:2px 8px;border-radius:4px">${esc(typeLabel)}</code>` : ''}
+          ${typeLabel !== 'any' ? `<code style="font-size:12px;background:#ede9fe;color:#6d28d9;padding:2px 8px;border-radius:4px">${esc(typeLabel)}</code>` : ''}
           ${schema.deprecated ? `<span class="badge-depr">deprecated</span>` : ''}
         </div>
         <div class="schema-body">
@@ -1039,7 +1039,7 @@ function generateHTML(doc: OpenAPIDocument, locale: Locale = 'en'): string {
       html += `<div class="scheme-card">
         <div class="scheme-header">
           <span class="scheme-name">${esc(name)}</span>
-          <span style="font-size:11px;font-weight:700;padding:2px 8px;background:#d1fae5;color:#065f46;border-radius:4px">${esc(scheme.type)}</span>
+          <span style="font-size:12px;font-weight:700;padding:2px 8px;background:#d1fae5;color:#065f46;border-radius:4px">${esc(scheme.type)}</span>
         </div>
         <div class="scheme-body">`;
       if (scheme.description) html += `<p style="color:#4b5563;margin-bottom:10px">${esc(scheme.description)}</p>`;
@@ -1065,7 +1065,7 @@ function generateHTML(doc: OpenAPIDocument, locale: Locale = 'en'): string {
           if (flow.tokenUrl) html += `<div style="font-size:12px;margin-bottom:4px">${t.export.tokenUrl}: <a href="${esc(flow.tokenUrl)}" target="_blank">${esc(flow.tokenUrl)}</a></div>`;
           if (flow.refreshUrl) html += `<div style="font-size:12px;margin-bottom:8px">${t.export.refreshUrl}: <a href="${esc(flow.refreshUrl)}" target="_blank">${esc(flow.refreshUrl)}</a></div>`;
           if (flow.scopes && Object.keys(flow.scopes).length) {
-            html += `<div style="font-size:11px;font-weight:700;color:#047857;margin-bottom:6px">${t.export.scopes}</div>`;
+            html += `<div style="font-size:12px;font-weight:700;color:#047857;margin-bottom:6px">${t.export.scopes}</div>`;
             for (const [sc, desc] of Object.entries(flow.scopes)) {
               html += `<div class="scope-row"><span class="scope-name">${esc(sc)}</span><span style="color:#4b5563">${esc(desc)}</span></div>`;
             }
