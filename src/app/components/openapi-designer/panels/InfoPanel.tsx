@@ -94,6 +94,7 @@ export function InfoPanel() {
   const { t } = useI18n();
   const { state, setDocument } = useDesigner();
   const doc = state.document;
+  const p = t.placeholders;
 
   const update = (path: string, value: string) => {
     const newDoc = JSON.parse(JSON.stringify(doc));
@@ -150,42 +151,42 @@ export function InfoPanel() {
       <SectionCard title={t.info.title} icon={<FileText size={15} />}>
         <div className="grid grid-cols-2 gap-4">
           <FieldGroup label={t.info.apiTitle} hint={t.hints.apiTitle}>
-            <InputField value={doc.info.title} onChange={(v) => update('info.title', v)} placeholder="Petstore API" />
+            <InputField value={doc.info.title} onChange={(v) => update('info.title', v)} placeholder={p.apiTitle} />
           </FieldGroup>
           <FieldGroup label={t.info.apiVersion} hint={t.hints.apiVersion}>
-            <InputField value={doc.info.version} onChange={(v) => update('info.version', v)} placeholder="1.0.0" />
+            <InputField value={doc.info.version} onChange={(v) => update('info.version', v)} placeholder={p.apiVersion} />
           </FieldGroup>
         </div>
         <FieldGroup label={t.info.apiSummary} hint={t.hints.apiSummary}>
-          <InputField value={doc.info.summary || ''} onChange={(v) => update('info.summary', v)} placeholder="A simple API for managing pets" />
+          <InputField value={doc.info.summary || ''} onChange={(v) => update('info.summary', v)} placeholder={p.apiSummary} />
         </FieldGroup>
         <FieldGroup label={t.info.apiDescription} hint={t.hints.apiDescription}>
           <MarkdownEditor
             value={doc.info.description || ''}
             onChange={(v) => update('info.description', v)}
-            placeholder="Describe your API in detail. **Markdown** is fully supported."
+            placeholder={p.apiDescription}
             rows={5}
           />
         </FieldGroup>
         <FieldGroup label={t.info.termsOfService} hint={t.hints.termsOfService}>
-          <InputField value={doc.info.termsOfService || ''} onChange={(v) => update('info.termsOfService', v)} placeholder="https://example.com/terms" />
+          <InputField value={doc.info.termsOfService || ''} onChange={(v) => update('info.termsOfService', v)} placeholder={p.termsOfService} />
         </FieldGroup>
         <FieldGroup label={t.info.openApiVersion} hint={t.hints.openApiVersion}>
-          <InputField value={doc.openapi} onChange={(v) => update('openapi', v)} placeholder="3.1.0" />
+          <InputField value={doc.openapi} onChange={(v) => update('openapi', v)} placeholder={p.openApiVersion} />
         </FieldGroup>
       </SectionCard>
 
       {/* Contact */}
       <SectionCard title={t.info.contact} icon={<User size={15} />}>
         <FieldGroup label={t.info.contactName} hint={t.hints.contactName}>
-          <InputField value={doc.info.contact?.name || ''} onChange={(v) => update('info.contact.name', v)} placeholder="API Support Team" />
+          <InputField value={doc.info.contact?.name || ''} onChange={(v) => update('info.contact.name', v)} placeholder={p.contactName} />
         </FieldGroup>
         <div className="grid grid-cols-2 gap-4">
           <FieldGroup label={t.info.contactEmail} hint={t.hints.contactEmail}>
-            <InputField value={doc.info.contact?.email || ''} onChange={(v) => update('info.contact.email', v)} placeholder="support@example.com" type="email" />
+            <InputField value={doc.info.contact?.email || ''} onChange={(v) => update('info.contact.email', v)} placeholder={p.contactEmail} type="email" />
           </FieldGroup>
           <FieldGroup label={t.info.contactUrl} hint={t.hints.contactUrl}>
-            <InputField value={doc.info.contact?.url || ''} onChange={(v) => update('info.contact.url', v)} placeholder="https://example.com/support" />
+            <InputField value={doc.info.contact?.url || ''} onChange={(v) => update('info.contact.url', v)} placeholder={p.contactUrl} />
           </FieldGroup>
         </div>
       </SectionCard>
@@ -193,14 +194,14 @@ export function InfoPanel() {
       {/* License */}
       <SectionCard title={t.info.license} icon={<Scale size={15} />}>
         <FieldGroup label={t.info.licenseName} hint={t.hints.licenseName}>
-          <InputField value={doc.info.license?.name || ''} onChange={(v) => update('info.license.name', v)} placeholder="Apache 2.0" />
+          <InputField value={doc.info.license?.name || ''} onChange={(v) => update('info.license.name', v)} placeholder={p.licenseName} />
         </FieldGroup>
         <div className="grid grid-cols-2 gap-4">
           <FieldGroup label={t.info.licenseIdentifier} hint={t.hints.licenseIdentifier}>
-            <InputField value={doc.info.license?.identifier || ''} onChange={(v) => update('info.license.identifier', v)} placeholder="Apache-2.0" />
+            <InputField value={doc.info.license?.identifier || ''} onChange={(v) => update('info.license.identifier', v)} placeholder={p.licenseIdentifier} />
           </FieldGroup>
           <FieldGroup label={t.info.licenseUrl} hint={t.hints.licenseUrl}>
-            <InputField value={doc.info.license?.url || ''} onChange={(v) => update('info.license.url', v)} placeholder="https://www.apache.org/licenses/LICENSE-2.0" />
+            <InputField value={doc.info.license?.url || ''} onChange={(v) => update('info.license.url', v)} placeholder={p.licenseUrl} />
           </FieldGroup>
         </div>
       </SectionCard>

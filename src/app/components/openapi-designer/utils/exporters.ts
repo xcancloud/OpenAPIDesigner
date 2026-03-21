@@ -29,6 +29,7 @@ import type {
 } from '../types/openapi';
 import { HTTP_METHODS } from '../types/openapi';
 import { renderMarkdown, MARKDOWN_CSS } from './markdown';
+import { locales, type Locale } from '../i18n/locales';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -176,7 +177,8 @@ function collectByTag(doc: OpenAPIDocument): {
 
 // ─── Markdown export ──────────────────────────────────────────────────────────
 
-function generateMarkdown(doc: OpenAPIDocument): string {
+function generateMarkdown(doc: OpenAPIDocument, locale: Locale = 'en'): string {
+  const t = locales[locale];
   const L: string[] = [];
   const push = (...lines: string[]) => L.push(...lines);
   const nl = () => L.push('');
@@ -188,22 +190,22 @@ function generateMarkdown(doc: OpenAPIDocument): string {
   if (doc.info.description) { push(doc.info.description); nl(); }
 
   const metaRows: [string, string][] = [
-    ['Version', doc.info.version],
-    ['OpenAPI', doc.openapi],
+    [t.export.version, doc.info.version],
+    [t.export.openAPI, doc.openapi],
   ];
-  if (doc.info.termsOfService) metaRows.push(['Terms of Service', doc.info.termsOfService]);
+  if (doc.info.termsOfService) metaRows.push([t.export.termsOfService, doc.info.termsOfService]);
   if (doc.info.contact) {
     const c = doc.info.contact;
     const parts = [c.name ?? '', c.email ? `<${c.email}>` : '', c.url ? `[link](${c.url})` : ''].filter(Boolean);
-    if (parts.length) metaRows.push(['Contact', parts.join(' · ')]);
+    if (parts.length) metaRows.push([t.export.contact, parts.join(' · ')]);
   }
   if (doc.info.license?.name) {
     const l = doc.info.license;
-    metaRows.push(['License', l.url ? `[${l.name}](${l.url})` : l.name]);
+    metaRows.push([t.export.license, l.url ? `[${l.name}](${l.url})` : l.name]);
   }
   if (doc.externalDocs) {
     const ed = doc.externalDocs;
-    metaRows.push(['External Docs', `[${ed.description || ed.url}](${ed.url})`]);
+    metaRows.push([t.export.externalDocs, `[${ed.description || ed.url}](${ed.url})`]);
   }
   push('| Field | Value |', '|---|---|');
   metaRows.forEach(([k, v]) => push(`| **${k}** | ${md(v)} |`));
@@ -211,19 +213,19 @@ function generateMarkdown(doc: OpenAPIDocument): string {
 
   // ── Table of Contents ────────────────────────────────────────────────────
   const { tagOrder, byTag, untagged, tagDescriptions, tagExternalDocs } = collectByTag(doc);
-  push('## Table of Contents'); nl();
-  if (doc.servers?.length) push('- [Servers](#servers)');
-  if (doc.security?.length) push('- [Global Security](#global-security)');
-  push('- [Endpoints](#endpoints)');
+  push(`## ${t.export.contents}`); nl();
+  if (doc.servers?.length) push(`- [${t.export.servers}](#servers)`);
+  if (doc.security?.length) push(`- [${t.export.security}](#global-security)`);
+  push(`- [${t.export.endpoints}](#endpoints)`);
   for (const tag of tagOrder) push(`  - [${tag}](#${slug(tag)})`);
-  if (untagged.length) push('  - [(Untagged)](#untagged)');
-  if (doc.components?.schemas && Object.keys(doc.components.schemas).length) push('- [Schemas](#schemas)');
-  if (doc.components?.securitySchemes && Object.keys(doc.components.securitySchemes).length) push('- [Security Schemes](#security-schemes)');
+  if (untagged.length) push(`  - [${t.export.untagged}](#untagged)`);
+  if (doc.components?.schemas && Object.keys(doc.components.schemas).length) push(`- [${t.export.schemas}](#schemas)`);
+  if (doc.components?.securitySchemes && Object.keys(doc.components.securitySchemes).length) push(`- [${t.export.securitySchemes}](#security-schemes)`);
   nl();
 
   // ── Servers ───────────────────────────────────────────────────────────────
   if (doc.servers?.length) {
-    push('## Servers'); nl();
+    push(`## ${t.export.servers}`); nl();
     push('| URL | Description |', '|---|---|');
     for (const s of doc.servers) {
       push(`| \`${md(s.url)}\` | ${md(s.description || '')} |`);
@@ -231,8 +233,8 @@ function generateMarkdown(doc: OpenAPIDocument): string {
     nl();
     for (const s of doc.servers) {
       if (s.variables && Object.keys(s.variables).length) {
-        push(`**Variables for \`${s.url}\`**`); nl();
-        push('| Variable | Default | Enum | Description |', '|---|---|---|---|');
+        push(`**${t.export.variables} \`${s.url}\`**`); nl();
+        push(`| ${t.export.variable} | ${t.export.default} | ${t.export.enumValues} | ${t.export.description} |`, '|---|---|---|---|');
         for (const [vn, vo] of Object.entries(s.variables)) {
           push(`| \`${vn}\` | \`${vo.default}\` | ${vo.enum ? vo.enum.map(e => `\`${e}\``).join(', ') : ''} | ${md(vo.description || '')} |`);
         }
@@ -243,10 +245,10 @@ function generateMarkdown(doc: OpenAPIDocument): string {
 
   // ── Global security ───────────────────────────────────────────────────────
   if (doc.security?.length) {
-    push('## Global Security'); nl();
+    push(`## ${t.export.security}`); nl();
     for (const req of doc.security) {
       const parts = Object.entries(req).map(([name, scopes]) =>
-        scopes.length ? `**${name}** (scopes: ${scopes.join(', ')})` : `**${name}**`
+        scopes.length ? `**${name}** (${t.export.scopes}: ${scopes.join(', ')})` : `**${name}**`
       );
       push(`- ${parts.join(' + ')}`);
     }
@@ -256,11 +258,11 @@ function generateMarkdown(doc: OpenAPIDocument): string {
   // ── Endpoints ─────────────────────────────────────────────────────────────
   const allGroups: Array<{ tag: string; ops: OpEntry[]; anchor: string }> = [
     ...tagOrder.map(tag => ({ tag, ops: byTag[tag] || [], anchor: slug(tag) })),
-    ...(untagged.length ? [{ tag: '(Untagged)', ops: untagged, anchor: 'untagged' }] : []),
+    ...(untagged.length ? [{ tag: t.export.untagged, ops: untagged, anchor: 'untagged' }] : []),
   ];
 
   if (allGroups.some(g => g.ops.length)) {
-    push('## Endpoints'); nl();
+    push(`## ${t.export.endpoints}`); nl();
 
     for (const { tag, ops, anchor } of allGroups) {
       if (!ops.length) continue;
@@ -295,17 +297,17 @@ function generateMarkdown(doc: OpenAPIDocument): string {
 
         // Parameters
         if (op.parameters?.length) {
-          push('**Parameters**'); nl();
-          push('| Name | In | Type | Constraints | Req | Description |');
+          push(`**${t.export.parameters}**`); nl();
+          push(`| ${t.export.name} | ${t.export.paramIn} | ${t.export.type} | ${t.export.constraints} | ${t.export.required.charAt(0).toUpperCase()} | ${t.export.description} |`);
           push('|------|----|------|-------------|:---:|-------------|');
           for (const rawP of op.parameters as ParameterObject[]) {
             const rawPAny = rawP as unknown as Record<string, unknown>;
             const p = rawPAny.$ref
               ? (resolveRef<ParameterObject>(rawPAny.$ref as string, doc) ?? rawP)
               : rawP;
-            const t = p.schema ? schemaTypeLabel(p.schema, doc) : '';
+            const t2 = p.schema ? schemaTypeLabel(p.schema, doc) : '';
             const cs = p.schema ? schemaConstraints(p.schema).join(', ') : '';
-            push(`| \`${p.name}\` | ${p.in} | \`${md(t)}\` | ${md(cs)} | ${p.required ? '✓' : ''} | ${md(p.description || '')} |`);
+            push(`| \`${p.name}\` | ${p.in} | \`${md(t2)}\` | ${md(cs)} | ${p.required ? '✓' : ''} | ${md(p.description || '')} |`);
           }
           nl();
         }
@@ -313,18 +315,18 @@ function generateMarkdown(doc: OpenAPIDocument): string {
         // Request body
         if (op.requestBody) {
           const rb = op.requestBody;
-          push(`**Request Body**${rb.required ? ' *(required)*' : ''}`); nl();
+          push(`**${t.export.requestBody}**${rb.required ? ' *(required)*' : ''}`); nl();
           if (rb.description) { push(rb.description); nl(); }
           for (const [ct, media] of Object.entries(rb.content || {})) {
             push(`- **${ct}**`);
             if (media.schema) {
               const s = media.schema;
               if (s.$ref) {
-                push(`  - Schema: [\`${s.$ref.split('/').pop()}\`](#${slug(s.$ref.split('/').pop() || '')})`);
+                push(`  - ${t.export.schema}: [\`${s.$ref.split('/').pop()}\`](#${slug(s.$ref.split('/').pop() || '')})`);
               } else {
-                push(`  - Type: \`${schemaTypeLabel(s, doc)}\``);
+                push(`  - ${t.export.type}: \`${schemaTypeLabel(s, doc)}\``);
                 const cs = schemaConstraints(s);
-                if (cs.length) push(`  - Constraints: ${cs.join(', ')}`);
+                if (cs.length) push(`  - ${t.export.constraints}: ${cs.join(', ')}`);
               }
             }
           }
@@ -333,7 +335,7 @@ function generateMarkdown(doc: OpenAPIDocument): string {
 
         // Responses
         if (op.responses && Object.keys(op.responses).length) {
-          push('**Responses**'); nl();
+          push(`**${t.export.responses}**`); nl();
           push('| Status | Description | Content-Types |');
           push('|--------|-------------|---------------|');
           for (const [code, resp] of Object.entries(op.responses)) {
@@ -344,11 +346,11 @@ function generateMarkdown(doc: OpenAPIDocument): string {
           // Response headers
           for (const [code, resp] of Object.entries(op.responses)) {
             if (resp.headers && Object.keys(resp.headers).length) {
-              push(`Response \`${code}\` Headers:`); nl();
-              push('| Header | Type | Description |', '|--------|------|-------------|');
+              push(`${t.export.responses} \`${code}\` ${t.export.headers}:`); nl();
+              push(`| ${t.export.headers.charAt(0).toUpperCase() + t.export.headers.slice(1)} | ${t.export.type} | ${t.export.description} |`, '|--------|------|-------------|');
               for (const [hName, hObj] of Object.entries(resp.headers)) {
-                const t = hObj.schema ? schemaTypeLabel(hObj.schema, doc) : '';
-                push(`| \`${hName}\` | \`${t}\` | ${md(hObj.description || '')} |`);
+                const hType = hObj.schema ? schemaTypeLabel(hObj.schema, doc) : '';
+                push(`| \`${hName}\` | \`${hType}\` | ${md(hObj.description || '')} |`);
               }
               nl();
             }
@@ -363,7 +365,7 @@ function generateMarkdown(doc: OpenAPIDocument): string {
   // ── Schemas ────────────────────────────────────────────────────────────────
   const schemas = doc.components?.schemas;
   if (schemas && Object.keys(schemas).length) {
-    push('## Schemas'); nl();
+    push(`## ${t.export.schemas}`); nl();
 
     function renderSchemaMd(schema: SchemaObject, name: string, depth = 0): void {
       const indent = '  '.repeat(depth);
@@ -376,37 +378,37 @@ function generateMarkdown(doc: OpenAPIDocument): string {
       const typeLine = schemaTypeLabel(schema, doc);
       const cs = schemaConstraints(schema);
       if (depth === 0) {
-        if (typeLine !== 'any') push(`- **Type:** \`${typeLine}\``);
-        if (cs.length) push(`- **Constraints:** ${cs.join(', ')}`);
+        if (typeLine !== 'any') push(`- **${t.export.type}:** \`${typeLine}\``);
+        if (cs.length) push(`- **${t.export.constraints}:** ${cs.join(', ')}`);
         if (schema.example !== undefined) push(`- **Example:** \`${JSON.stringify(schema.example)}\``);
         nl();
       }
       for (const [kw, items] of [['allOf', schema.allOf], ['oneOf', schema.oneOf], ['anyOf', schema.anyOf]] as [string, SchemaObject[] | undefined][]) {
         if (!items?.length) continue;
         push(`${indent}**${kw}:**`); nl();
-        items.forEach((s, i) => { push(`${indent}*Option ${i + 1}:*`); renderSchemaMd(s, '', depth + 1); });
+        items.forEach((s, i) => { push(`${indent}*${t.export.option} ${i + 1}:*`); renderSchemaMd(s, '', depth + 1); });
       }
       if (schema.not) { push(`${indent}**not:**`); renderSchemaMd(schema.not, '', depth + 1); }
       if (schema.properties && Object.keys(schema.properties).length) {
-        push('| Property | Type | Required | Constraints | Description |');
+        push(`| ${t.export.property} | ${t.export.type} | ${t.export.required} | ${t.export.constraints} | ${t.export.description} |`);
         push('|----------|------|:--------:|-------------|-------------|');
         const req = schema.required || [];
         for (const [pName, pSchema] of Object.entries(schema.properties)) {
-          const t = schemaTypeLabel(pSchema, doc);
+          const propType = schemaTypeLabel(pSchema, doc);
           const pcs = schemaConstraints(pSchema).join(', ');
-          push(`| \`${pName}\` | \`${md(t)}\` | ${req.includes(pName) ? '✓' : ''} | ${md(pcs)} | ${md(pSchema.description || '')} |`);
+          push(`| \`${pName}\` | \`${md(propType)}\` | ${req.includes(pName) ? '✓' : ''} | ${md(pcs)} | ${md(pSchema.description || '')} |`);
         }
         nl();
         for (const [pName, pSchema] of Object.entries(schema.properties)) {
           if (pSchema.properties || pSchema.allOf || pSchema.oneOf || pSchema.anyOf) {
-            push(`**\`${pName}\` properties:**`);
+            push(`**\`${pName}\` ${t.export.property.toLowerCase()}s:**`);
             renderSchemaMd(pSchema, '', depth + 1);
           }
         }
       }
-      if (schema.items) { push(`${indent}**items:** \`${schemaTypeLabel(schema.items, doc)}\``); nl(); }
+      if (schema.items) { push(`${indent}**${t.export.items}:** \`${schemaTypeLabel(schema.items, doc)}\``); nl(); }
       if (typeof schema.additionalProperties === 'object') {
-        push(`${indent}**additionalProperties:** \`${schemaTypeLabel(schema.additionalProperties as SchemaObject, doc)}\``);
+        push(`${indent}**${t.export.additionalProperties}:** \`${schemaTypeLabel(schema.additionalProperties as SchemaObject, doc)}\``);
         nl();
       }
     }
@@ -416,26 +418,26 @@ function generateMarkdown(doc: OpenAPIDocument): string {
 
   // ── Reusable parameters ───────────────────────────────────────────────────
   if (doc.components?.parameters && Object.keys(doc.components.parameters).length) {
-    push('## Reusable Parameters'); nl();
-    push('| Name | In | Type | Description |', '|---|---|---|---|');
+    push(`## ${t.export.reusableParameters}`); nl();
+    push(`| ${t.export.name} | ${t.export.paramIn} | ${t.export.type} | ${t.export.description} |`, '|---|---|---|---|');
     for (const [name, p] of Object.entries(doc.components.parameters)) {
-      const t = p.schema ? schemaTypeLabel(p.schema, doc) : '';
-      push(`| \`${name}\` | ${p.in} | \`${t}\` | ${md(p.description || '')} |`);
+      const paramType = p.schema ? schemaTypeLabel(p.schema, doc) : '';
+      push(`| \`${name}\` | ${p.in} | \`${paramType}\` | ${md(p.description || '')} |`);
     }
     nl();
   }
 
   // ── Security schemes ──────────────────────────────────────────────────────
   if (doc.components?.securitySchemes && Object.keys(doc.components.securitySchemes).length) {
-    push('## Security Schemes'); nl();
+    push(`## ${t.export.securitySchemes}`); nl();
     for (const [name, scheme] of Object.entries(doc.components.securitySchemes)) {
       push(`### ${name}`); nl();
-      push(`- **Type:** \`${scheme.type}\``);
-      if (scheme.description) push(`- **Description:** ${scheme.description}`);
-      if (scheme.in) push(`- **In:** \`${scheme.in}\``);
-      if (scheme.name) push(`- **Parameter Name:** \`${scheme.name}\``);
-      if (scheme.scheme) push(`- **HTTP Scheme:** \`${scheme.scheme}\``);
-      if (scheme.bearerFormat) push(`- **Bearer Format:** \`${scheme.bearerFormat}\``);
+      push(`- **${t.export.type}:** \`${scheme.type}\``);
+      if (scheme.description) push(`- **${t.export.description}:** ${scheme.description}`);
+      if (scheme.in) push(`- **${t.export.in}:** \`${scheme.in}\``);
+      if (scheme.name) push(`- **${t.export.parameterName}:** \`${scheme.name}\``);
+      if (scheme.scheme) push(`- **${t.export.httpScheme}:** \`${scheme.scheme}\``);
+      if (scheme.bearerFormat) push(`- **${t.export.bearerFormat}:** \`${scheme.bearerFormat}\``);
       if (scheme.openIdConnectUrl) push(`- **OpenID Connect URL:** ${scheme.openIdConnectUrl}`);
       if (scheme.flows) {
         nl(); push('**OAuth2 Flows:**'); nl();
@@ -647,7 +649,8 @@ code.status { padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size:
 }
 `;
 
-function generateHTML(doc: OpenAPIDocument): string {
+function generateHTML(doc: OpenAPIDocument, locale: Locale = 'en'): string {
+  const t = locales[locale];
   const { tagOrder, byTag, untagged, tagDescriptions, tagExternalDocs } = collectByTag(doc);
 
   // ── Schema type as HTML (with $ref link) ────────────────────────────────────
@@ -692,8 +695,8 @@ function generateHTML(doc: OpenAPIDocument): string {
     let html = '';
     const cs = constraintsHtml(schema);
     if (depth > 0) {
-      const t = schemaTypeLabel(schema, doc);
-      if (t !== 'any') html += `<div style="margin:4px 0">${schemaTypeHtml(schema)} ${cs}</div>`;
+      const typeLabel = schemaTypeLabel(schema, doc);
+      if (typeLabel !== 'any') html += `<div style="margin:4px 0">${schemaTypeHtml(schema)} ${cs}</div>`;
       if (schema.description) html += `<div class="md-rendered" style="color:#6b7280;font-size:12px;margin:2px 0">${renderMarkdown(schema.description)}</div>`;
     }
     if (schema.example !== undefined) {
@@ -704,13 +707,13 @@ function generateHTML(doc: OpenAPIDocument): string {
       if (!items?.length) continue;
       html += `<div class="compose-label">${kw}</div>`;
       items.forEach((s, i) => {
-        html += `<div class="nested-schema"><div style="font-size:11px;color:#8b5cf6;font-weight:600;margin-bottom:4px">Option ${i + 1}</div>${renderSchemaHtml(s, depth + 1)}</div>`;
+        html += `<div class="nested-schema"><div style="font-size:11px;color:#8b5cf6;font-weight:600;margin-bottom:4px">${t.export.option} ${i + 1}</div>${renderSchemaHtml(s, depth + 1)}</div>`;
       });
     }
     if (schema.not) html += `<div class="compose-label">not</div><div class="nested-schema">${renderSchemaHtml(schema.not, depth + 1)}</div>`;
     // Enum
     if (schema.enum) {
-      html += `<div style="margin:6px 0;font-size:12px">Enum: ${(schema.enum as unknown[]).map(v => `<code style="background:#f0fdf4;color:#166534">${esc(String(v))}</code>`).join(' ')}</div>`;
+      html += `<div style="margin:6px 0;font-size:12px">${t.export.enum}: ${(schema.enum as unknown[]).map(v => `<code style="background:#f0fdf4;color:#166534">${esc(String(v))}</code>`).join(' ')}</div>`;
     }
     // Properties table
     if (schema.properties && Object.keys(schema.properties).length) {
@@ -727,19 +730,19 @@ function generateHTML(doc: OpenAPIDocument): string {
         </tr>`;
       }).join('');
       html += `<table class="data-table" style="margin-top:8px">
-        <thead><tr><th>Property</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead>
+        <thead><tr><th>${t.export.property}</th><th>${t.export.type}</th><th>${t.export.constraints}</th><th>${t.export.description}</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
     }
     // Array items
     if (schema.items) {
-      html += `<div style="margin:8px 0;font-size:12px"><strong>items:</strong> ${schemaTypeHtml(schema.items)}`;
+      html += `<div style="margin:8px 0;font-size:12px"><strong>${t.export.items}:</strong> ${schemaTypeHtml(schema.items)}`;
       if (schema.items.properties) html += `<div class="nested-schema">${renderSchemaHtml(schema.items, depth + 1)}</div>`;
       html += `</div>`;
     }
     // additionalProperties
     if (typeof schema.additionalProperties === 'object') {
-      html += `<div style="margin:6px 0;font-size:12px"><strong>additionalProperties:</strong> ${schemaTypeHtml(schema.additionalProperties as SchemaObject)}</div>`;
+      html += `<div style="margin:6px 0;font-size:12px"><strong>${t.export.additionalProperties}:</strong> ${schemaTypeHtml(schema.additionalProperties as SchemaObject)}</div>`;
     }
     return html;
   }
@@ -765,14 +768,14 @@ function generateHTML(doc: OpenAPIDocument): string {
       </tr>`;
     }).join('');
     return `<table class="data-table">
-      <thead><tr><th>Name</th><th>In</th><th>Type</th><th>Constraints</th><th>Req</th><th>Description</th></tr></thead>
+      <thead><tr><th>${t.export.name}</th><th>${t.export.paramIn}</th><th>${t.export.type}</th><th>${t.export.constraints}</th><th>${t.export.required.charAt(0).toUpperCase()}</th><th>${t.export.description}</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
   }
 
   // ── Request body ─────────────────────────────────────────────────────────────
   function requestBodyHtml(rb: NonNullable<OperationObject['requestBody']>): string {
-    let html = `<div class="op-section"><div class="section-label">Request Body${rb.required ? ' <span style="color:#ef4444">*</span>' : ''}</div>`;
+    let html = `<div class="op-section"><div class="section-label">${t.export.requestBody}${rb.required ? ' <span style="color:#ef4444">*</span>' : ''}</div>`;
     if (rb.description) html += `<div class="md-rendered" style="font-size:13px;color:#4b5563;margin-bottom:8px">${renderMarkdown(rb.description)}</div>`;
     for (const [ct, media] of Object.entries(rb.content || {})) {
       html += `<div style="margin-bottom:12px">
@@ -786,7 +789,7 @@ function generateHTML(doc: OpenAPIDocument): string {
 
   // ── Responses ────────────────────────────────────────────────────────────────
   function responsesHtml(responses: NonNullable<OperationObject['responses']>): string {
-    let html = `<div class="op-section"><div class="section-label">Responses</div>`;
+    let html = `<div class="op-section"><div class="section-label">${t.export.responses}</div>`;
     for (const [code, resp] of Object.entries(responses)) {
       html += `<div style="border:1px solid #f3f4f6;border-radius:6px;margin-bottom:8px;overflow:hidden">
         <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#f9fafb;border-bottom:1px solid #f3f4f6">
@@ -798,8 +801,8 @@ function generateHTML(doc: OpenAPIDocument): string {
           `<tr><td><code>${esc(hName)}</code></td><td>${hObj.schema ? schemaTypeHtml(hObj.schema) : ''}</td><td>${esc(hObj.description || '')}</td></tr>`
         ).join('');
         html += `<div style="padding:8px 12px;border-bottom:1px solid #f9fafb">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#9ca3af;margin-bottom:6px">Headers</div>
-          <table class="data-table"><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>${hRows}</tbody></table>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#9ca3af;margin-bottom:6px">${t.export.headers}</div>
+          <table class="data-table"><thead><tr><th>${t.export.name}</th><th>${t.export.type}</th><th>${t.export.description}</th></tr></thead><tbody>${hRows}</tbody></table>
         </div>`;
       }
       if (resp.content && Object.keys(resp.content).length) {
@@ -832,16 +835,16 @@ function generateHTML(doc: OpenAPIDocument): string {
         <span class="method-badge" style="background:${bg};color:${fg}">${method.toUpperCase()}</span>
         <span class="op-path">${pathLabel}</span>
         ${op.summary ? `<span class="op-summary">${esc(op.summary)}</span>` : ''}
-        ${op.deprecated ? `<span class="badge-depr">Deprecated</span>` : ''}
+        ${op.deprecated ? `<span class="badge-depr">${t.export.deprecated}</span>` : ''}
         ${op.operationId ? `<code style="font-size:10px;color:#9ca3af;margin-left:auto">${esc(op.operationId)}</code>` : ''}
       </div>`;
 
     if (op.description) html += `<div class="op-description">${renderMarkdown(op.description)}</div>`;
-    if (op.security !== undefined) html += `<div class="op-meta">Security: ${securityHtml(op.security)}</div>`;
+    if (op.security !== undefined) html += `<div class="op-meta">${t.export.security}: ${securityHtml(op.security)}</div>`;
     if (op.externalDocs) html += `<div class="op-meta">📖 <a href="${esc(op.externalDocs.url)}" target="_blank">${esc(op.externalDocs.description || op.externalDocs.url)}</a></div>`;
 
     if ((op.parameters as ParameterObject[] | undefined)?.length) {
-      html += `<div class="op-section"><div class="section-label">Parameters</div>${paramsTable(op.parameters as ParameterObject[])}</div>`;
+      html += `<div class="op-section"><div class="section-label">${t.export.parameters}</div>${paramsTable(op.parameters as ParameterObject[])}</div>`;
     }
     if (op.requestBody) html += requestBodyHtml(op.requestBody);
     if (op.responses && Object.keys(op.responses).length) html += responsesHtml(op.responses);
@@ -852,11 +855,11 @@ function generateHTML(doc: OpenAPIDocument): string {
 
   // ── TOC sidebar ──────────────────────────────────────────────────────────────
   function buildToc(): string {
-    let html = `<nav class="toc-sidebar"><div class="toc-title">Contents</div>`;
-    html += `<a class="toc-section" href="#api-info">Overview</a>`;
-    if (doc.servers?.length) html += `<a class="toc-section" href="#servers">Servers</a>`;
+    let html = `<nav class="toc-sidebar"><div class="toc-title">${t.export.contents}</div>`;
+    html += `<a class="toc-section" href="#api-info">${t.export.overview}</a>`;
+    if (doc.servers?.length) html += `<a class="toc-section" href="#servers">${t.export.servers}</a>`;
     if (tagOrder.length || untagged.length) {
-      html += `<a class="toc-section" href="#endpoints">Endpoints</a>`;
+      html += `<a class="toc-section" href="#endpoints">${t.export.endpoints}</a>`;
       for (const tag of tagOrder) {
         html += `<a class="toc-item" href="#tag-${slug(tag)}">${esc(tag)}</a>`;
         for (const { method, path, op } of byTag[tag] || []) {
@@ -867,17 +870,17 @@ function generateHTML(doc: OpenAPIDocument): string {
           </a>`;
         }
       }
-      if (untagged.length) html += `<a class="toc-item" href="#tag-untagged">Untagged</a>`;
+      if (untagged.length) html += `<a class="toc-item" href="#tag-untagged">${t.export.untagged}</a>`;
     }
     const schemas = doc.components?.schemas;
     if (schemas && Object.keys(schemas).length) {
-      html += `<a class="toc-section" href="#schemas">Schemas</a>`;
+      html += `<a class="toc-section" href="#schemas">${t.export.schemas}</a>`;
       for (const name of Object.keys(schemas)) {
         html += `<a class="toc-item" href="#schema-${slug(name)}">${esc(name)}</a>`;
       }
     }
     if (doc.components?.securitySchemes && Object.keys(doc.components.securitySchemes).length) {
-      html += `<a class="toc-section" href="#security-schemes">Security</a>`;
+      html += `<a class="toc-section" href="#security-schemes">${t.export.security}</a>`;
     }
     html += `</nav>`;
     return html;
@@ -886,10 +889,10 @@ function generateHTML(doc: OpenAPIDocument): string {
   // ── Overview ─────────────────────────────────────────────────────────────────
   function overviewSection(): string {
     const metaRows: [string, string][] = [
-      ['OpenAPI', esc(doc.openapi)],
-      ['Version', esc(doc.info.version)],
+      [t.export.openAPI, esc(doc.openapi)],
+      [t.export.version, esc(doc.info.version)],
     ];
-    if (doc.info.termsOfService) metaRows.push(['Terms of Service', `<a href="${esc(doc.info.termsOfService)}" target="_blank">${esc(doc.info.termsOfService)}</a>`]);
+    if (doc.info.termsOfService) metaRows.push([t.export.termsOfService, `<a href="${esc(doc.info.termsOfService)}" target="_blank">${esc(doc.info.termsOfService)}</a>`]);
     if (doc.info.contact) {
       const c = doc.info.contact;
       const parts = [
@@ -897,14 +900,14 @@ function generateHTML(doc: OpenAPIDocument): string {
         c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : '',
         c.url ? `<a href="${esc(c.url)}" target="_blank">${esc(c.url)}</a>` : '',
       ].filter(Boolean);
-      if (parts.length) metaRows.push(['Contact', parts.join(' · ')]);
+      if (parts.length) metaRows.push([t.export.contact, parts.join(' · ')]);
     }
     if (doc.info.license?.name) {
       const l = doc.info.license;
-      metaRows.push(['License', l.url ? `<a href="${esc(l.url)}" target="_blank">${esc(l.name)}</a>` : esc(l.name)]);
+      metaRows.push([t.export.license, l.url ? `<a href="${esc(l.url)}" target="_blank">${esc(l.name)}</a>` : esc(l.name)]);
     }
     if (doc.externalDocs) {
-      metaRows.push(['External Docs', `<a href="${esc(doc.externalDocs.url)}" target="_blank">${esc(doc.externalDocs.description || doc.externalDocs.url)}</a>`]);
+      metaRows.push([t.export.externalDocs, `<a href="${esc(doc.externalDocs.url)}" target="_blank">${esc(doc.externalDocs.description || doc.externalDocs.url)}</a>`]);
     }
     let html = `<section id="api-info">
       <h1>${esc(doc.info.title)}</h1>
@@ -922,7 +925,7 @@ function generateHTML(doc: OpenAPIDocument): string {
   // ── Servers ──────────────────────────────────────────────────────────────────
   function serversSection(): string {
     if (!doc.servers?.length) return '';
-    let html = `<section><h2 id="servers">Servers</h2>`;
+    let html = `<section><h2 id="servers">${t.export.servers}</h2>`;
     for (const s of doc.servers) {
       html += `<div class="server-card">
         <div><code style="font-size:13px;font-weight:700">${esc(s.url)}</code></div>
@@ -933,7 +936,7 @@ function generateHTML(doc: OpenAPIDocument): string {
           return `<tr><td><code>${esc(vn)}</code></td><td><code>${esc(vo.default)}</code></td><td>${enumVals}</td><td>${esc(vo.description || '')}</td></tr>`;
         }).join('');
         html += `<table class="data-table" style="margin-top:10px">
-          <thead><tr><th>Variable</th><th>Default</th><th>Enum</th><th>Description</th></tr></thead>
+          <thead><tr><th>${t.export.variable}</th><th>${t.export.default}</th><th>${t.export.enumValues}</th><th>${t.export.description}</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>`;
       }
@@ -947,11 +950,11 @@ function generateHTML(doc: OpenAPIDocument): string {
   function endpointsSection(): string {
     const allGroups = [
       ...tagOrder.map(tag => ({ tag, ops: byTag[tag] || [], tagId: `tag-${slug(tag)}` })),
-      ...(untagged.length ? [{ tag: 'Untagged', ops: untagged, tagId: 'tag-untagged' }] : []),
+      ...(untagged.length ? [{ tag: t.export.untagged, ops: untagged, tagId: 'tag-untagged' }] : []),
     ];
     if (!allGroups.some(g => g.ops.length)) return '';
 
-    let html = `<section><h2 id="endpoints">Endpoints</h2>`;
+    let html = `<section><h2 id="endpoints">${t.export.endpoints}</h2>`;
     for (const { tag, ops, tagId } of allGroups) {
       if (!ops.length) continue;
       html += `<div id="${tagId}"><h3>${esc(tag)}</h3>`;
@@ -967,12 +970,11 @@ function generateHTML(doc: OpenAPIDocument): string {
     return html;
   }
 
-  // ── Schemas ──────────────────────────────────────────────────────────────────
   function schemasSection(): string {
     const schemas = doc.components?.schemas;
     if (!schemas || !Object.keys(schemas).length) return '';
 
-    let html = `<section><h2 id="schemas">Schemas</h2>`;
+    let html = `<section><h2 id="schemas">${t.export.schemas}</h2>`;
     for (const [name, schema] of Object.entries(schemas)) {
       const typeLabel = schemaTypeLabel(schema, doc);
       html += `<div class="schema-card" id="schema-${slug(name)}">
@@ -998,15 +1000,15 @@ function generateHTML(doc: OpenAPIDocument): string {
     const { parameters, responses: compResp, requestBodies } = doc.components ?? {};
     if (parameters && Object.keys(parameters).length) {
       const rows = Object.entries(parameters).map(([name, p]) => {
-        const t = p.schema ? schemaTypeHtml(p.schema) : '';
-        return `<tr><td><code>${esc(name)}</code></td><td><span class="in-badge in-${p.in}">${p.in}</span></td><td>${t}</td><td>${esc(p.description || '')}</td></tr>`;
+        const schemaType = p.schema ? schemaTypeHtml(p.schema) : '';
+        return `<tr><td><code>${esc(name)}</code></td><td><span class="in-badge in-${p.in}">${p.in}</span></td><td>${schemaType}</td><td>${esc(p.description || '')}</td></tr>`;
       }).join('');
-      html += `<section><h2>Reusable Parameters</h2>
-        <table class="data-table"><thead><tr><th>Name</th><th>In</th><th>Type</th><th>Description</th></tr></thead><tbody>${rows}</tbody></table>
+      html += `<section><h2>${t.export.reusableParameters}</h2>
+        <table class="data-table"><thead><tr><th>${t.export.name}</th><th>${t.export.paramIn}</th><th>${t.export.type}</th><th>${t.export.description}</th></tr></thead><tbody>${rows}</tbody></table>
       </section>`;
     }
     if (compResp && Object.keys(compResp).length) {
-      html += `<section><h2>Reusable Responses</h2>`;
+      html += `<section><h2>${t.export.reusableResponses}</h2>`;
       for (const [name, resp] of Object.entries(compResp)) {
         html += `<div style="margin:8px 0;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px">
           <strong>${esc(name)}</strong> <span style="color:#6b7280;font-size:13px">— ${esc(resp.description || '')}</span>
@@ -1015,7 +1017,7 @@ function generateHTML(doc: OpenAPIDocument): string {
       html += `</section>`;
     }
     if (requestBodies && Object.keys(requestBodies).length) {
-      html += `<section><h2>Reusable Request Bodies</h2>`;
+      html += `<section><h2>${t.export.reusableRequestBodies}</h2>`;
       for (const [name, rb] of Object.entries(requestBodies)) {
         html += `<div style="border:1px solid #e5e7eb;border-radius:8px;padding:12px 16px;margin:8px 0">
           <strong>${esc(name)}</strong>${rb.required ? '<span style="color:#ef4444;margin-left:4px">*</span>' : ''}
@@ -1032,7 +1034,7 @@ function generateHTML(doc: OpenAPIDocument): string {
   function securitySchemesSection(): string {
     const schemes = doc.components?.securitySchemes;
     if (!schemes || !Object.keys(schemes).length) return '';
-    let html = `<section><h2 id="security-schemes">Security Schemes</h2>`;
+    let html = `<section><h2 id="security-schemes">${t.export.securitySchemes}</h2>`;
     for (const [name, scheme] of Object.entries(schemes)) {
       html += `<div class="scheme-card">
         <div class="scheme-header">
@@ -1042,9 +1044,9 @@ function generateHTML(doc: OpenAPIDocument): string {
         <div class="scheme-body">`;
       if (scheme.description) html += `<p style="color:#4b5563;margin-bottom:10px">${esc(scheme.description)}</p>`;
       const details: [string, string | undefined][] = [
-        ['In', scheme.in], ['Parameter Name', scheme.name],
-        ['HTTP Scheme', scheme.scheme], ['Bearer Format', scheme.bearerFormat],
-        ['OpenID Connect URL', scheme.openIdConnectUrl],
+        [t.export.in, scheme.in], [t.export.parameterName, scheme.name],
+        [t.export.httpScheme, scheme.scheme], [t.export.bearerFormat, scheme.bearerFormat],
+        [t.export.openIdConnectUrl, scheme.openIdConnectUrl],
       ];
       const detailRows = details.filter(([, v]) => v).map(([k, v]) =>
         `<tr><th>${esc(k)}</th><td><code>${esc(v!)}</code></td></tr>`
@@ -1053,17 +1055,17 @@ function generateHTML(doc: OpenAPIDocument): string {
 
       if (scheme.flows) {
         const flowList: [string, OAuthFlowObject | undefined][] = [
-          ['Implicit', scheme.flows.implicit], ['Password', scheme.flows.password],
-          ['Client Credentials', scheme.flows.clientCredentials], ['Authorization Code', scheme.flows.authorizationCode],
+          [t.export.implicit, scheme.flows.implicit], [t.export.password, scheme.flows.password],
+          [t.export.clientCredentials, scheme.flows.clientCredentials], [t.export.authorizationCode, scheme.flows.authorizationCode],
         ];
         for (const [flowName, flow] of flowList) {
           if (!flow) continue;
           html += `<div class="flow-card"><div class="flow-name">${esc(flowName)}</div>`;
-          if (flow.authorizationUrl) html += `<div style="font-size:12px;margin-bottom:4px">Auth URL: <a href="${esc(flow.authorizationUrl)}" target="_blank">${esc(flow.authorizationUrl)}</a></div>`;
-          if (flow.tokenUrl) html += `<div style="font-size:12px;margin-bottom:4px">Token URL: <a href="${esc(flow.tokenUrl)}" target="_blank">${esc(flow.tokenUrl)}</a></div>`;
-          if (flow.refreshUrl) html += `<div style="font-size:12px;margin-bottom:8px">Refresh URL: <a href="${esc(flow.refreshUrl)}" target="_blank">${esc(flow.refreshUrl)}</a></div>`;
+          if (flow.authorizationUrl) html += `<div style="font-size:12px;margin-bottom:4px">${t.export.authorizationUrl}: <a href="${esc(flow.authorizationUrl)}" target="_blank">${esc(flow.authorizationUrl)}</a></div>`;
+          if (flow.tokenUrl) html += `<div style="font-size:12px;margin-bottom:4px">${t.export.tokenUrl}: <a href="${esc(flow.tokenUrl)}" target="_blank">${esc(flow.tokenUrl)}</a></div>`;
+          if (flow.refreshUrl) html += `<div style="font-size:12px;margin-bottom:8px">${t.export.refreshUrl}: <a href="${esc(flow.refreshUrl)}" target="_blank">${esc(flow.refreshUrl)}</a></div>`;
           if (flow.scopes && Object.keys(flow.scopes).length) {
-            html += `<div style="font-size:11px;font-weight:700;color:#047857;margin-bottom:6px">Scopes</div>`;
+            html += `<div style="font-size:11px;font-weight:700;color:#047857;margin-bottom:6px">${t.export.scopes}</div>`;
             for (const [sc, desc] of Object.entries(flow.scopes)) {
               html += `<div class="scope-row"><span class="scope-name">${esc(sc)}</span><span style="color:#4b5563">${esc(desc)}</span></div>`;
             }
@@ -1074,7 +1076,7 @@ function generateHTML(doc: OpenAPIDocument): string {
       html += `</div></div>`;
     }
     if (doc.security?.length) {
-      html += `<div style="margin-top:20px"><h3>Global Security Requirement</h3>
+      html += `<div style="margin-top:20px"><h3>${t.export.globalSecurityRequirement}</h3>
         <div style="margin-top:8px">${securityHtml(doc.security)}</div>
       </div>`;
     }
@@ -1114,17 +1116,17 @@ ${MARKDOWN_CSS}</style>
 // PUBLIC EXPORT FUNCTIONS
 // ══════════════════════════════════════════════════════════════════════════════
 
-export function downloadMarkdown(doc: OpenAPIDocument): void {
+export function downloadMarkdown(doc: OpenAPIDocument, locale: Locale = 'en'): void {
   downloadBlob(
-    generateMarkdown(doc),
+    generateMarkdown(doc, locale),
     `${sanitizeFilename(doc.info.title)}.md`,
     'text/markdown; charset=utf-8'
   );
 }
 
-export function downloadHtml(doc: OpenAPIDocument): void {
+export function downloadHtml(doc: OpenAPIDocument, locale: Locale = 'en'): void {
   downloadBlob(
-    generateHTML(doc),
+    generateHTML(doc, locale),
     `${sanitizeFilename(doc.info.title)}.html`,
     'text/html; charset=utf-8'
   );
@@ -1134,10 +1136,10 @@ export function downloadHtml(doc: OpenAPIDocument): void {
  * Opens generated HTML in a new tab then triggers the browser print dialog.
  * User can choose "Save as PDF". Falls back to HTML download if popup is blocked.
  */
-export function printPdf(doc: OpenAPIDocument): void {
-  const html = generateHTML(doc);
+export function printPdf(doc: OpenAPIDocument, locale: Locale = 'en'): void {
+  const html = generateHTML(doc, locale);
   const win = window.open('', '_blank');
-  if (!win) { downloadHtml(doc); return; }
+  if (!win) { downloadHtml(doc, locale); return; }
   win.document.write(html);
   win.document.close();
   win.addEventListener('load', () => { setTimeout(() => { win.focus(); win.print(); }, 400); });
@@ -1148,9 +1150,9 @@ export function printPdf(doc: OpenAPIDocument): void {
  * Downloads as .doc (HTML-based). Word, LibreOffice, Google Docs all open it.
  * BOM prefix ensures correct UTF-8 rendering in Word.
  */
-export function downloadWord(doc: OpenAPIDocument): void {
+export function downloadWord(doc: OpenAPIDocument, locale: Locale = 'en'): void {
   downloadBlob(
-    '\ufeff' + generateWordHTML(doc),
+    '\ufeff' + generateWordHTML(doc, locale),
     `${sanitizeFilename(doc.info.title)}.doc`,
     'application/msword'
   );
@@ -1334,7 +1336,8 @@ code.status { padding: 2pt 7pt; border-radius: 4pt; font-weight: 700; font-size:
 }
 `.trim();
 
-function generateWordHTML(doc: OpenAPIDocument): string {
+function generateWordHTML(doc: OpenAPIDocument, locale: Locale = 'en'): string {
+  const t = locales[locale];
   const { tagOrder, byTag, untagged, tagDescriptions, tagExternalDocs } = collectByTag(doc);
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -1360,7 +1363,7 @@ function generateWordHTML(doc: OpenAPIDocument): string {
   }
 
   function securityHtmlW(reqs: Array<Record<string, string[]>>): string {
-    if (!reqs.length) return `<span class="sec-chip">🔓 Public</span>`;
+    if (!reqs.length) return `<span class="sec-chip">🔓 ${t.export.public}</span>`;
     return reqs.map(req =>
       Object.entries(req).map(([name, scopes]) =>
         `<span class="sec-chip">🔒 ${esc(name)}${scopes.length ? ` [${scopes.join(', ')}]` : ''}</span>`
@@ -1452,12 +1455,12 @@ function generateWordHTML(doc: OpenAPIDocument): string {
       if (!items?.length) continue;
       html += `<div class="compose-label">${kw}</div>`;
       items.forEach((s, i) => {
-        html += `<div class="nested-schema"><div style="font-size:9pt;color:#8b5cf6;font-weight:600;margin-bottom:3pt">Option ${i + 1}</div>${renderSchemaHtmlW(s, depth + 1)}</div>`;
+        html += `<div class="nested-schema"><div style="font-size:9pt;color:#8b5cf6;font-weight:600;margin-bottom:3pt">${t.export.option} ${i + 1}</div>${renderSchemaHtmlW(s, depth + 1)}</div>`;
       });
     }
     if (schema.not) html += `<div class="compose-label">not</div><div class="nested-schema">${renderSchemaHtmlW(schema.not, depth + 1)}</div>`;
     if (schema.enum) {
-      html += `<div style="margin:4pt 0;font-size:10pt">Enum: ${(schema.enum as unknown[]).map(v => `<code style="background:#f0fdf4;color:#166534">${esc(String(v))}</code>`).join(' ')}</div>`;
+      html += `<div style="margin:4pt 0;font-size:10pt">${t.export.enum}: ${(schema.enum as unknown[]).map(v => `<code style="background:#f0fdf4;color:#166534">${esc(String(v))}</code>`).join(' ')}</div>`;
     }
     if (schema.properties && Object.keys(schema.properties).length) {
       const req = schema.required || [];
@@ -1471,15 +1474,15 @@ function generateWordHTML(doc: OpenAPIDocument): string {
           <td>${esc(pSchema.description || '')}${nested}</td>
         </tr>`;
       }).join('');
-      html += `<table><thead><tr><th>Property</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead><tbody>${rows}</tbody></table>`;
+      html += `<table><thead><tr><th>${t.export.property}</th><th>${t.export.type}</th><th>${t.export.constraints}</th><th>${t.export.description}</th></tr></thead><tbody>${rows}</tbody></table>`;
     }
     if (schema.items) {
-      html += `<div style="margin:6pt 0;font-size:10pt"><strong>items:</strong> ${schemaTypeHtmlW(schema.items)}`;
+      html += `<div style="margin:6pt 0;font-size:10pt"><strong>${t.export.items}:</strong> ${schemaTypeHtmlW(schema.items)}`;
       if (schema.items.properties) html += `<div class="nested-schema">${renderSchemaHtmlW(schema.items, depth + 1)}</div>`;
       html += `</div>`;
     }
     if (typeof schema.additionalProperties === 'object') {
-      html += `<div style="margin:4pt 0;font-size:10pt"><strong>additionalProperties:</strong> ${schemaTypeHtmlW(schema.additionalProperties as SchemaObject)}</div>`;
+      html += `<div style="margin:4pt 0;font-size:10pt"><strong>${t.export.additionalProperties}:</strong> ${schemaTypeHtmlW(schema.additionalProperties as SchemaObject)}</div>`;
     }
     return html;
   }
@@ -1488,17 +1491,17 @@ function generateWordHTML(doc: OpenAPIDocument): string {
     const rows = params.map(rawP => {
       const rawPAny = rawP as unknown as Record<string, unknown>;
       const p = rawPAny.$ref ? (resolveRef<ParameterObject>(rawPAny.$ref as string, doc) ?? rawP) : rawP;
-      const t = p.schema ? schemaTypeHtmlW(p.schema) : '';
+      const schemaType = p.schema ? schemaTypeHtmlW(p.schema) : '';
       const cs = p.schema ? constraintsHtmlW(p.schema) : '';
       return `<tr>
         <td><code>${esc(p.name)}</code>${p.deprecated ? ' <span class="badge-depr">depr</span>' : ''}</td>
         <td><span class="in-badge in-${p.in}">${p.in}</span></td>
-        <td>${t}</td><td>${cs}</td>
+        <td>${schemaType}</td><td>${cs}</td>
         <td style="text-align:center;color:#ef4444">${p.required ? '✓' : ''}</td>
         <td>${esc(p.description || '')}</td>
       </tr>`;
     }).join('');
-    return `<table><thead><tr><th>Name</th><th>In</th><th>Type</th><th>Constraints</th><th>Req</th><th>Description</th></tr></thead><tbody>${rows}</tbody></table>`;
+    return `<table><thead><tr><th>${t.export.name}</th><th>${t.export.paramIn}</th><th>${t.export.type}</th><th>${t.export.constraints}</th><th>${t.export.required.charAt(0).toUpperCase()}</th><th>${t.export.description}</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
 
   function renderOperationW(entry: OpEntry): string {
@@ -1512,19 +1515,19 @@ function generateWordHTML(doc: OpenAPIDocument): string {
       <div class="op-header">
         <span class="method-badge" style="background:${bg};color:${fg}">${method.toUpperCase()}</span>
         <span class="op-path" style="margin-left:8pt">${pathLabel}</span>
-        ${op.deprecated ? ' <span class="badge-depr" style="margin-left:8pt">Deprecated</span>' : ''}
+        ${op.deprecated ? ` <span class="badge-depr" style="margin-left:8pt">${t.export.deprecated}</span>` : ''}
         ${op.summary ? `<div class="op-summary">${esc(op.summary)}</div>` : ''}
       </div>`;
     if (op.description) html += `<div class="op-description">${wordMd(op.description)}</div>`;
     if (op.security !== undefined) {
-      html += `<div style="padding:4pt 14pt 8pt;font-size:10pt">Security: ${securityHtmlW(op.security)}</div>`;
+      html += `<div style="padding:4pt 14pt 8pt;font-size:10pt">${t.export.security}: ${securityHtmlW(op.security)}</div>`;
     }
     if ((op.parameters as ParameterObject[] | undefined)?.length) {
-      html += `<div class="op-section"><div class="section-label">Parameters</div>${paramsTableW(op.parameters as ParameterObject[])}</div>`;
+      html += `<div class="op-section"><div class="section-label">${t.export.parameters}</div>${paramsTableW(op.parameters as ParameterObject[])}</div>`;
     }
     if (op.requestBody) {
       const rb = op.requestBody;
-      html += `<div class="op-section"><div class="section-label">Request Body${rb.required ? ' <span style="color:#ef4444">*</span>' : ''}</div>`;
+      html += `<div class="op-section"><div class="section-label">${t.export.requestBody}${rb.required ? ' <span style="color:#ef4444">*</span>' : ''}</div>`;
       if (rb.description) html += `<p style="font-size:11pt;color:#4b5563;margin-bottom:6pt">${esc(rb.description)}</p>`;
       for (const [ct, media] of Object.entries(rb.content || {})) {
         html += `<div style="margin-bottom:10pt"><span style="font-size:9.5pt;font-weight:700;padding:1pt 7pt;background:#f3f4f6;border-radius:4pt">${esc(ct)}</span>`;
@@ -1534,7 +1537,7 @@ function generateWordHTML(doc: OpenAPIDocument): string {
       html += `</div>`;
     }
     if (op.responses && Object.keys(op.responses).length) {
-      html += `<div class="op-section"><div class="section-label">Responses</div>`;
+      html += `<div class="op-section"><div class="section-label">${t.export.responses}</div>`;
       for (const [code, resp] of Object.entries(op.responses)) {
         html += `<div style="border:1pt solid #f3f4f6;border-radius:5pt;margin-bottom:6pt">
           <div style="padding:6pt 10pt;background:#f9fafb;border-bottom:1pt solid #f3f4f6">
@@ -1567,11 +1570,11 @@ function generateWordHTML(doc: OpenAPIDocument): string {
     const tocItem = (href: string, label: string, extraStyle = '') =>
       `<p class="toc-item"${extraStyle ? ` style="${extraStyle}"` : ''}><a href="${href}">${label}</a></p>`;
 
-    let html = `<div class="toc"><div class="toc-title">Contents</div>`;
-    html += tocSection('#api-info', 'Overview');
-    if (doc.servers?.length) html += tocSection('#servers', 'Servers');
+    let html = `<div class="toc"><div class="toc-title">${t.export.contents}</div>`;
+    html += tocSection('#api-info', t.export.overview);
+    if (doc.servers?.length) html += tocSection('#servers', t.export.servers);
     if (tagOrder.length || untagged.length) {
-      html += tocSection('#endpoints', 'Endpoints');
+      html += tocSection('#endpoints', t.export.endpoints);
       for (const tag of tagOrder) {
         html += tocItem(`#tag-${slug(tag)}`, esc(tag));
         for (const { method, path, op } of byTag[tag] || []) {
@@ -1581,7 +1584,7 @@ function generateWordHTML(doc: OpenAPIDocument): string {
         }
       }
       if (untagged.length) {
-        html += tocItem('#tag-untagged', 'Untagged');
+        html += tocItem('#tag-untagged', t.export.untagged);
         for (const { method, path, op } of untagged) {
           const color = METHOD_COLORS[method]?.bg ?? '#6b7280';
           const dot = `<span class="toc-dot" style="background:${color};width:6pt;height:6pt;display:inline-block;border-radius:50%;vertical-align:middle;margin-right:4pt"></span>`;
@@ -1591,13 +1594,13 @@ function generateWordHTML(doc: OpenAPIDocument): string {
     }
     const schemas = doc.components?.schemas;
     if (schemas && Object.keys(schemas).length) {
-      html += tocSection('#schemas', 'Schemas');
+      html += tocSection('#schemas', t.export.schemas);
       for (const name of Object.keys(schemas)) {
         html += tocItem(`#schema-${slug(name)}`, esc(name));
       }
     }
     if (doc.components?.securitySchemes && Object.keys(doc.components.securitySchemes).length) {
-      html += tocSection('#security-schemes', 'Security Schemes');
+      html += tocSection('#security-schemes', t.export.securitySchemes);
     }
     html += `</div>`;
     return html;
@@ -1605,16 +1608,16 @@ function generateWordHTML(doc: OpenAPIDocument): string {
 
   // ── Overview ──────────────────────────────────────────────────────────────────
   function overviewW(): string {
-    const metaRows: [string, string][] = [['OpenAPI', esc(doc.openapi)], ['Version', esc(doc.info.version)]];
-    if (doc.info.termsOfService) metaRows.push(['Terms of Service', `<a href="${esc(doc.info.termsOfService)}">${esc(doc.info.termsOfService)}</a>`]);
+    const metaRows: [string, string][] = [[t.export.openAPI, esc(doc.openapi)], [t.export.version, esc(doc.info.version)]];
+    if (doc.info.termsOfService) metaRows.push([t.export.termsOfService, `<a href="${esc(doc.info.termsOfService)}">${esc(doc.info.termsOfService)}</a>`]);
     if (doc.info.contact) {
       const c = doc.info.contact;
       const parts = [c.name ? esc(c.name) : '', c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : '', c.url ? `<a href="${esc(c.url)}">${esc(c.url)}</a>` : ''].filter(Boolean);
-      if (parts.length) metaRows.push(['Contact', parts.join(' · ')]);
+      if (parts.length) metaRows.push([t.export.contact, parts.join(' · ')]);
     }
     if (doc.info.license?.name) {
       const l = doc.info.license;
-      metaRows.push(['License', l.url ? `<a href="${esc(l.url)}">${esc(l.name)}</a>` : esc(l.name)]);
+      metaRows.push([t.export.license, l.url ? `<a href="${esc(l.url)}">${esc(l.name)}</a>` : esc(l.name)]);
     }
     let html = `<section id="api-info">
       <h1>${esc(doc.info.title)}</h1>
@@ -1632,7 +1635,7 @@ function generateWordHTML(doc: OpenAPIDocument): string {
   // ── Servers ───────────────────────────────────────────────────────────────────
   function serversW(): string {
     if (!doc.servers?.length) return '';
-    let html = `<section><h2 id="servers">Servers</h2>`;
+    let html = `<section><h2 id="servers">${t.export.servers}</h2>`;
     for (const s of doc.servers) {
       html += `<div style="background:#f9fafb;border:1pt solid #e5e7eb;border-radius:6pt;padding:10pt 14pt;margin:6pt 0">
         <code style="font-size:11.5pt;font-weight:700">${esc(s.url)}</code>
@@ -1641,7 +1644,7 @@ function generateWordHTML(doc: OpenAPIDocument): string {
         const rows = Object.entries(s.variables).map(([vn, vo]) =>
           `<tr><td><code>${esc(vn)}</code></td><td><code>${esc(vo.default)}</code></td><td>${vo.enum ? vo.enum.map(e => `<code>${esc(e)}</code>`).join(', ') : ''}</td><td>${esc(vo.description || '')}</td></tr>`
         ).join('');
-        html += `<table style="margin-top:8pt"><thead><tr><th>Variable</th><th>Default</th><th>Enum</th><th>Description</th></tr></thead><tbody>${rows}</tbody></table>`;
+        html += `<table style="margin-top:8pt"><thead><tr><th>${t.export.variable}</th><th>${t.export.default}</th><th>${t.export.enumValues}</th><th>${t.export.description}</th></tr></thead><tbody>${rows}</tbody></table>`;
       }
       html += `</div>`;
     }
@@ -1653,10 +1656,10 @@ function generateWordHTML(doc: OpenAPIDocument): string {
   function endpointsW(): string {
     const allGroups = [
       ...tagOrder.map(tag => ({ tag, ops: byTag[tag] || [], id: `tag-${slug(tag)}` })),
-      ...(untagged.length ? [{ tag: 'Untagged', ops: untagged, id: 'tag-untagged' }] : []),
+      ...(untagged.length ? [{ tag: t.export.untagged, ops: untagged, id: 'tag-untagged' }] : []),
     ];
     if (!allGroups.some(g => g.ops.length)) return '';
-    let html = `<section><h2 id="endpoints">Endpoints</h2>`;
+    let html = `<section><h2 id="endpoints">${t.export.endpoints}</h2>`;
     for (const { tag, ops, id } of allGroups) {
       if (!ops.length) continue;
       html += `<div id="${id}"><h3>${esc(tag)}</h3>`;
@@ -1676,7 +1679,7 @@ function generateWordHTML(doc: OpenAPIDocument): string {
   function schemasW(): string {
     const schemas = doc.components?.schemas;
     if (!schemas || !Object.keys(schemas).length) return '';
-    let html = `<section><h2 id="schemas">Schemas</h2>`;
+    let html = `<section><h2 id="schemas">${t.export.schemas}</h2>`;
     for (const [name, schema] of Object.entries(schemas)) {
       const typeLabel = schemaTypeLabel(schema, doc);
       html += `<div class="schema-card" id="schema-${slug(name)}">
@@ -1699,7 +1702,7 @@ function generateWordHTML(doc: OpenAPIDocument): string {
   function securitySchemesW(): string {
     const schemes = doc.components?.securitySchemes;
     if (!schemes || !Object.keys(schemes).length) return '';
-    let html = `<section><h2 id="security-schemes">Security Schemes</h2>`;
+    let html = `<section><h2 id="security-schemes">${t.export.securitySchemes}</h2>`;
     for (const [name, scheme] of Object.entries(schemes)) {
       html += `<div class="scheme-card">
         <div class="scheme-header">

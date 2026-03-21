@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useI18n, useDesigner } from '../context/DesignerContext';
-import { Code, Copy, Check, RefreshCw, Download, AlertCircle } from 'lucide-react';
+import { Code, Copy, Check, RefreshCw, Download, AlertCircle, XCircle, AlertTriangle, Info, CheckCircle2, ArrowRight, Shield } from 'lucide-react';
 import yaml from 'js-yaml';
 import type { OpenAPIDocument } from '../types/openapi';
+import { validateDocument } from '../utils/validation';
 
 function syntaxHighlight(code: string, format: 'yaml' | 'json'): string {
   if (format === 'json') {
@@ -67,7 +68,7 @@ function syntaxHighlight(code: string, format: 'yaml' | 'json'): string {
 
 export function CodeEditorPanel() {
   const { t } = useI18n();
-  const { state, setDocument } = useDesigner();
+  const { state, setDocument, dispatch } = useDesigner();
   const [format, setFormat] = useState<'yaml' | 'json'>('yaml');
   const [code, setCode] = useState('');
   const [copied, setCopied] = useState(false);
@@ -148,8 +149,56 @@ export function CodeEditorPanel() {
 
   const lines = code.split('\n');
 
+  // --- Inline validation (moved from ValidationPanel) ---
+  const errors = state.validationErrors;
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      const results = validateDocument(state.document);
+      dispatch({ type: 'SET_VALIDATION_ERRORS', payload: results });
+    }, 350);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [state.document, dispatch]);
+
+  const errorCount = errors.filter(e => e.severity === 'error').length;
+  const warningCount = errors.filter(e => e.severity === 'warning').length;
+  const infoCount = errors.filter(e => e.severity === 'info').length;
+
+  const severityIcon: Record<string, React.ReactNode> = {
+    error: <XCircle size={12} className="text-destructive shrink-0" />,
+    warning: <AlertTriangle size={12} className="text-yellow-500 shrink-0" />,
+    info: <Info size={12} className="text-blue-500 shrink-0" />,
+  };
+
+  const severityBg: Record<string, string> = {
+    error: 'bg-destructive/5 border-destructive/20',
+    warning: 'bg-yellow-500/5 border-yellow-500/20',
+    info: 'bg-blue-500/5 border-blue-500/20',
+  };
+
+  const navigateToError = (path: string) => {
+    if (path.startsWith('paths')) {
+      dispatch({ type: 'SET_ACTIVE_PANEL', payload: 'paths' });
+    } else if (path.startsWith('info') || path === 'openapi') {
+      dispatch({ type: 'SET_ACTIVE_PANEL', payload: 'info' });
+    } else if (path.startsWith('servers')) {
+      dispatch({ type: 'SET_ACTIVE_PANEL', payload: 'servers' });
+    } else if (path.startsWith('components.schemas')) {
+      dispatch({ type: 'SET_ACTIVE_PANEL', payload: 'schemas' });
+    } else if (path.startsWith('security') || path.startsWith('components.securitySchemes')) {
+      dispatch({ type: 'SET_ACTIVE_PANEL', payload: 'security' });
+    } else if (path.startsWith('tags')) {
+      dispatch({ type: 'SET_ACTIVE_PANEL', payload: 'tags' });
+    }
+  };
+
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex">
+      {/* Editor area — 80% */}
+      <div className="flex-1 min-w-0 flex flex-col" style={{ width: '80%' }}>
       {/* Toolbar */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
         <div className="flex items-center gap-2">
@@ -237,6 +286,66 @@ export function CodeEditorPanel() {
           spellCheck={false}
           wrap="off"
         />
+      </div>
+      </div>
+
+      {/* Validation sidebar — 20% */}
+      <div className="border-l border-border bg-card overflow-y-auto shrink-0" style={{ width: '20%', minWidth: '200px' }}>
+        <div className="p-3 space-y-3">
+          {/* Validation header */}
+          <div className="flex items-center gap-2">
+            <Shield size={14} className="text-yellow-500" />
+            <span className="text-[13px] text-foreground" style={{ fontWeight: 600 }}>{t.validation.title}</span>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-1.5">
+            <div className={`rounded-lg border p-2 text-center ${errorCount > 0 ? 'border-destructive/30 bg-destructive/5' : 'border-border bg-background'}`}>
+              <div className={`text-[16px] ${errorCount > 0 ? 'text-destructive' : 'text-green-500'}`} style={{ fontWeight: 700 }}>{errorCount}</div>
+              <div className="text-[10px] text-muted-foreground">{t.validation.errors}</div>
+            </div>
+            <div className={`rounded-lg border p-2 text-center ${warningCount > 0 ? 'border-yellow-500/30 bg-yellow-500/5' : 'border-border bg-background'}`}>
+              <div className={`text-[16px] ${warningCount > 0 ? 'text-yellow-500' : 'text-green-500'}`} style={{ fontWeight: 700 }}>{warningCount}</div>
+              <div className="text-[10px] text-muted-foreground">{t.validation.warnings}</div>
+            </div>
+            <div className="rounded-lg border p-2 text-center border-border bg-background">
+              <div className="text-[16px] text-blue-500" style={{ fontWeight: 700 }}>{infoCount}</div>
+              <div className="text-[10px] text-muted-foreground">{t.validation.infos}</div>
+            </div>
+          </div>
+
+          {/* Status */}
+          <div className={`rounded-lg border p-2 flex items-center gap-2 ${errorCount === 0 ? 'bg-green-500/5 border-green-500/30' : 'bg-destructive/5 border-destructive/30'}`}>
+            {errorCount === 0 ? (
+              <CheckCircle2 size={14} className="text-green-500 shrink-0" />
+            ) : (
+              <XCircle size={14} className="text-destructive shrink-0" />
+            )}
+            <div className="text-[11px] text-foreground" style={{ fontWeight: 500 }}>
+              {errorCount === 0 ? t.validation.valid : t.validation.invalid}
+            </div>
+          </div>
+
+          {/* Issues list */}
+          {errors.length > 0 && (
+            <div className="space-y-1.5">
+              {errors.map((error, i) => (
+                <div
+                  key={i}
+                  className={`rounded-lg border p-2 flex items-start gap-2 cursor-pointer hover:shadow-sm transition-shadow ${severityBg[error.severity]}`}
+                  onClick={() => navigateToError(error.path)}
+                >
+                  {severityIcon[error.severity]}
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[11px] text-foreground leading-tight">{error.message}</div>
+                    <div className="text-[10px] text-muted-foreground font-mono mt-0.5 truncate">{error.path}</div>
+                  </div>
+                  <ArrowRight size={10} className="text-muted-foreground shrink-0 mt-0.5" />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

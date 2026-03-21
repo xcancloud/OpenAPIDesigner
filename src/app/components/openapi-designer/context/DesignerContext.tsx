@@ -37,7 +37,7 @@ export function useTheme(): ThemeContextType {
 }
 
 // ==================== Document State ====================
-type ActivePanel = 'info' | 'servers' | 'paths' | 'webhooks' | 'schemas' | 'security' | 'tags' | 'code' | 'preview' | 'validation';
+type ActivePanel = 'info' | 'servers' | 'paths' | 'webhooks' | 'schemas' | 'security' | 'tags' | 'code' | 'preview';
 
 interface DesignerState {
   document: OpenAPIDocument;

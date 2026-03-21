@@ -12,7 +12,6 @@ import { SecurityPanel } from './panels/SecurityPanel';
 import { TagsPanel } from './panels/TagsPanel';
 import { CodeEditorPanel } from './panels/CodeEditorPanel';
 import { PreviewPanel } from './panels/PreviewPanel';
-import { ValidationPanel } from './panels/ValidationPanel';
 import { CommandPalette } from './panels/CommandPalette';
 import type { OpenAPIDocument } from './types/openapi';
 import type { Locale } from './i18n/locales';
@@ -71,8 +70,6 @@ function DesignerLayout({ onChange }: { onChange?: (doc: OpenAPIDocument) => voi
         return <CodeEditorPanel />;
       case 'preview':
         return <PreviewPanel />;
-      case 'validation':
-        return <ValidationPanel />;
       default:
         return <InfoPanel />;
     }

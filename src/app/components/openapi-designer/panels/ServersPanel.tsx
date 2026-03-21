@@ -8,6 +8,7 @@ export function ServersPanel() {
   const { t } = useI18n();
   const { state, setDocument } = useDesigner();
   const doc = state.document;
+  const p = t.placeholders;
   const servers = doc.servers || [];
 
   const updateServers = (newServers: ServerObject[]) => {
@@ -116,6 +117,7 @@ function ServerCard({
   onUpdateVariable: (varName: string, variable: ServerVariableObject) => void;
 }) {
   const [varsExpanded, setVarsExpanded] = useState(false);
+  const p = t.placeholders;
   const variables = server.variables || {};
   const varCount = Object.keys(variables).length;
 
@@ -142,7 +144,7 @@ function ServerCard({
             value={server.url}
             onChange={(e) => onUpdateField('url', e.target.value)}
             className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all font-mono"
-            placeholder="https://api.example.com/v1"
+            placeholder={p.serverUrl}
           />
         </div>
         <div>
@@ -189,6 +191,7 @@ function ServerCard({
                       value={variable.default}
                       onChange={(e) => onUpdateVariable(varName, { ...variable, default: e.target.value })}
                       className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                      placeholder={p.variableDefault}
                     />
                   </div>
                   <div>
@@ -200,7 +203,7 @@ function ServerCard({
                         onUpdateVariable(varName, { ...variable, enum: vals.length > 0 ? vals : undefined });
                       }}
                       className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
-                      placeholder="val1, val2"
+                      placeholder={p.variableEnum}
                     />
                   </div>
                 </div>
@@ -210,6 +213,7 @@ function ServerCard({
                     value={variable.description || ''}
                     onChange={(e) => onUpdateVariable(varName, { ...variable, description: e.target.value || undefined })}
                     className="w-full mt-0.5 px-2 py-1 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    placeholder={p.variableDescription}
                   />
                 </div>
               </div>

@@ -101,7 +101,7 @@ function convertPostmanToOpenAPI(collection: Record<string, unknown>): OpenAPIDo
 }
 
 export function Toolbar() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { state, setDocument, undo, redo, canUndo, canRedo, saveNow } = useDesigner();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const postmanInputRef = useRef<HTMLInputElement>(null);
@@ -215,25 +215,25 @@ export function Toolbar() {
   };
 
   const handleExportMarkdown = () => {
-    downloadMarkdown(state.document);
+    downloadMarkdown(state.document, locale);
     setShowFileMenu(false);
     toast.success(t.common.downloadMarkdown);
   };
 
   const handleExportHtml = () => {
-    downloadHtml(state.document);
+    downloadHtml(state.document, locale);
     setShowFileMenu(false);
     toast.success(t.common.downloadHtml);
   };
 
   const handleExportWord = () => {
-    downloadWord(state.document);
+    downloadWord(state.document, locale);
     setShowFileMenu(false);
     toast.success(t.common.downloadWord);
   };
 
   const handlePrintPdf = () => {
-    printPdf(state.document);
+    printPdf(state.document, locale);
     setShowFileMenu(false);
     toast.success(t.common.printPdf);
   };

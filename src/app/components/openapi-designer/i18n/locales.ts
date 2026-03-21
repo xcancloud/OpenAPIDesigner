@@ -250,10 +250,21 @@ export interface I18nMessages {
     noContent: string;
     tryItOut: string;
     sendRequest: string;
+    sending: string;
     responseHeaders: string;
     responseBody: string;
     requestUrl: string;
     authorization: string;
+    expandAll: string;
+    collapseAll: string;
+    selectServer: string;
+    serverVariables: string;
+    statusCode: string;
+    responseTime: string;
+    debugError: string;
+    paramValue: string;
+    headerValue: string;
+    requestBodyContent: string;
   };
   // Validation
   validation: {
@@ -310,6 +321,94 @@ export interface I18nMessages {
     operationTags: string;
     schemaDescription: string;
     tagDescription: string;
+  };
+  // Export document labels
+  export: {
+    contents: string;
+    overview: string;
+    servers: string;
+    endpoints: string;
+    schemas: string;
+    security: string;
+    untagged: string;
+    openAPI: string;
+    version: string;
+    termsOfService: string;
+    contact: string;
+    license: string;
+    externalDocs: string;
+    serverUrl: string;
+    serverDescription: string;
+    variables: string;
+    variable: string;
+    default: string;
+    enumValues: string;
+    description: string;
+    parameters: string;
+    name: string;
+    paramIn: string;
+    type: string;
+    constraints: string;
+    required: string;
+    requestBody: string;
+    contentType: string;
+    responses: string;
+    headers: string;
+    statusCode: string;
+    property: string;
+    items: string;
+    schema: string;
+    additionalProperties: string;
+    enum: string;
+    option: string;
+    reusableParameters: string;
+    reusableResponses: string;
+    reusableRequestBodies: string;
+    securitySchemes: string;
+    in: string;
+    parameterName: string;
+    httpScheme: string;
+    bearerFormat: string;
+    openIdConnectUrl: string;
+    authorizationUrl: string;
+    tokenUrl: string;
+    refreshUrl: string;
+    scopes: string;
+    globalSecurityRequirement: string;
+    implicit: string;
+    password: string;
+    clientCredentials: string;
+    authorizationCode: string;
+    public: string;
+    privateAuth: string;
+    deprecated: string;
+  };
+  // Placeholder examples for input fields
+  placeholders: {
+    apiTitle: string;
+    apiVersion: string;
+    apiSummary: string;
+    apiDescription: string;
+    termsOfService: string;
+    openApiVersion: string;
+    contactName: string;
+    contactEmail: string;
+    contactUrl: string;
+    licenseName: string;
+    licenseIdentifier: string;
+    licenseUrl: string;
+    serverUrl: string;
+    serverDescription: string;
+    variableEnum: string;
+    variableDefault: string;
+    variableDescription: string;
+    operationSummary: string;
+    operationId: string;
+    pathUrl: string;
+    propertyDescription: string;
+    schemaDescription: string;
+    regexPattern: string;
+    enumValues: string;
   };
 }
 
@@ -551,10 +650,21 @@ export const en: I18nMessages = {
     noContent: 'No content to preview.',
     tryItOut: 'Try It Out',
     sendRequest: 'Send Request',
+    sending: 'Sending...',
     responseHeaders: 'Response Headers',
     responseBody: 'Response Body',
     requestUrl: 'Request URL',
     authorization: 'Authorization',
+    expandAll: 'Expand All',
+    collapseAll: 'Collapse All',
+    selectServer: 'Select Server',
+    serverVariables: 'Server Variables',
+    statusCode: 'Status',
+    responseTime: 'Time',
+    debugError: 'Request Failed',
+    paramValue: 'Value',
+    headerValue: 'Value',
+    requestBodyContent: 'Request Body',
   },
   validation: {
     title: 'Validation',
@@ -608,7 +718,93 @@ export const en: I18nMessages = {
     schemaDescription: 'Human-readable description of this schema or property. Markdown is supported.',
     tagDescription: 'Optional description for this tag. Markdown supported. Displayed under the tag heading in docs.',
   },
-};
+  export: {
+    contents: 'Contents',
+    overview: 'Overview',
+    servers: 'Servers',
+    endpoints: 'Endpoints',
+    schemas: 'Schemas',
+    security: 'Security Schemes',
+    untagged: 'Untagged',
+    openAPI: 'OpenAPI',
+    version: 'Version',
+    termsOfService: 'Terms of Service',
+    contact: 'Contact',
+    license: 'License',
+    externalDocs: 'External Docs',
+    serverUrl: 'Server URL',
+    serverDescription: 'Description',
+    variables: 'Variables',
+    variable: 'Variable',
+    default: 'Default',
+    enumValues: 'Enum',
+    description: 'Description',
+    parameters: 'Parameters',
+    name: 'Name',
+    paramIn: 'In',
+    type: 'Type',
+    constraints: 'Constraints',
+    required: 'Req',
+    requestBody: 'Request Body',
+    contentType: 'Content Type',
+    responses: 'Responses',
+    headers: 'Headers',
+    statusCode: 'Status Code',
+    property: 'Property',
+    items: 'items',
+    schema: 'Schema',
+    additionalProperties: 'additionalProperties',
+    enum: 'Enum',
+    option: 'Option',
+    reusableParameters: 'Reusable Parameters',
+    reusableResponses: 'Reusable Responses',
+    reusableRequestBodies: 'Reusable Request Bodies',
+    securitySchemes: 'Security Schemes',
+    in: 'In',
+    parameterName: 'Parameter Name',
+    httpScheme: 'HTTP Scheme',
+    bearerFormat: 'Bearer Format',
+    openIdConnectUrl: 'OpenID Connect URL',
+    authorizationUrl: 'Auth URL',
+    tokenUrl: 'Token URL',
+    refreshUrl: 'Refresh URL',
+    scopes: 'Scopes',
+    globalSecurityRequirement: 'Global Security Requirement',
+    implicit: 'Implicit',
+    password: 'Password',
+    clientCredentials: 'Client Credentials',
+    authorizationCode: 'Authorization Code',
+    public: 'Public (no auth)',
+    privateAuth: 'Private',
+    deprecated: 'deprecated',
+  },
+  placeholders: {
+    apiTitle: 'Petstore API',
+    apiVersion: '1.0.0',
+    apiSummary: 'A simple API for managing pets',
+    apiDescription: 'Describe your API in detail. **Markdown** is fully supported.',
+    termsOfService: 'https://example.com/terms',
+    openApiVersion: '3.1.0',
+    contactName: 'API Support Team',
+    contactEmail: 'support@example.com',
+    contactUrl: 'https://example.com/support',
+    licenseName: 'Apache 2.0',
+    licenseIdentifier: 'Apache-2.0',
+    licenseUrl: 'https://www.apache.org/licenses/LICENSE-2.0',
+    serverUrl: 'https://api.example.com/v1',
+    serverDescription: 'Type a description...',
+    variableEnum: 'val1, val2',
+    variableDefault: 'e.g. v1',
+    variableDescription: 'Describe this variable',
+    operationSummary: 'e.g. List all pets',
+    operationId: 'listPets',
+    pathUrl: 'e.g. /pets/{petId}',
+    propertyDescription: 'Describe this property. Markdown supported.',
+    schemaDescription: 'Describe this schema. **Markdown** is supported.',
+    regexPattern: '^[a-z]+$',
+    enumValues: 'val1, val2, val3',
+  },
+}
 
 export const zh: I18nMessages = {
   appName: 'OpenAPI 设计器',
@@ -848,10 +1044,21 @@ export const zh: I18nMessages = {
     noContent: '暂无可预览的内容。',
     tryItOut: '在线调试',
     sendRequest: '发送请求',
+    sending: '发送中...',
     responseHeaders: '响应头',
     responseBody: '响应体',
     requestUrl: '请求地址',
     authorization: '认证授权',
+    expandAll: '全部展开',
+    collapseAll: '全部收起',
+    selectServer: '选择服务器',
+    serverVariables: '服务器变量',
+    statusCode: '状态码',
+    responseTime: '耗时',
+    debugError: '请求失败',
+    paramValue: '值',
+    headerValue: '值',
+    requestBodyContent: '请求体',
   },
   validation: {
     title: '规范校验',
@@ -904,6 +1111,92 @@ export const zh: I18nMessages = {
     operationTags: '以逗号分隔的标签列表，用于对接口分组。标签须在"标签"面板中预先定义。',
     schemaDescription: '该数据模型或属性的可读描述，支持 Markdown 语法。',
     tagDescription: '标签的可选描述，支持 Markdown 语法，将显示在文档章节标题下方。',
+  },
+  export: {
+    contents: '目录',
+    overview: '概览',
+    servers: '服务器',
+    endpoints: '端点',
+    schemas: '数据模型',
+    security: '安全方案',
+    untagged: '未分类',
+    openAPI: 'OpenAPI',
+    version: '版本',
+    termsOfService: '服务条款',
+    contact: '联系信息',
+    license: '许可证',
+    externalDocs: '外部文档',
+    serverUrl: '服务器地址',
+    serverDescription: '描述',
+    variables: '变量',
+    variable: '变量',
+    default: '默认值',
+    enumValues: '枚举值',
+    description: '描述',
+    parameters: '参数',
+    name: '名称',
+    paramIn: '位置',
+    type: '类型',
+    constraints: '约束',
+    required: '必填',
+    requestBody: '请求体',
+    contentType: '内容类型',
+    responses: '响应',
+    headers: '响应头',
+    statusCode: '状态码',
+    property: '属性',
+    items: '元素',
+    schema: '数据模型',
+    additionalProperties: '额外属性',
+    enum: '枚举',
+    option: '选项',
+    reusableParameters: '可复用参数',
+    reusableResponses: '可复用响应',
+    reusableRequestBodies: '可复用请求体',
+    securitySchemes: '安全方案',
+    in: '位置',
+    parameterName: '参数名',
+    httpScheme: 'HTTP 方案',
+    bearerFormat: 'Bearer 格式',
+    openIdConnectUrl: 'OpenID Connect 地址',
+    authorizationUrl: '授权地址',
+    tokenUrl: '令牌地址',
+    refreshUrl: '刷新地址',
+    scopes: '作用域',
+    globalSecurityRequirement: '全局安全配置',
+    implicit: '隐式授权',
+    password: '密码授权',
+    clientCredentials: '客户端凭证',
+    authorizationCode: '授权码',
+    public: '公开（无认证）',
+    privateAuth: '私有',
+    deprecated: '已废弃',
+  },
+  placeholders: {
+    apiTitle: '宠物商店 API',
+    apiVersion: '1.0.0',
+    apiSummary: '一个简单的宠物管理 API',
+    apiDescription: '详细描述您的 API。支持 **Markdown** 格式化。',
+    termsOfService: 'https://example.com/terms',
+    openApiVersion: '3.1.0',
+    contactName: 'API 支持团队',
+    contactEmail: 'support@example.com',
+    contactUrl: 'https://example.com/support',
+    licenseName: 'Apache 2.0',
+    licenseIdentifier: 'Apache-2.0',
+    licenseUrl: 'https://www.apache.org/licenses/LICENSE-2.0',
+    serverUrl: 'https://api.example.com/v1',
+    serverDescription: '输入描述...',
+    variableEnum: 'val1, val2',
+    variableDefault: '例如：v1',
+    variableDescription: '描述此变量',
+    operationSummary: '例如：获取所有宠物',
+    operationId: 'listPets',
+    pathUrl: '例如：/pets/{petId}',
+    propertyDescription: '描述此属性。支持 Markdown。',
+    schemaDescription: '描述此数据模型。支持 **Markdown**。',
+    regexPattern: '^[a-z]+$',
+    enumValues: 'val1, val2, val3',
   },
 };
 

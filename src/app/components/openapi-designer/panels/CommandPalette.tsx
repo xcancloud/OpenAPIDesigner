@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useI18n, useDesigner } from '../context/DesignerContext';
 import {
   Search, Info, Server, Route, Box, Shield, Tag, Code, Eye,
-  AlertTriangle, ArrowRight, Hash, Key, FileText
+  ArrowRight, Hash, Key, FileText
 } from 'lucide-react';
 import type { HttpMethod, OperationObject } from '../types/openapi';
 import { HTTP_METHODS, METHOD_COLORS } from '../types/openapi';
@@ -41,7 +41,6 @@ export function CommandPalette() {
       { key: 'tags', icon: <Tag size={14} />, label: t.nav.tags },
       { key: 'code', icon: <Code size={14} />, label: t.nav.codeEditor },
       { key: 'preview', icon: <Eye size={14} />, label: t.nav.preview },
-      { key: 'validation', icon: <AlertTriangle size={14} />, label: t.nav.validation },
     ];
 
     panels.forEach(p => {

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useI18n, useDesigner } from '../context/DesignerContext';
 import {
-  Eye, ChevronDown, ChevronRight, ExternalLink, Lock, Copy, Terminal
+  Eye, ChevronDown, ChevronRight, ExternalLink, Lock, Copy, Terminal,
+  Play, Loader2, AlertCircle, Server, Settings2, ChevronsUpDown
 } from 'lucide-react';
 import type { HttpMethod, OperationObject, SchemaObject } from '../types/openapi';
 import { HTTP_METHODS, METHOD_COLORS } from '../types/openapi';
@@ -53,6 +54,20 @@ function EndpointPreview({
   const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
   const [curlCopied, setCurlCopied] = useState(false);
+  const [debugMode, setDebugMode] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [debugResult, setDebugResult] = useState<{
+    status: number;
+    statusText: string;
+    headers: Record<string, string>;
+    body: string;
+    time: number;
+  } | null>(null);
+  const [debugError, setDebugError] = useState<string | null>(null);
+  // Editable param values
+  const [paramValues, setParamValues] = useState<Record<string, string>>({});
+  const [headerValues, setHeaderValues] = useState<Record<string, string>>({});
+  const [bodyValue, setBodyValue] = useState('');
   const color = METHOD_COLORS[method];
 
   const responseEntries = Object.entries(operation.responses || {});
@@ -61,15 +76,46 @@ function EndpointPreview({
     ? operation.requestBody?.content?.['application/json']?.schema
     : undefined;
 
+  // Initialize body value from schema
+  useEffect(() => {
+    if (requestSchema && !bodyValue) {
+      setBodyValue(resolveSchemaDisplay(requestSchema, schemas));
+    }
+  }, [requestSchema, schemas]);
+
+  /** Build the effective URL with param substitution */
+  const buildUrl = useCallback(() => {
+    let url = `${serverUrl}${path}`;
+    // Substitute path params
+    (operation.parameters || []).filter(p => p.in === 'path').forEach(p => {
+      const val = paramValues[p.name] || `{${p.name}}`;
+      url = url.replace(`{${p.name}}`, encodeURIComponent(val));
+    });
+    // Append query params
+    const queryParams = (operation.parameters || []).filter(p => p.in === 'query');
+    const queryEntries = queryParams
+      .map(p => [p.name, paramValues[p.name] || ''])
+      .filter(([, v]) => v);
+    if (queryEntries.length > 0) {
+      url += '?' + queryEntries.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
+    }
+    return url;
+  }, [serverUrl, path, operation.parameters, paramValues]);
+
   /** Build a cURL command string from the operation definition */
   const buildCurlCommand = () => {
-    const url = `${serverUrl}${path}`;
+    const url = buildUrl();
     const lines: string[] = [`curl -X ${method.toUpperCase()} '${url}'`];
     lines.push(`  -H 'Accept: application/json'`);
+    // Add custom headers
+    (operation.parameters || []).filter(p => p.in === 'header').forEach(p => {
+      const val = headerValues[p.name] || paramValues[p.name];
+      if (val) lines.push(`  -H '${p.name}: ${val}'`);
+    });
     if (operation.security) lines.push(`  -H 'Authorization: Bearer <token>'`);
     if (requestSchema) {
       lines.push(`  -H 'Content-Type: application/json'`);
-      lines.push(`  -d '${resolveSchemaDisplay(requestSchema, schemas)}'`);
+      lines.push(`  -d '${bodyValue || resolveSchemaDisplay(requestSchema, schemas)}'`);
     }
     return lines.join(' \\\n');
   };
@@ -79,6 +125,49 @@ function EndpointPreview({
       setCurlCopied(true);
       setTimeout(() => setCurlCopied(false), 2000);
     });
+  };
+
+  /** Send the actual request */
+  const handleSendRequest = async () => {
+    setSending(true);
+    setDebugResult(null);
+    setDebugError(null);
+    const url = buildUrl();
+    const headers: Record<string, string> = { 'Accept': 'application/json' };
+    // Add header params
+    (operation.parameters || []).filter(p => p.in === 'header').forEach(p => {
+      const val = headerValues[p.name] || paramValues[p.name];
+      if (val) headers[p.name] = val;
+    });
+    if (requestSchema) headers['Content-Type'] = 'application/json';
+    const start = performance.now();
+    try {
+      const resp = await fetch(url, {
+        method: method.toUpperCase(),
+        headers,
+        body: requestSchema && bodyValue ? bodyValue : undefined,
+      });
+      const elapsed = Math.round(performance.now() - start);
+      const respHeaders: Record<string, string> = {};
+      resp.headers.forEach((v, k) => { respHeaders[k] = v; });
+      let respBody: string;
+      const ct = resp.headers.get('content-type') || '';
+      if (ct.includes('json')) {
+        try {
+          const json = await resp.json();
+          respBody = JSON.stringify(json, null, 2);
+        } catch {
+          respBody = await resp.text();
+        }
+      } else {
+        respBody = await resp.text();
+      }
+      setDebugResult({ status: resp.status, statusText: resp.statusText, headers: respHeaders, body: respBody, time: elapsed });
+    } catch (err: any) {
+      setDebugError(err?.message || String(err));
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -126,6 +215,7 @@ function EndpointPreview({
                       <th className="text-left py-1.5 pr-4" style={{ fontWeight: 500 }}>{t.common.type}</th>
                       <th className="text-left py-1.5 pr-4" style={{ fontWeight: 500 }}>{t.common.required}</th>
                       <th className="text-left py-1.5" style={{ fontWeight: 500 }}>{t.common.description}</th>
+                      {debugMode && <th className="text-left py-1.5 pl-2" style={{ fontWeight: 500 }}>{t.preview.paramValue}</th>}
                     </tr>
                   </thead>
                   <tbody>
@@ -144,6 +234,23 @@ function EndpointPreview({
                           )}
                         </td>
                         <td className="py-1.5 text-muted-foreground">{param.description || '—'}</td>
+                        {debugMode && (
+                          <td className="py-1.5 pl-2">
+                            <input
+                              value={param.in === 'header' ? (headerValues[param.name] || '') : (paramValues[param.name] || '')}
+                              onChange={(e) => {
+                                if (param.in === 'header') {
+                                  setHeaderValues(prev => ({ ...prev, [param.name]: e.target.value }));
+                                } else {
+                                  setParamValues(prev => ({ ...prev, [param.name]: e.target.value }));
+                                }
+                              }}
+                              placeholder={param.schema?.default != null ? String(param.schema.default) : ''}
+                              className="w-full min-w-[100px] px-2 py-0.5 rounded border border-border bg-background text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>
@@ -155,10 +262,19 @@ function EndpointPreview({
           {/* Request Body */}
           {requestSchema && (
             <div className="px-4 py-3 border-b border-border">
-              <h4 className="text-[12px] text-foreground mb-2" style={{ fontWeight: 600 }}>{t.common.requestBody}</h4>
-              <pre className="text-[11px] bg-muted/50 rounded-lg p-3 font-mono text-foreground overflow-x-auto">
-                {resolveSchemaDisplay(requestSchema, schemas)}
-              </pre>
+              <h4 className="text-[12px] text-foreground mb-2" style={{ fontWeight: 600 }}>{t.preview.requestBodyContent}</h4>
+              {debugMode ? (
+                <textarea
+                  value={bodyValue}
+                  onChange={(e) => setBodyValue(e.target.value)}
+                  className="w-full h-32 text-[11px] bg-muted/50 rounded-lg p-3 font-mono text-foreground border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y"
+                  spellCheck={false}
+                />
+              ) : (
+                <pre className="text-[11px] bg-muted/50 rounded-lg p-3 font-mono text-foreground overflow-x-auto">
+                  {resolveSchemaDisplay(requestSchema, schemas)}
+                </pre>
+              )}
             </div>
           )}
 
@@ -193,15 +309,15 @@ function EndpointPreview({
             </div>
           </div>
 
-          {/* Try-it area: copy cURL */}
+          {/* Try-it / Debug area */}
           <div className="px-4 py-3 border-t border-border bg-muted/10">
             <div className="flex items-center gap-3">
               <Terminal size={12} className="text-muted-foreground shrink-0" />
               <span className="text-[11px] text-muted-foreground font-mono flex-1 truncate">
-                {method.toUpperCase()} {serverUrl}{path}
+                {method.toUpperCase()} {buildUrl()}
               </span>
               <button
-                onClick={() => navigator.clipboard.writeText(`${serverUrl}${path}`)}
+                onClick={() => navigator.clipboard.writeText(buildUrl())}
                 className="p-1 text-muted-foreground hover:text-foreground transition-colors shrink-0"
                 title={t.common.copy}
               >
@@ -219,7 +335,82 @@ function EndpointPreview({
                 <Copy size={11} />
                 {curlCopied ? t.common.copied : 'cURL'}
               </button>
+              <button
+                onClick={() => setDebugMode(!debugMode)}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] transition-all shrink-0 ${
+                  debugMode
+                    ? 'bg-primary/10 text-primary border border-primary/20'
+                    : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border border-border'
+                }`}
+              >
+                <Play size={11} />
+                {t.preview.tryItOut}
+              </button>
             </div>
+
+            {/* Debug controls */}
+            {debugMode && (
+              <div className="mt-3 space-y-3">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleSendRequest}
+                    disabled={sending}
+                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-[12px] hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  >
+                    {sending ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} />}
+                    {sending ? t.preview.sending : t.preview.sendRequest}
+                  </button>
+                </div>
+
+                {/* Debug error */}
+                {debugError && (
+                  <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 flex items-start gap-2">
+                    <AlertCircle size={14} className="text-destructive shrink-0 mt-0.5" />
+                    <div>
+                      <div className="text-[12px] text-destructive" style={{ fontWeight: 600 }}>{t.preview.debugError}</div>
+                      <div className="text-[11px] text-destructive/80 mt-0.5 font-mono">{debugError}</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Debug result */}
+                {debugResult && (
+                  <div className="rounded-lg border border-border overflow-hidden">
+                    {/* Status bar */}
+                    <div className={`flex items-center gap-3 px-3 py-2 text-[12px] ${
+                      debugResult.status < 300 ? 'bg-green-500/10' :
+                      debugResult.status < 400 ? 'bg-yellow-500/10' : 'bg-red-500/10'
+                    }`}>
+                      <span className={`${
+                        debugResult.status < 300 ? 'text-green-600' :
+                        debugResult.status < 400 ? 'text-yellow-600' : 'text-red-600'
+                      }`} style={{ fontWeight: 700 }}>
+                        {debugResult.status} {debugResult.statusText}
+                      </span>
+                      <span className="text-muted-foreground text-[11px]">
+                        {t.preview.responseTime}: {debugResult.time}ms
+                      </span>
+                    </div>
+                    {/* Response headers */}
+                    <div className="px-3 py-2 border-t border-border">
+                      <h5 className="text-[11px] text-muted-foreground mb-1" style={{ fontWeight: 600 }}>{t.preview.responseHeaders}</h5>
+                      <div className="text-[10px] font-mono text-foreground/80 space-y-0.5 max-h-[100px] overflow-y-auto">
+                        {Object.entries(debugResult.headers).map(([k, v]) => (
+                          <div key={k}><span className="text-primary">{k}</span>: {v}</div>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Response body */}
+                    <div className="px-3 py-2 border-t border-border">
+                      <h5 className="text-[11px] text-muted-foreground mb-1" style={{ fontWeight: 600 }}>{t.preview.responseBody}</h5>
+                      <pre className="text-[11px] bg-muted/50 rounded-lg p-3 font-mono text-foreground overflow-x-auto max-h-[300px] overflow-y-auto">
+                        {debugResult.body}
+                      </pre>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -235,7 +426,51 @@ export function PreviewPanel() {
 
   useEffect(() => { initMarkdown(); }, []);
   const schemas = doc.components?.schemas || {};
-  const serverUrl = doc.servers?.[0]?.url || 'https://api.example.com';
+
+  // --- Server switcher state ---
+  const servers = doc.servers || [];
+  const [selectedServerIndex, setSelectedServerIndex] = useState(0);
+  const [serverVarValues, setServerVarValues] = useState<Record<string, string>>({});
+
+  // Compute effective server URL with variable substitution
+  const selectedServer = servers[selectedServerIndex] || null;
+  const computeServerUrl = useCallback(() => {
+    if (!selectedServer) return 'https://api.example.com';
+    let url = selectedServer.url;
+    if (selectedServer.variables) {
+      Object.entries(selectedServer.variables).forEach(([varName, varObj]) => {
+        const val = serverVarValues[varName] || varObj.default || '';
+        url = url.replace(`{${varName}}`, val);
+      });
+    }
+    return url;
+  }, [selectedServer, serverVarValues]);
+  const serverUrl = computeServerUrl();
+
+  // Reset variable values when switching servers
+  useEffect(() => {
+    if (selectedServer?.variables) {
+      const defaults: Record<string, string> = {};
+      Object.entries(selectedServer.variables).forEach(([name, v]) => {
+        defaults[name] = v.default || '';
+      });
+      setServerVarValues(defaults);
+    } else {
+      setServerVarValues({});
+    }
+  }, [selectedServerIndex, servers.length]);
+
+  // --- Tag collapse/expand state ---
+  const [expandedTags, setExpandedTags] = useState<Set<string>>(new Set());
+
+  const toggleTag = (tagName: string) => {
+    setExpandedTags(prev => {
+      const next = new Set(prev);
+      if (next.has(tagName)) next.delete(tagName);
+      else next.add(tagName);
+      return next;
+    });
+  };
 
   // Group endpoints by tags
   const tags = doc.tags || [];
@@ -261,6 +496,17 @@ export function PreviewPanel() {
     });
   });
 
+  const tagNames = Object.keys(tagGroups);
+  const allExpanded = tagNames.length > 0 && tagNames.every(t => expandedTags.has(t));
+
+  const handleToggleAll = () => {
+    if (allExpanded) {
+      setExpandedTags(new Set());
+    } else {
+      setExpandedTags(new Set(tagNames));
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header with API info */}
@@ -279,17 +525,76 @@ export function PreviewPanel() {
             v{doc.info.version}
           </span>
         </div>
-        {doc.servers && doc.servers.length > 0 && (
-          <div className="mt-4 flex items-center gap-2 flex-wrap">
-            {doc.servers.map((server, i) => (
-              <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/50 text-[12px]">
-                <div className="w-2 h-2 rounded-full bg-green-500" />
-                <span className="font-mono text-foreground">{server.url}</span>
-                {server.description && <span className="text-muted-foreground">({server.description})</span>}
+
+        {/* Server switcher */}
+        {servers.length > 0 && (
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Server size={14} className="text-green-500 shrink-0" />
+              {servers.length === 1 ? (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/50 text-[12px]">
+                  <div className="w-2 h-2 rounded-full bg-green-500" />
+                  <span className="font-mono text-foreground">{serverUrl}</span>
+                  {selectedServer?.description && <span className="text-muted-foreground">({selectedServer.description})</span>}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 flex-wrap">
+                  {servers.map((server, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setSelectedServerIndex(i)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] transition-all ${
+                        i === selectedServerIndex
+                          ? 'bg-primary/10 border border-primary/30 text-primary'
+                          : 'bg-muted/50 border border-transparent text-muted-foreground hover:bg-muted'
+                      }`}
+                    >
+                      <div className={`w-2 h-2 rounded-full ${i === selectedServerIndex ? 'bg-green-500' : 'bg-muted-foreground/30'}`} />
+                      <span className="font-mono">{server.url}</span>
+                      {server.description && <span className="text-[11px] opacity-70">({server.description})</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Server variables editing */}
+            {selectedServer?.variables && Object.keys(selectedServer.variables).length > 0 && (
+              <div className="rounded-lg border border-border bg-muted/20 p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <Settings2 size={12} className="text-muted-foreground" />
+                  <span className="text-[11px] text-muted-foreground" style={{ fontWeight: 600 }}>{t.preview.serverVariables}</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {Object.entries(selectedServer.variables).map(([varName, varObj]) => (
+                    <div key={varName} className="flex items-center gap-2">
+                      <label className="text-[11px] font-mono text-foreground shrink-0 min-w-[60px]">{varName}</label>
+                      {varObj.enum && varObj.enum.length > 0 ? (
+                        <select
+                          value={serverVarValues[varName] || varObj.default || ''}
+                          onChange={(e) => setServerVarValues(prev => ({ ...prev, [varName]: e.target.value }))}
+                          className="flex-1 px-2 py-1 rounded border border-border bg-background text-[11px] font-mono focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        >
+                          {varObj.enum.map(v => (
+                            <option key={v} value={v}>{v}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          value={serverVarValues[varName] || ''}
+                          onChange={(e) => setServerVarValues(prev => ({ ...prev, [varName]: e.target.value }))}
+                          placeholder={varObj.default || ''}
+                          className="flex-1 px-2 py-1 rounded border border-border bg-background text-[11px] font-mono focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
+            )}
           </div>
         )}
+
         {doc.info.contact && (
           <div className="mt-3 flex items-center gap-4 text-[12px] text-muted-foreground">
             {doc.info.contact.name && <span>{doc.info.contact.name}</span>}
@@ -322,13 +627,35 @@ export function PreviewPanel() {
         </div>
       )}
 
-      {/* Endpoints grouped by tags */}
-      {Object.entries(tagGroups).map(([tagName, ops]) => {
-        const tagInfo = tags.find(t => t.name === tagName);
+      {/* Expand/Collapse all toggle */}
+      {tagNames.length > 0 && (
+        <div className="flex items-center justify-end">
+          <button
+            onClick={handleToggleAll}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-border text-[11px] text-muted-foreground hover:bg-muted transition-colors"
+          >
+            <ChevronsUpDown size={12} />
+            {allExpanded ? t.preview.collapseAll : t.preview.expandAll}
+          </button>
+        </div>
+      )}
+
+      {/* Endpoints grouped by tags — collapsible */}
+      {tagNames.map(tagName => {
+        const ops = tagGroups[tagName];
+        const tagInfo = tags.find(tg => tg.name === tagName);
+        const isExpanded = expandedTags.has(tagName);
         return (
           <div key={tagName}>
-            <div className="flex items-center gap-2 mb-3">
-              <h3 className="text-[14px] text-foreground capitalize" style={{ fontWeight: 600 }}>{tagName}</h3>
+            <div
+              className="flex items-center gap-2 mb-3 cursor-pointer select-none group"
+              onClick={() => toggleTag(tagName)}
+            >
+              {isExpanded
+                ? <ChevronDown size={14} className="text-muted-foreground" />
+                : <ChevronRight size={14} className="text-muted-foreground" />
+              }
+              <h3 className="text-[14px] text-foreground capitalize group-hover:text-primary transition-colors" style={{ fontWeight: 600 }}>{tagName}</h3>
               {tagInfo?.description && (
                 <span className="text-[12px] text-muted-foreground">— {tagInfo.description}</span>
               )}
@@ -336,18 +663,20 @@ export function PreviewPanel() {
                 {ops.length}
               </span>
             </div>
-            <div className="space-y-2">
-              {ops.map((op, i) => (
-                <EndpointPreview
-                  key={`${op.path}-${op.method}-${i}`}
-                  path={op.path}
-                  method={op.method}
-                  operation={op.operation}
-                  schemas={schemas}
-                  serverUrl={serverUrl}
-                />
-              ))}
-            </div>
+            {isExpanded && (
+              <div className="space-y-2">
+                {ops.map((op, i) => (
+                  <EndpointPreview
+                    key={`${op.path}-${op.method}-${i}`}
+                    path={op.path}
+                    method={op.method}
+                    operation={op.operation}
+                    schemas={schemas}
+                    serverUrl={serverUrl}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         );
       })}

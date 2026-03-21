@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useI18n, useTheme, useDesigner } from '../context/DesignerContext';
 import {
-  Info, Server, Route, Box, Shield, Tag, Code, Eye, AlertTriangle,
+  Info, Server, Route, Box, Shield, Tag, Code, Eye,
   Sun, Moon, Languages, BookOpen, PanelLeftClose, PanelLeft, Search, Webhook
 } from 'lucide-react';
 import { HTTP_METHODS } from '../types/openapi';
 import type { OperationObject } from '../types/openapi';
 
-type PanelKey = 'info' | 'servers' | 'paths' | 'webhooks' | 'schemas' | 'security' | 'tags' | 'code' | 'preview' | 'validation';
+type PanelKey = 'info' | 'servers' | 'paths' | 'webhooks' | 'schemas' | 'security' | 'tags' | 'code' | 'preview';
 
 const navItems: { key: PanelKey; icon: React.ReactNode; color: string }[] = [
   { key: 'info', icon: <Info size={18} />, color: 'text-blue-500' },
@@ -19,7 +19,6 @@ const navItems: { key: PanelKey; icon: React.ReactNode; color: string }[] = [
   { key: 'tags', icon: <Tag size={18} />, color: 'text-teal-500' },
   { key: 'code', icon: <Code size={18} />, color: 'text-indigo-500' },
   { key: 'preview', icon: <Eye size={18} />, color: 'text-cyan-500' },
-  { key: 'validation', icon: <AlertTriangle size={18} />, color: 'text-yellow-500' },
 ];
 
 const navLabelKey: Record<PanelKey, string> = {
@@ -32,7 +31,6 @@ const navLabelKey: Record<PanelKey, string> = {
   tags: 'tags',
   code: 'codeEditor',
   preview: 'preview',
-  validation: 'validation',
 };
 
 export function Sidebar() {
@@ -56,7 +54,6 @@ export function Sidebar() {
   const isCollapsed = collapsed || autoCollapsed;
 
   const doc = state.document;
-  const errorCount = state.validationErrors.filter(e => e.severity === 'error').length;
   const pathCount = Object.keys(doc.paths || {}).length;
   const opCount = Object.values(doc.paths || {}).reduce((acc, item) => {
     return acc + HTTP_METHODS.filter(m => (item as any)[m]).length;
@@ -76,7 +73,6 @@ export function Sidebar() {
       case 'security': return securityCount > 0 ? securityCount : null;
       case 'servers': return serverCount > 0 ? serverCount : null;
       case 'tags': return tagCount > 0 ? tagCount : null;
-      case 'validation': return errorCount > 0 ? errorCount : null;
       default: return null;
     }
   };
@@ -112,11 +108,7 @@ export function Sidebar() {
                 )}
                 {icon}
                 {badge !== null && (
-                  <span className={`absolute -top-0.5 -right-0.5 text-[8px] min-w-[14px] h-[14px] flex items-center justify-center rounded-full px-0.5 ${
-                    key === 'validation'
-                      ? 'bg-destructive text-destructive-foreground'
-                      : 'bg-muted text-muted-foreground'
-                  }`}>
+                  <span className="absolute -top-0.5 -right-0.5 text-[8px] min-w-[14px] h-[14px] flex items-center justify-center rounded-full px-0.5 bg-muted text-muted-foreground">
                     {badge}
                   </span>
                 )}
@@ -209,11 +201,7 @@ export function Sidebar() {
               {icon}
               <span className="flex-1 text-left">{label}</span>
               {badge !== null && (
-                <span className={`text-[10px] min-w-[18px] text-center px-1.5 py-0.5 rounded-full ${
-                  key === 'validation'
-                    ? 'bg-destructive text-destructive-foreground'
-                    : 'bg-muted text-muted-foreground'
-                }`}>
+                <span className="text-[10px] min-w-[18px] text-center px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
                   {badge}
                 </span>
               )}

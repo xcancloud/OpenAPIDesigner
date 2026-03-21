@@ -163,7 +163,7 @@ function OperationEditor({
                 value={operation.summary || ''}
                 onChange={(e) => onUpdate({ ...operation, summary: e.target.value })}
                 className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-background text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
-                placeholder="e.g. List all pets"
+                placeholder={p.operationSummary}
               />
             </div>
             <div>
@@ -175,7 +175,7 @@ function OperationEditor({
                 value={operation.operationId || ''}
                 onChange={(e) => onUpdate({ ...operation, operationId: e.target.value })}
                 className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-background text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all font-mono"
-                placeholder="listPets"
+                placeholder={p.operationId}
               />
             </div>
           </div>
@@ -438,6 +438,7 @@ export function PathsPanel() {
   const { t } = useI18n();
   const { state, setDocument } = useDesigner();
   const doc = state.document;
+  const p = t.placeholders;
   const paths = doc.paths || {};
   const [searchTerm, setSearchTerm] = useState('');
   const [newPath, setNewPath] = useState('');
