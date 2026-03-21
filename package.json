@@ -1,6 +1,6 @@
 {
   "name": "@xcan-cloud/open-api-designer",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "OpenAPI Designer - Visual OpenAPI design tool",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
@@ -27,7 +27,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:lib": "vite build --config vite.lib.config.ts && tsc --project tsconfig.build.json"
+    "build:lib": "vite build --config vite.lib.config.ts && tsc --project tsconfig.build.json",
+    "prepublishOnly": "npm run build:lib",
+    "deploy": "npm run build:lib && npm publish"
   },
   "dependencies": {
     "@codemirror/commands": "^6.8.1",
@@ -51,6 +53,7 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.1.12",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.0.0",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
