@@ -1150,9 +1150,625 @@ export function printPdf(doc: OpenAPIDocument): void {
  */
 export function downloadWord(doc: OpenAPIDocument): void {
   downloadBlob(
-    '\ufeff' + generateHTML(doc),
+    '\ufeff' + generateWordHTML(doc),
     `${sanitizeFilename(doc.info.title)}.doc`,
     'application/msword'
   );
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// WORD-OPTIMIZED HTML GENERATOR
+// Produces a linear (single-column) layout that renders correctly in Word /
+// LibreOffice / Google Docs.  Avoids flexbox, sticky, position:fixed —
+// anything that HTML-based .doc readers typically ignore.
+// ══════════════════════════════════════════════════════════════════════════════
+
+const WORD_CSS = `
+/* ── Reset ─────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+  font-size: 11pt; color: #111827; line-height: 1.55;
+  max-width: 750pt; margin: 0 auto; padding: 32pt 40pt;
+}
+a { color: #2563eb; text-decoration: none; }
+a:hover { text-decoration: underline; }
+code, pre {
+  font-family: 'Courier New', Consolas, 'Lucida Console', monospace;
+}
+
+/* ── Headings ───────────────────────────────────────────────────────────── */
+h1 {
+  font-size: 22pt; font-weight: 700; color: #030712;
+  border-bottom: 2pt solid #e5e7eb; padding-bottom: 8pt; margin: 0 0 16pt;
+}
+h2 {
+  font-size: 16pt; font-weight: 700; color: #111827;
+  border-bottom: 1pt solid #e5e7eb; padding-bottom: 5pt; margin: 16pt 0 8pt;
+}
+h3 { font-size: 13pt; font-weight: 700; color: #1f2937; margin: 12pt 0 6pt; }
+h4 { font-size: 11pt; font-weight: 700; color: #374151; margin: 8pt 0 4pt; }
+
+/* ── Lists ──────────────────────────────────────────────────────────────── */
+ul { list-style: disc; margin: 6pt 0 6pt 18pt; padding: 0; }
+ol { list-style: decimal; margin: 6pt 0 6pt 18pt; padding: 0; }
+li { margin: 2pt 0; }
+
+/* ── Tables ─────────────────────────────────────────────────────────────── */
+table { border-collapse: collapse; width: 100%; margin: 8pt 0; font-size: 10pt; }
+th {
+  background: #f3f4f6; text-align: left; padding: 5pt 8pt;
+  border: 1pt solid #d1d5db; font-size: 9.5pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.3pt; white-space: nowrap;
+}
+td { padding: 5pt 8pt; border: 1pt solid #e5e7eb; vertical-align: top; }
+
+/* ── Inline code / pre ──────────────────────────────────────────────────── */
+code {
+  background: #f3f4f6; border-radius: 3pt; padding: 1pt 5pt;
+  font-size: 9.5pt; color: #1f2937;
+}
+pre {
+  background: #f3f4f6; border-radius: 6pt; padding: 10pt 12pt;
+  margin: 8pt 0; font-size: 9pt; overflow-x: auto; white-space: pre-wrap;
+  word-break: break-word;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+
+/* ── Badges ─────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-block; padding: 2pt 7pt; border-radius: 12pt;
+  font-size: 9pt; font-weight: 600;
+}
+.badge-version { background: #dbeafe; color: #1e40af; }
+.badge-oas     { background: #d1fae5; color: #065f46; }
+.badge-depr    { background: #fef9c3; color: #92400e; font-size: 8.5pt; padding: 1pt 5pt; }
+
+/* Method badges */
+.method-badge {
+  display: inline-block; padding: 2pt 8pt; border-radius: 4pt;
+  font-size: 9pt; font-weight: 800; letter-spacing: 0.5pt; min-width: 50pt;
+  text-align: center; color: #fff;
+}
+.in-badge {
+  display: inline-block; padding: 1pt 6pt; border-radius: 3pt;
+  font-size: 8.5pt; font-weight: 700;
+}
+.in-path   { background: #fce7f3; color: #be185d; }
+.in-query  { background: #dbeafe; color: #1d4ed8; }
+.in-header { background: #d1fae5; color: #047857; }
+.in-cookie { background: #fef3c7; color: #92400e; }
+
+/* Status codes */
+code.status { padding: 2pt 7pt; border-radius: 4pt; font-weight: 700; font-size: 10pt; }
+.s2xx { background: #dcfce7; color: #166534; }
+.s4xx { background: #fef3c7; color: #92400e; }
+.s5xx { background: #fee2e2; color: #991b1b; }
+
+/* ── TOC ────────────────────────────────────────────────────────────────── */
+.toc {
+  background: #f9fafb; border: 1pt solid #e5e7eb; border-radius: 8pt;
+  padding: 12pt 18pt; margin-bottom: 16pt;
+}
+.toc-title {
+  font-size: 9.5pt; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1pt; color: #6b7280; border-bottom: 1pt solid #e5e7eb;
+  padding-bottom: 5pt; margin-bottom: 6pt;
+}
+/* Each TOC row is a <p>; zero out its margin so Word doesn't add paragraph
+   spacing on top of the CSS. Padding provides the only visual gap. */
+.toc-section { font-size: 11pt; font-weight: 600; color: #111827; margin: 0; padding: 1pt 0; line-height: 1.3; }
+.toc-item    { font-size: 10pt; color: #374151; margin: 0; padding: 0 0 0 14pt; line-height: 1.3; }
+.toc-section a, .toc-item a { color: inherit; text-decoration: none; }
+.toc-dot {
+  display: inline-block; width: 7pt; height: 7pt; border-radius: 50%;
+  vertical-align: middle; margin-right: 5pt;
+}
+
+/* ── Operation cards ────────────────────────────────────────────────────── */
+.operation {
+  border: 1pt solid #e5e7eb; border-radius: 8pt; margin: 8pt 0;
+  overflow: hidden; page-break-inside: avoid;
+}
+.op-header {
+  background: #f9fafb; padding: 9pt 14pt; border-bottom: 1pt solid #e5e7eb;
+}
+.op-path    { font-size: 12pt; font-weight: 700; font-family: 'Courier New', monospace; }
+.op-summary { font-size: 11pt; color: #6b7280; margin-top: 3pt; }
+.op-description { padding: 9pt 14pt; font-size: 11pt; color: #4b5563; border-bottom: 1pt solid #f3f4f6; }
+.op-section { padding: 0 14pt 12pt; }
+.section-label {
+  font-size: 8.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8pt;
+  color: #9ca3af; margin: 12pt 0 6pt; border-top: 1pt solid #f3f4f6; padding-top: 8pt;
+}
+
+/* ── Schema cards ───────────────────────────────────────────────────────── */
+.schema-card {
+  border: 1pt solid #e5e7eb; border-radius: 8pt; margin: 8pt 0;
+  page-break-inside: avoid;
+}
+.schema-header {
+  background: #f5f3ff; padding: 9pt 14pt; border-bottom: 1pt solid #e5e7eb;
+  display: block;  /* not flex — safe for Word */
+}
+.schema-name { font-weight: 700; font-size: 13pt; color: #4c1d95; }
+.schema-body { padding: 10pt 14pt; }
+
+/* ── Security ───────────────────────────────────────────────────────────── */
+.scheme-card {
+  border: 1pt solid #e5e7eb; border-radius: 8pt; margin: 8pt 0;
+  page-break-inside: avoid;
+}
+.scheme-header {
+  background: #f0fdf4; padding: 9pt 14pt; border-bottom: 1pt solid #e5e7eb; display: block;
+}
+.scheme-name { font-weight: 700; font-size: 13pt; color: #065f46; }
+.scheme-body { padding: 10pt 14pt; }
+
+/* ── Composition / nesting ──────────────────────────────────────────────── */
+.compose-label {
+  font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5pt;
+  color: #8b5cf6; margin: 8pt 0 4pt;
+}
+.nested-schema {
+  margin-left: 14pt; border-left: 3pt solid #ede9fe; padding-left: 10pt; margin-top: 4pt;
+}
+
+/* ── Security chips inline ──────────────────────────────────────────────── */
+.sec-chip {
+  display: inline-block; background: #f0f9ff; border: 1pt solid #bae6fd;
+  color: #0369a1; padding: 1pt 7pt; border-radius: 12pt; font-size: 9.5pt;
+  font-weight: 600; margin: 1pt 2pt;
+}
+
+/* ── Print ──────────────────────────────────────────────────────────────── */
+@media print {
+  body { font-size: 10pt; }
+  h1   { font-size: 18pt; }
+  h2   { font-size: 14pt; margin-top: 12pt; }
+  h3   { font-size: 12pt; margin-top: 8pt; }
+  .toc { page-break-after: always; }
+  .operation { margin: 5pt 0; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 9pt; color: #6b7280; }
+  @page { margin: 20mm 15mm; }
+}
+`.trim();
+
+function generateWordHTML(doc: OpenAPIDocument): string {
+  const { tagOrder, byTag, untagged, tagDescriptions, tagExternalDocs } = collectByTag(doc);
+
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+
+  function schemaTypeHtmlW(schema: SchemaObject): string {
+    if (schema.$ref) {
+      const name = schema.$ref.split('/').pop() || '';
+      return `<a href="#schema-${slug(name)}"><code>${esc(name)}</code></a>`;
+    }
+    return `<code>${esc(schemaTypeLabel(schema, doc))}</code>`;
+  }
+
+  function constraintsHtmlW(schema: SchemaObject): string {
+    return schemaConstraints(schema)
+      .map(c => `<code style="background:#f0fdf4;color:#166534;margin:1pt;padding:1pt 4pt">${esc(c)}</code>`)
+      .join(' ');
+  }
+
+  function statusBadgeW(code: string): string {
+    const cls = code.startsWith('2') ? 's2xx' : code.startsWith('4') ? 's4xx'
+              : code.startsWith('5') ? 's5xx' : '';
+    return `<code class="status ${cls}">${esc(code)}</code>`;
+  }
+
+  function securityHtmlW(reqs: Array<Record<string, string[]>>): string {
+    if (!reqs.length) return `<span class="sec-chip">🔓 Public</span>`;
+    return reqs.map(req =>
+      Object.entries(req).map(([name, scopes]) =>
+        `<span class="sec-chip">🔒 ${esc(name)}${scopes.length ? ` [${scopes.join(', ')}]` : ''}</span>`
+      ).join('')
+    ).join(' <span style="color:#9ca3af">or</span> ');
+  }
+
+  /**
+   * Post-process renderMarkdown() output for Word (.doc) compatibility:
+   * - Converts Shiki code blocks → plain <pre><code> (Word ignores complex CSS/spans)
+   * - Converts Mermaid placeholders → <pre> showing raw diagram source
+   * - Strips KaTeX SVG output → LaTeX source text from MathML annotation
+   * - Removes <p> wrappers inside <li> (marked wraps loose-list items in <p>,
+   *   which Word renders as an empty bullet followed by a separate paragraph)
+   */
+  function wordifyMarkdown(html: string): string {
+    let s = html;
+
+    // 1. Shiki: <div class="md-code-block">…shiki HTML…</div> → plain <pre><code>
+    s = s.replace(
+      /<div class="md-code-block">([\/\s\S]*?)<\/div>/g,
+      (_, inner: string) => {
+        // Each shiki line is <span class="line">…tokens…</span> separated by newlines.
+        // Strip all tags and decode common entities to get plain text.
+        const text = inner
+          .replace(/<\/span>\s*\n?\s*(?=<span class="line">|<\/code>)/g, '\n')
+          .replace(/<[^>]+>/g, '')
+          .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
+          .replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+          .replace(/\n+$/, '');
+        return `<pre style="background:#f3f4f6;padding:8pt 12pt;border-radius:4pt;font-size:9pt;white-space:pre-wrap;word-break:break-word;font-family:'Courier New',monospace"><code>${esc(text)}</code></pre>`;
+      }
+    );
+
+    // 2. Mermaid placeholder: show raw diagram source as a styled <pre>
+    s = s.replace(
+      /<div class="md-mermaid"[^>]*>[\s\S]*?<code class="md-mermaid-source">([\/\s\S]*?)<\/code><\/div>/g,
+      (_, src: string) =>
+        `<pre style="background:#f0f4ff;padding:8pt 12pt;border-radius:4pt;font-size:9pt;font-family:'Courier New',monospace;border:1pt dashed #94a3b8;white-space:pre-wrap">${src}</pre>`
+    );
+
+    // 3. KaTeX math-block <div class="md-math-block">…</div> → LaTeX source
+    s = s.replace(
+      /<div class="md-math-block">([\s\S]*?)<\/div>/g,
+      (_, inner: string) => {
+        const tex = inner.match(/<annotation encoding="application\/x-tex">([\s\S]*?)<\/annotation>/)?.[1]?.trim() ?? '';
+        return tex
+          ? `<p style="text-align:center;font-style:italic;font-family:'Courier New',monospace;padding:6pt 0;color:#1e3a5f">$$${esc(tex)}$$</p>`
+          : '';
+      }
+    );
+
+    // 4. KaTeX inline <span class="katex">…</span> → LaTeX source
+    s = s.replace(
+      /<span class="katex(?:-display)?">[\s\S]*?<annotation encoding="application\/x-tex">([\s\S]*?)<\/annotation>[\s\S]*?<\/span>/g,
+      (_, tex: string) =>
+        tex.trim() ? `<em style="font-family:'Courier New',monospace">$${esc(tex.trim())}$</em>` : ''
+    );
+
+    // 5. Unwrap <p> inside <li> — GFM "loose" lists wrap each item's content
+    //    in <p>, which Word renders as an empty bullet followed by a separate
+    //    paragraph. Strip those <p> wrappers so the text sits directly in <li>.
+    //    Multiple <p>s within one <li> are joined with a <br> instead.
+    s = s
+      .replace(/<li>\s*<p>/g, '<li>')
+      .replace(/<\/p>\s*<\/li>/g, '</li>')
+      .replace(/<\/p>\s*<p>/g, '<br>');
+
+    return s;
+  }
+
+  /** Render markdown and make the output Word-compatible */
+  const wordMd = (text: string) => wordifyMarkdown(renderMarkdown(text));
+
+  // Recursive schema renderer
+  function renderSchemaHtmlW(schema: SchemaObject, depth = 0): string {
+    if (schema.$ref) {
+      const name = schema.$ref.split('/').pop() || '';
+      return `<p style="margin:4pt 0">→ <a href="#schema-${slug(name)}"><code>${esc(name)}</code></a></p>`;
+    }
+    let html = '';
+    const cs = constraintsHtmlW(schema);
+    if (depth > 0) {
+      const t = schemaTypeLabel(schema, doc);
+      if (t !== 'any') html += `<div style="margin:3pt 0">${schemaTypeHtmlW(schema)} ${cs}</div>`;
+      if (schema.description) html += `<div style="color:#6b7280;font-size:10pt;margin:2pt 0">${esc(schema.description)}</div>`;
+    }
+    for (const [kw, items] of [['allOf', schema.allOf], ['oneOf', schema.oneOf], ['anyOf', schema.anyOf]] as [string, SchemaObject[] | undefined][]) {
+      if (!items?.length) continue;
+      html += `<div class="compose-label">${kw}</div>`;
+      items.forEach((s, i) => {
+        html += `<div class="nested-schema"><div style="font-size:9pt;color:#8b5cf6;font-weight:600;margin-bottom:3pt">Option ${i + 1}</div>${renderSchemaHtmlW(s, depth + 1)}</div>`;
+      });
+    }
+    if (schema.not) html += `<div class="compose-label">not</div><div class="nested-schema">${renderSchemaHtmlW(schema.not, depth + 1)}</div>`;
+    if (schema.enum) {
+      html += `<div style="margin:4pt 0;font-size:10pt">Enum: ${(schema.enum as unknown[]).map(v => `<code style="background:#f0fdf4;color:#166534">${esc(String(v))}</code>`).join(' ')}</div>`;
+    }
+    if (schema.properties && Object.keys(schema.properties).length) {
+      const req = schema.required || [];
+      const rows = Object.entries(schema.properties).map(([pName, pSchema]) => {
+        const hasNested = pSchema.properties || pSchema.allOf || pSchema.oneOf || pSchema.anyOf || pSchema.items;
+        const nested = hasNested ? `<div class="nested-schema" style="margin-top:4pt">${renderSchemaHtmlW(pSchema, depth + 1)}</div>` : '';
+        return `<tr>
+          <td><code>${esc(pName)}</code>${req.includes(pName) ? '<span style="color:#ef4444;font-size:8pt">*</span>' : ''}${pSchema.deprecated ? ' <span class="badge-depr">depr</span>' : ''}</td>
+          <td>${schemaTypeHtmlW(pSchema)}</td>
+          <td>${constraintsHtmlW(pSchema)}</td>
+          <td>${esc(pSchema.description || '')}${nested}</td>
+        </tr>`;
+      }).join('');
+      html += `<table><thead><tr><th>Property</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    if (schema.items) {
+      html += `<div style="margin:6pt 0;font-size:10pt"><strong>items:</strong> ${schemaTypeHtmlW(schema.items)}`;
+      if (schema.items.properties) html += `<div class="nested-schema">${renderSchemaHtmlW(schema.items, depth + 1)}</div>`;
+      html += `</div>`;
+    }
+    if (typeof schema.additionalProperties === 'object') {
+      html += `<div style="margin:4pt 0;font-size:10pt"><strong>additionalProperties:</strong> ${schemaTypeHtmlW(schema.additionalProperties as SchemaObject)}</div>`;
+    }
+    return html;
+  }
+
+  function paramsTableW(params: ParameterObject[]): string {
+    const rows = params.map(rawP => {
+      const rawPAny = rawP as unknown as Record<string, unknown>;
+      const p = rawPAny.$ref ? (resolveRef<ParameterObject>(rawPAny.$ref as string, doc) ?? rawP) : rawP;
+      const t = p.schema ? schemaTypeHtmlW(p.schema) : '';
+      const cs = p.schema ? constraintsHtmlW(p.schema) : '';
+      return `<tr>
+        <td><code>${esc(p.name)}</code>${p.deprecated ? ' <span class="badge-depr">depr</span>' : ''}</td>
+        <td><span class="in-badge in-${p.in}">${p.in}</span></td>
+        <td>${t}</td><td>${cs}</td>
+        <td style="text-align:center;color:#ef4444">${p.required ? '✓' : ''}</td>
+        <td>${esc(p.description || '')}</td>
+      </tr>`;
+    }).join('');
+    return `<table><thead><tr><th>Name</th><th>In</th><th>Type</th><th>Constraints</th><th>Req</th><th>Description</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  function renderOperationW(entry: OpEntry): string {
+    const { kind, path, method, op } = entry;
+    const opId = `op-${slug(method + '-' + path)}`;
+    const { bg, fg } = METHOD_COLORS[method] ?? { bg: '#6b7280', fg: '#fff' };
+    const pathLabel = kind === 'webhook'
+      ? `${esc(path)} <span style="background:#ede9fe;color:#6d28d9;padding:1pt 6pt;border-radius:4pt;font-size:9pt;font-weight:700">webhook</span>`
+      : esc(path);
+    let html = `<div class="operation" id="${opId}">
+      <div class="op-header">
+        <span class="method-badge" style="background:${bg};color:${fg}">${method.toUpperCase()}</span>
+        <span class="op-path" style="margin-left:8pt">${pathLabel}</span>
+        ${op.deprecated ? ' <span class="badge-depr" style="margin-left:8pt">Deprecated</span>' : ''}
+        ${op.summary ? `<div class="op-summary">${esc(op.summary)}</div>` : ''}
+      </div>`;
+    if (op.description) html += `<div class="op-description">${wordMd(op.description)}</div>`;
+    if (op.security !== undefined) {
+      html += `<div style="padding:4pt 14pt 8pt;font-size:10pt">Security: ${securityHtmlW(op.security)}</div>`;
+    }
+    if ((op.parameters as ParameterObject[] | undefined)?.length) {
+      html += `<div class="op-section"><div class="section-label">Parameters</div>${paramsTableW(op.parameters as ParameterObject[])}</div>`;
+    }
+    if (op.requestBody) {
+      const rb = op.requestBody;
+      html += `<div class="op-section"><div class="section-label">Request Body${rb.required ? ' <span style="color:#ef4444">*</span>' : ''}</div>`;
+      if (rb.description) html += `<p style="font-size:11pt;color:#4b5563;margin-bottom:6pt">${esc(rb.description)}</p>`;
+      for (const [ct, media] of Object.entries(rb.content || {})) {
+        html += `<div style="margin-bottom:10pt"><span style="font-size:9.5pt;font-weight:700;padding:1pt 7pt;background:#f3f4f6;border-radius:4pt">${esc(ct)}</span>`;
+        if (media.schema) html += `<div style="margin-top:6pt">${renderSchemaHtmlW(media.schema)}</div>`;
+        html += `</div>`;
+      }
+      html += `</div>`;
+    }
+    if (op.responses && Object.keys(op.responses).length) {
+      html += `<div class="op-section"><div class="section-label">Responses</div>`;
+      for (const [code, resp] of Object.entries(op.responses)) {
+        html += `<div style="border:1pt solid #f3f4f6;border-radius:5pt;margin-bottom:6pt">
+          <div style="padding:6pt 10pt;background:#f9fafb;border-bottom:1pt solid #f3f4f6">
+            ${statusBadgeW(code)} <span style="font-size:11pt;color:#374151;margin-left:6pt">${esc(resp.description || '')}</span>
+          </div>`;
+        if (resp.content && Object.keys(resp.content).length) {
+          html += `<div style="padding:6pt 10pt">`;
+          for (const [ct, media] of Object.entries(resp.content)) {
+            html += `<span style="font-size:9pt;font-weight:700;padding:1pt 6pt;background:#f3f4f6;border-radius:4pt">${esc(ct)}</span>`;
+            if (media.schema) html += `<div style="margin-top:4pt">${renderSchemaHtmlW(media.schema)}</div>`;
+          }
+          html += `</div>`;
+        }
+        html += `</div>`;
+      }
+      html += `</div>`;
+    }
+    html += `</div>`;
+    return html;
+  }
+
+  // ── TOC (linear block layout — no sidebar) ────────────────────────────────────
+  // Each entry is wrapped in <p> so Word keeps it on its own line.
+  // Word ignores CSS display:block on <a> (inline element), but always
+  // breaks before and after block-level elements like <p>.
+  function buildTocW(): string {
+    // Helper: TOC link wrapped in a <p> so Word puts it on its own line
+    const tocSection = (href: string, label: string) =>
+      `<p class="toc-section"><a href="${href}">${label}</a></p>`;
+    const tocItem = (href: string, label: string, extraStyle = '') =>
+      `<p class="toc-item"${extraStyle ? ` style="${extraStyle}"` : ''}><a href="${href}">${label}</a></p>`;
+
+    let html = `<div class="toc"><div class="toc-title">Contents</div>`;
+    html += tocSection('#api-info', 'Overview');
+    if (doc.servers?.length) html += tocSection('#servers', 'Servers');
+    if (tagOrder.length || untagged.length) {
+      html += tocSection('#endpoints', 'Endpoints');
+      for (const tag of tagOrder) {
+        html += tocItem(`#tag-${slug(tag)}`, esc(tag));
+        for (const { method, path, op } of byTag[tag] || []) {
+          const color = METHOD_COLORS[method]?.bg ?? '#6b7280';
+          const dot = `<span class="toc-dot" style="background:${color};width:6pt;height:6pt;display:inline-block;border-radius:50%;vertical-align:middle;margin-right:4pt"></span>`;
+          html += tocItem(`#op-${slug(method + '-' + path)}`, dot + esc(op.summary || path), 'padding-left:28pt');
+        }
+      }
+      if (untagged.length) {
+        html += tocItem('#tag-untagged', 'Untagged');
+        for (const { method, path, op } of untagged) {
+          const color = METHOD_COLORS[method]?.bg ?? '#6b7280';
+          const dot = `<span class="toc-dot" style="background:${color};width:6pt;height:6pt;display:inline-block;border-radius:50%;vertical-align:middle;margin-right:4pt"></span>`;
+          html += tocItem(`#op-${slug(method + '-' + path)}`, dot + esc(op.summary || path), 'padding-left:28pt');
+        }
+      }
+    }
+    const schemas = doc.components?.schemas;
+    if (schemas && Object.keys(schemas).length) {
+      html += tocSection('#schemas', 'Schemas');
+      for (const name of Object.keys(schemas)) {
+        html += tocItem(`#schema-${slug(name)}`, esc(name));
+      }
+    }
+    if (doc.components?.securitySchemes && Object.keys(doc.components.securitySchemes).length) {
+      html += tocSection('#security-schemes', 'Security Schemes');
+    }
+    html += `</div>`;
+    return html;
+  }
+
+  // ── Overview ──────────────────────────────────────────────────────────────────
+  function overviewW(): string {
+    const metaRows: [string, string][] = [['OpenAPI', esc(doc.openapi)], ['Version', esc(doc.info.version)]];
+    if (doc.info.termsOfService) metaRows.push(['Terms of Service', `<a href="${esc(doc.info.termsOfService)}">${esc(doc.info.termsOfService)}</a>`]);
+    if (doc.info.contact) {
+      const c = doc.info.contact;
+      const parts = [c.name ? esc(c.name) : '', c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : '', c.url ? `<a href="${esc(c.url)}">${esc(c.url)}</a>` : ''].filter(Boolean);
+      if (parts.length) metaRows.push(['Contact', parts.join(' · ')]);
+    }
+    if (doc.info.license?.name) {
+      const l = doc.info.license;
+      metaRows.push(['License', l.url ? `<a href="${esc(l.url)}">${esc(l.name)}</a>` : esc(l.name)]);
+    }
+    let html = `<section id="api-info">
+      <h1>${esc(doc.info.title)}</h1>
+      <div style="margin-bottom:12pt">
+        <span class="badge badge-version">v${esc(doc.info.version)}</span>
+        <span class="badge badge-oas" style="margin-left:6pt">OAS ${esc(doc.openapi)}</span>
+      </div>`;
+    if (doc.info.summary) html += `<p style="font-size:13pt;color:#4b5563;margin:0 0 12pt">${esc(doc.info.summary)}</p>`;
+    if (doc.info.description) html += `<div style="color:#374151;margin-bottom:14pt;line-height:1.7">${wordMd(doc.info.description)}</div>`;
+    html += `<table style="width:auto"><tbody>${metaRows.map(([k, v]) => `<tr><td style="font-weight:700;color:#6b7280;padding-right:16pt;white-space:nowrap;border:none">${k}</td><td style="border:none">${v}</td></tr>`).join('')}</tbody></table>`;
+    html += `</section>`;
+    return html;
+  }
+
+  // ── Servers ───────────────────────────────────────────────────────────────────
+  function serversW(): string {
+    if (!doc.servers?.length) return '';
+    let html = `<section><h2 id="servers">Servers</h2>`;
+    for (const s of doc.servers) {
+      html += `<div style="background:#f9fafb;border:1pt solid #e5e7eb;border-radius:6pt;padding:10pt 14pt;margin:6pt 0">
+        <code style="font-size:11.5pt;font-weight:700">${esc(s.url)}</code>
+        ${s.description ? `<div style="color:#6b7280;font-size:10pt;margin-top:3pt">${esc(s.description)}</div>` : ''}`;
+      if (s.variables && Object.keys(s.variables).length) {
+        const rows = Object.entries(s.variables).map(([vn, vo]) =>
+          `<tr><td><code>${esc(vn)}</code></td><td><code>${esc(vo.default)}</code></td><td>${vo.enum ? vo.enum.map(e => `<code>${esc(e)}</code>`).join(', ') : ''}</td><td>${esc(vo.description || '')}</td></tr>`
+        ).join('');
+        html += `<table style="margin-top:8pt"><thead><tr><th>Variable</th><th>Default</th><th>Enum</th><th>Description</th></tr></thead><tbody>${rows}</tbody></table>`;
+      }
+      html += `</div>`;
+    }
+    html += `</section>`;
+    return html;
+  }
+
+  // ── Endpoints ─────────────────────────────────────────────────────────────────
+  function endpointsW(): string {
+    const allGroups = [
+      ...tagOrder.map(tag => ({ tag, ops: byTag[tag] || [], id: `tag-${slug(tag)}` })),
+      ...(untagged.length ? [{ tag: 'Untagged', ops: untagged, id: 'tag-untagged' }] : []),
+    ];
+    if (!allGroups.some(g => g.ops.length)) return '';
+    let html = `<section><h2 id="endpoints">Endpoints</h2>`;
+    for (const { tag, ops, id } of allGroups) {
+      if (!ops.length) continue;
+      html += `<div id="${id}"><h3>${esc(tag)}</h3>`;
+      if (tagDescriptions[tag]) html += `<div style="color:#6b7280;margin-bottom:10pt">${wordMd(tagDescriptions[tag])}</div>`;
+      if (tagExternalDocs[tag]) {
+        const ed = tagExternalDocs[tag];
+        html += `<p style="margin-bottom:10pt">📖 <a href="${esc(ed.url)}">${esc(ed.description || ed.url)}</a></p>`;
+      }
+      html += ops.map(renderOperationW).join('');
+      html += `</div>`;
+    }
+    html += `</section>`;
+    return html;
+  }
+
+  // ── Schemas ───────────────────────────────────────────────────────────────────
+  function schemasW(): string {
+    const schemas = doc.components?.schemas;
+    if (!schemas || !Object.keys(schemas).length) return '';
+    let html = `<section><h2 id="schemas">Schemas</h2>`;
+    for (const [name, schema] of Object.entries(schemas)) {
+      const typeLabel = schemaTypeLabel(schema, doc);
+      html += `<div class="schema-card" id="schema-${slug(name)}">
+        <div class="schema-header">
+          <span class="schema-name">${esc(name)}</span>
+          ${typeLabel !== 'any' ? ` <code style="background:#ede9fe;color:#6d28d9;padding:1pt 7pt;border-radius:4pt;font-size:9.5pt;margin-left:8pt">${esc(typeLabel)}</code>` : ''}
+          ${schema.deprecated ? ' <span class="badge-depr" style="margin-left:6pt">deprecated</span>' : ''}
+        </div>
+        <div class="schema-body">
+          ${schema.description ? `<div style="color:#4b5563;margin-bottom:10pt">${esc(schema.description)}</div>` : ''}
+          ${renderSchemaHtmlW(schema)}
+        </div>
+      </div>`;
+    }
+    html += `</section>`;
+    return html;
+  }
+
+  // ── Security schemes ──────────────────────────────────────────────────────────
+  function securitySchemesW(): string {
+    const schemes = doc.components?.securitySchemes;
+    if (!schemes || !Object.keys(schemes).length) return '';
+    let html = `<section><h2 id="security-schemes">Security Schemes</h2>`;
+    for (const [name, scheme] of Object.entries(schemes)) {
+      html += `<div class="scheme-card">
+        <div class="scheme-header">
+          <span class="scheme-name">${esc(name)}</span>
+          <span style="font-size:9.5pt;font-weight:700;padding:2pt 7pt;background:#d1fae5;color:#065f46;border-radius:4pt;margin-left:8pt">${esc(scheme.type)}</span>
+        </div>
+        <div class="scheme-body">`;
+      if (scheme.description) html += `<p style="color:#4b5563;margin-bottom:8pt">${esc(scheme.description)}</p>`;
+      const details: [string, string | undefined][] = [
+        ['In', scheme.in], ['Parameter Name', scheme.name],
+        ['HTTP Scheme', scheme.scheme], ['Bearer Format', scheme.bearerFormat],
+        ['OpenID Connect URL', scheme.openIdConnectUrl],
+      ];
+      const dRows = details.filter(([, v]) => v).map(([k, v]) =>
+        `<tr><td style="font-weight:700;color:#6b7280;border:none;padding-right:14pt;white-space:nowrap">${esc(k)}</td><td style="border:none"><code>${esc(v!)}</code></td></tr>`
+      ).join('');
+      if (dRows) html += `<table style="width:auto;margin-bottom:12pt"><tbody>${dRows}</tbody></table>`;
+      if (scheme.flows) {
+        const flows: [string, OAuthFlowObject | undefined][] = [
+          ['Implicit', scheme.flows.implicit], ['Password', scheme.flows.password],
+          ['Client Credentials', scheme.flows.clientCredentials], ['Authorization Code', scheme.flows.authorizationCode],
+        ];
+        for (const [flowName, flow] of flows) {
+          if (!flow) continue;
+          html += `<div style="border:1pt solid #d1fae5;border-radius:5pt;padding:8pt 12pt;margin:6pt 0;background:#fafffe">
+            <div style="font-size:9.5pt;font-weight:700;text-transform:uppercase;color:#047857;margin-bottom:5pt">${esc(flowName)}</div>`;
+          if (flow.authorizationUrl) html += `<div style="font-size:10pt;margin:2pt 0">Auth URL: <a href="${esc(flow.authorizationUrl)}">${esc(flow.authorizationUrl)}</a></div>`;
+          if (flow.tokenUrl) html += `<div style="font-size:10pt;margin:2pt 0">Token URL: <a href="${esc(flow.tokenUrl)}">${esc(flow.tokenUrl)}</a></div>`;
+          if (flow.scopes && Object.keys(flow.scopes).length) {
+            html += `<div style="font-size:9.5pt;font-weight:700;color:#065f46;margin:6pt 0 3pt">Scopes</div>`;
+            for (const [sc, desc] of Object.entries(flow.scopes)) {
+              html += `<div style="margin:2pt 0;font-size:10pt"><code style="background:#d1fae5;color:#065f46">${esc(sc)}</code> <span style="color:#4b5563">${esc(desc)}</span></div>`;
+            }
+          }
+          html += `</div>`;
+        }
+      }
+      html += `</div></div>`;
+    }
+    if (doc.security?.length) {
+      html += `<div style="margin-top:18pt"><h3>Global Security Requirement</h3><div style="margin-top:8pt">${securityHtmlW(doc.security)}</div></div>`;
+    }
+    html += `</section>`;
+    return html;
+  }
+
+  // ── Assemble ──────────────────────────────────────────────────────────────────
+  const body = [overviewW(), serversW(), endpointsW(), schemasW(), securitySchemesW()].join('\n');
+
+  return `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>${esc(doc.info.title)} v${esc(doc.info.version)}</title>
+  <!--[if gte mso 9]><xml>
+  <w:WordDocument>
+    <w:View>Normal</w:View><w:Zoom>100</w:Zoom>
+    <w:DoNotOptimizeForBrowser/>
+  </w:WordDocument></xml><![endif]-->
+  <style>${WORD_CSS}
+${MARKDOWN_CSS}</style>
+</head>
+<body>
+${body}
+</body>
+</html>`;
+}
+
 

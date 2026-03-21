@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useI18n, useDesigner } from '../context/DesignerContext';
 import {
   Eye, ChevronDown, ChevronRight, ExternalLink, Lock, Copy, Terminal
 } from 'lucide-react';
 import type { HttpMethod, OperationObject, SchemaObject } from '../types/openapi';
 import { HTTP_METHODS, METHOD_COLORS } from '../types/openapi';
+import { renderMarkdown, initMarkdown } from '../utils/markdown';
+import { useDark } from './MarkdownEditor';
 
 function resolveSchemaDisplay(
   schema: SchemaObject | undefined,
@@ -105,9 +107,10 @@ function EndpointPreview({
         <div className="border-t border-border">
           {/* Description */}
           {operation.description && (
-            <div className="px-4 py-3 text-[13px] text-muted-foreground border-b border-border">
-              {operation.description}
-            </div>
+            <div
+              className="px-4 py-3 text-[13px] text-muted-foreground border-b border-border md-preview"
+              dangerouslySetInnerHTML={{ __html: renderMarkdown(operation.description) }}
+            />
           )}
 
           {/* Parameters */}
@@ -227,7 +230,10 @@ function EndpointPreview({
 export function PreviewPanel() {
   const { t } = useI18n();
   const { state } = useDesigner();
+  const isDark = useDark();
   const doc = state.document;
+
+  useEffect(() => { initMarkdown(); }, []);
   const schemas = doc.components?.schemas || {};
   const serverUrl = doc.servers?.[0]?.url || 'https://api.example.com';
 
@@ -262,7 +268,12 @@ export function PreviewPanel() {
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-foreground">{doc.info.title}</h1>
-            <p className="text-[13px] text-muted-foreground mt-1">{doc.info.description}</p>
+            {doc.info.description && (
+              <div
+                className="text-[13px] text-muted-foreground mt-2 md-preview"
+                dangerouslySetInnerHTML={{ __html: renderMarkdown(doc.info.description, isDark) }}
+              />
+            )}
           </div>
           <span className="text-[12px] px-3 py-1 rounded-full bg-primary/10 text-primary" style={{ fontWeight: 500 }}>
             v{doc.info.version}

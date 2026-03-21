@@ -18,7 +18,7 @@ interface MarkdownEditorProps {
 }
 
 /** Reactively tracks the .dark class on <html> */
-function useDark(): boolean {
+export function useDark(): boolean {
   const [dark, setDark] = useState(() =>
     typeof document !== 'undefined' && document.documentElement.classList.contains('dark'),
   );
@@ -200,8 +200,7 @@ export function MarkdownEditor({
       {/* CodeMirror editor — always mounted, hidden when in preview */}
       <div
         ref={editorRef}
-        style={{ minHeight }}
-        className={mode !== 'edit' ? 'h-0 overflow-hidden' : ''}
+        style={mode === 'edit' ? { minHeight } : { display: 'none' }}
       />
 
       {/* Preview pane */}
