@@ -1,15 +1,15 @@
 import { defineConfig, type Plugin } from 'vite'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { createRequire } from 'module'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const require = createRequire(import.meta.url)
 
 const srcRoot = path.resolve(__dirname, '../src')
 const componentsRoot = path.resolve(__dirname, '../src/app/components')
+/** Anchor inside website so bare imports resolve via website/node_modules + package "exports" (ESM). */
+const websiteResolveAnchor = path.join(__dirname, 'src/main.tsx')
 
 function isFileUnder(parent: string, file: string): boolean {
   const rel = path.relative(parent, file)
@@ -17,26 +17,25 @@ function isFileUnder(parent: string, file: string): boolean {
 }
 
 /**
- * Source under ../src resolves node_modules by walking up from that file, hitting
- * repo root (no deps on CI) before website/node_modules. When the importer is in
- * ../src and outside node_modules, resolve bare specifiers from website/node_modules.
- * Importers inside packages (e.g. shiki → shiki/wasm) are left to default resolution.
+ * Files under ../src would otherwise resolve node_modules from repo root (empty on CI).
+ * Re-resolve bare specifiers using an importer under website/ so Vite/Rollup picks ESM via "exports".
+ * (require.resolve forced CJS mains for react, lucide-react, etc.)
  */
 function resolveParentSrcFromWebsiteNm(): Plugin {
   return {
     name: 'resolve-parent-src-from-website-node-modules',
     enforce: 'pre',
-    resolveId(id, importer) {
+    async resolveId(id, importer, options) {
       if (!importer) return null
       if (importer.includes(`${path.sep}node_modules${path.sep}`)) return null
       if (!isFileUnder(srcRoot, importer)) return null
       if (id.startsWith('.') || id.startsWith('\0') || path.isAbsolute(id)) return null
 
-      try {
-        return require.resolve(id, { paths: [__dirname] })
-      } catch {
-        return null
-      }
+      const resolved = await this.resolve(id, websiteResolveAnchor, {
+        skipSelf: true,
+        ...options,
+      })
+      return resolved?.id ?? null
     },
   }
 }
@@ -46,6 +45,9 @@ function resolveParentSrcFromWebsiteNm(): Plugin {
 export default defineConfig({
   base: process.env.VITE_BASE ?? '/',
   plugins: [resolveParentSrcFromWebsiteNm(), react(), tailwindcss()],
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'lucide-react'],
+  },
   resolve: {
     dedupe: ['react', 'react-dom'],
     alias: [
