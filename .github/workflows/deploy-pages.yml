@@ -3,10 +3,6 @@ name: Deploy website to GitHub Pages
 on:
   push:
     branches: [main]
-    paths:
-      - 'website/**'
-      - 'src/**'
-      - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -35,7 +31,9 @@ jobs:
         env:
           # Matches https://<owner>.github.io/<repo>/
           VITE_BASE: /${{ github.event.repository.name }}/
-        run: npm ci && npm run build
+          # Vite + Mermaid/Shiki can exceed default Node heap on ubuntu-latest
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: node -v && npm -v && npm ci && npm run build
 
       - uses: actions/upload-pages-artifact@v3
         with:
