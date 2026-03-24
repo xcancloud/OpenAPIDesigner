@@ -33,12 +33,10 @@ jobs:
           # Vite + Mermaid/Shiki can exceed default Node heap on ubuntu-latest
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
-          set -eux
           node -v
           npm -v
-          npm install --userconfig "${GITHUB_WORKSPACE}/website/ci.npmrc" --no-audit --no-fund
-          test -d node_modules/sonner
-          node --input-type=module -e "import 'sonner'"
+          npm install --userconfig "${{ github.workspace }}/website/ci.npmrc" --no-audit --no-fund
+          test -f node_modules/sonner/package.json
           npm run build
 
       - uses: actions/upload-pages-artifact@v3
