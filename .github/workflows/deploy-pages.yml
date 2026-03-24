@@ -23,8 +23,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: npm
-          cache-dependency-path: website/package-lock.json
+          # No npm cache: stale caches have led to incomplete node_modules (e.g. missing sonner) on CI
 
       - name: Install and build website
         working-directory: website
@@ -33,7 +32,14 @@ jobs:
           VITE_BASE: /${{ github.event.repository.name }}/
           # Vite + Mermaid/Shiki can exceed default Node heap on ubuntu-latest
           NODE_OPTIONS: --max-old-space-size=6144
-        run: node -v && npm -v && npm ci --userconfig "${GITHUB_WORKSPACE}/website/ci.npmrc" && npm run build
+        run: |
+          set -eux
+          node -v
+          npm -v
+          npm install --userconfig "${GITHUB_WORKSPACE}/website/ci.npmrc" --no-audit --no-fund
+          test -d node_modules/sonner
+          node --input-type=module -e "import 'sonner'"
+          npm run build
 
       - uses: actions/upload-pages-artifact@v3
         with:
