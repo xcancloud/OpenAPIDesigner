@@ -7,6 +7,7 @@ import {
   Languages,
 } from 'lucide-react';
 import type { Locale } from '../i18n';
+import { OpenAPIDesigner, createPetStoreDocument } from '@/app/components/openapi-designer';
 
 const text = (locale: Locale) =>
   locale === 'zh'
@@ -129,15 +130,13 @@ export default function HomePage({ locale }: { locale: Locale }) {
             <span className="h-3 w-3 rounded-full bg-green-400" />
             <span className="ml-3 text-xs text-muted-foreground font-mono">OpenAPI Designer</span>
           </div>
-          <div className="flex items-center justify-center bg-[#1e1e2e] text-gray-400 h-80 sm:h-96">
-            <div className="text-center px-6">
-              <Code2 className="mx-auto mb-4 h-12 w-12 opacity-40" />
-              <p className="text-sm opacity-60">
-                {locale === 'zh'
-                  ? '在此处嵌入 OpenAPI Designer 组件的实时演示'
-                  : 'Embed a live OpenAPI Designer component demo here'}
-              </p>
-            </div>
+          <div className="h-[min(72vh,880px)] min-h-[480px] bg-background">
+            <OpenAPIDesigner
+              key={locale}
+              initialDocument={createPetStoreDocument()}
+              defaultLocale={locale}
+              className="h-full"
+            />
           </div>
         </div>
       </section>
