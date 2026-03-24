@@ -33,7 +33,7 @@ jobs:
           VITE_BASE: /${{ github.event.repository.name }}/
           # Vite + Mermaid/Shiki can exceed default Node heap on ubuntu-latest
           NODE_OPTIONS: --max-old-space-size=6144
-        run: node -v && npm -v && npm ci && npm run build
+        run: node -v && npm -v && npm ci --userconfig "${GITHUB_WORKSPACE}/website/ci.npmrc" && npm run build
 
       - uses: actions/upload-pages-artifact@v3
         with:
